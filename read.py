@@ -11,11 +11,13 @@ from pytu.plots import add_subplot_axes, plot_text_ax
 
 
 bug = 0.8
+EW_SF = 14
+EW_hDIG = 3
 EW_strong = 6
-EW_verystrong = 14
-
-# plot = False
-plot = True
+EW_verystrong = 10
+sigma_clip = True
+plot = False
+# plot = True
 mpl.rcParams['font.family'] = 'serif'
 mpl.rcParams['font.serif'] = 'Times New Roman'
 mpl.rcParams['axes.unicode_minus'] = False
@@ -32,20 +34,11 @@ _dpi_choice = 300
 img_suffix = 'pdf'
 
 
-def AGN_candidates(elines, sigma_clip=False, bug=1, EW_strong=6, EW_verystrong=10):
-    print '##################'
-    print '# AGN CANDIDATES #'
-    print '##################'
+def fBPT(x, a, b, c):
+    return a + (b/(x + c))
 
-    log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
-    log_SII_Ha_cen = elines['log_SII_Ha_cen_mean']
-    log_OI_Ha_cen = elines['log_OI_Ha_cen']
-    log_OIII_Hb_cen = elines['log_OIII_Hb_cen_mean']
-    EW_Ha_cen = elines['EW_Ha_cen_mean']
 
-    sel = create_selections(elines, bug=bug, EW_strong=EW_strong,
-                            EW_verystrong=EW_verystrong)
-
+def report_ratios(elines):
     groups = [
         ['log_NII_Ha_cen_mean', 'DBName'],
         ['log_SII_Ha_cen_mean', 'DBName'],
@@ -67,51 +60,89 @@ def AGN_candidates(elines, sigma_clip=False, bug=1, EW_strong=6, EW_verystrong=1
         N = elines.groupby(g).ngroups
         print '# %s measured: %d galaxies' % (name, N)
 
-    m = sel['AGN_NII_Ha']
-    N_AGN_NII_Ha = elines['DBName'][m].count()
-    m = sel['AGN_NII_Ha_EW']
-    N_AGN_NII_Ha_EW = elines['DBName'][m].count()
-    m = sel['AGN_NII_SII_Ha']
-    N_AGN_NII_SII_Ha = elines['DBName'][m].count()
-    m = sel['AGN_NII_SII_Ha_EW']
-    N_AGN_NII_SII_Ha_EW = elines['DBName'][m].count()
-    m = sel['AGN_NII_OI_Ha']
-    N_AGN_NII_OI_Ha = elines['DBName'][m].count()
-    m = sel['AGN_NII_OI_Ha_EW']
-    N_AGN_NII_OI_Ha_EW = elines['DBName'][m].count()
-    m = sel['AGN_NII_SII_OI_Ha']
-    N_AGN_NII_SII_OI_Ha = elines['DBName'][m].count()
-    m = sel['AGN_NII_SII_OI_Ha_EW']
-    N_AGN = elines['DBName'][m].count()  # or N_AGN_SII_OI_Ha_EW
-    m = sel['S_EW'] & sel['AGN_NII_SII_OI_Ha']
-    N_SAGN = elines['DBName'][m].count()
-    m = sel['VS_EW'] & sel['AGN_NII_SII_OI_Ha']
-    N_VSAGN = elines['DBName'][m].count()
 
+def AGN_candidates(elines):
+    print '##################'
+    print '# AGN CANDIDATES #'
+    print '##################'
+
+    EW_Ha_cen = elines['EW_Ha_cen_mean'].apply(np.abs)
     N_TOT = len(elines)
     g = ['log_NII_Ha_cen_mean', 'log_OIII_Hb_cen_mean']
     N_NO_GAS = N_TOT - elines.groupby(g).ngroups
 
-    m = sel['SF_K03']
-    N_SF_K03 = elines['DBName'][m].count()
-    m = sel['SF_K03'] & sel['S_EW']
-    N_SSF_K03 = elines['DBName'][m].count()
-    m = sel['SF_K03'] & sel['VS_EW']
-    N_VSSF_K03 = elines['DBName'][m].count()
+    L = Lines()
 
-    m = sel['SF_S06']
-    N_SF_S06 = elines['DBName'][m].count()
-    m = sel['SF_S06'] & sel['S_EW']
-    N_SSF_S06 = elines['DBName'][m].count()
-    m = sel['SF_S06'] & sel['VS_EW']
-    N_VSSF_S06 = elines['DBName'][m].count()
+    consts_K01 = L.consts['K01']
+    consts_K01_SII_Ha = L.consts['K01_SII_Ha']
+    consts_K01_OI_Ha = L.consts['K01_OI_Ha']
+    consts_K03 = L.consts['K03']
+    consts_S06 = L.consts['S06']
+    if sigma_clip:
+        consts_K01 = L.sigma_clip_consts['K01']
+        consts_K01_SII_Ha = L.sigma_clip_consts['K01_SII_Ha']
 
-    m = ~sel['no_hDIG']
-    N_pAGB = elines['DBName'][m].count()
-    m = ~sel['no_hDIG'] & ~sel['SF_K03']
-    N_pAGB_aboveK03 = elines['DBName'][m].count()
-    m = ~sel['no_hDIG'] & ~sel['SF_S06']
-    N_pAGB_aboveS06 = elines['DBName'][m].count()
+    ###############################################################
+    # TODO:
+    # m_GAS = (elines['log_NII_Ha_cen_mean'] > 0) & (elines['log_OIII_Hb_cen_mean'] > 0)
+    y = elines['log_OIII_Hb_cen_mean']
+    # [OIII] vs [NII]
+    # AGN/LINER
+    x = elines['log_NII_Ha_cen_mean']
+    y_mod_K01 = x.apply(fBPT, args=consts_K01)
+    y_mod_K03 = x.apply(fBPT, args=consts_K03)
+    y_mod_S06 = x.apply(fBPT, args=consts_S06)
+    m = (y > y_mod_K01)
+    N_AGN_NII_Ha = m.sum()
+    # plus EW(Ha)
+    N_AGN_NII_Ha_EW = (m & (EW_Ha_cen > EW_hDIG*bug)).sum()
+    # SF
+    m = (y <= y_mod_K01)
+    N_SF_K01 = m.sum()
+    N_SSF_K01 = (m & (EW_Ha_cen > EW_strong*bug)).sum()
+    N_VSSF_K01 = (m & (EW_Ha_cen > EW_verystrong*bug)).sum()
+    m = (y <= y_mod_K03)
+    N_SF_K03 = m.sum()
+    N_SSF_K03 = (m & (EW_Ha_cen > EW_strong*bug)).sum()
+    N_VSSF_K03 = (m & (EW_Ha_cen > EW_verystrong*bug)).sum()
+    m = (y <= y_mod_S06)
+    N_SF_S06 = m.sum()
+    N_SSF_S06 = (m & (EW_Ha_cen > EW_strong*bug)).sum()
+    N_VSSF_S06 = (m & (EW_Ha_cen > EW_verystrong*bug)).sum()
+    ###############################################################
+    # [OIII] vs [NII] + [OIII] vs [SII]
+    x = elines['log_SII_Ha_cen_mean']
+    y_mod_K01_SII = x.apply(fBPT, args=consts_K01_SII_Ha)
+    m = (y > y_mod_K01) & (y > y_mod_K01_SII)
+    N_AGN_NII_SII_Ha = m.sum()
+    # plus EW(Ha)
+    N_AGN_NII_SII_Ha_EW = (m & (EW_Ha_cen > EW_hDIG*bug)).sum()
+    ###############################################################
+    # [OIII] vs [NII] + [OIII] vs [OI]
+    x = elines['log_OI_Ha_cen']
+    y_mod_K01_OI = x.apply(fBPT, args=consts_K01_OI_Ha)
+    m = (y > y_mod_K01) & (y > y_mod_K01_OI)
+    N_AGN_NII_OI_Ha = m.sum()
+    # plus EW(Ha)
+    N_AGN_NII_OI_Ha_EW = (m & (EW_Ha_cen > EW_hDIG*bug)).sum()
+    ###############################################################
+    # [OIII] vs [NII] + [OIII] vs [SII] + [OIII] vs [OI]
+    m = (y > y_mod_K01) & (y > y_mod_K01_SII) & (y > y_mod_K01_OI)
+    N_AGN_NII_SII_OI_Ha = m.sum()
+    # plus EW(Ha)
+    N_AGN = (m & (EW_Ha_cen > EW_hDIG*bug)).sum()
+    N_SAGN = (m & (EW_Ha_cen > EW_strong*bug)).sum()
+    N_VSAGN = (m & (EW_Ha_cen > EW_verystrong*bug)).sum()
+    ###############################################################
+    # pAGB
+    m = (EW_Ha_cen <= EW_hDIG) & (EW_Ha_cen > 0.000001)
+    N_pAGB = m.sum()
+    N_pAGB_aboveK01 = (m & (y > y_mod_K01)).sum()
+    N_pAGB_aboveK03 = (m & (y > y_mod_K03)).sum()
+    N_pAGB_aboveS06 = (m & (y > y_mod_S06)).sum()
+    ###############################################################
+    N_SF_EW = (EW_Ha_cen > EW_SF*bug).astype('int').sum()
+    ###############################################################
 
     print '##################'
     print '# N.TOTAL = %d' % N_TOT
@@ -122,59 +153,12 @@ def AGN_candidates(elines, sigma_clip=False, bug=1, EW_strong=6, EW_verystrong=1
     print '# N.AGNs candidates by [NII]/Ha, [SII]/Ha and [OI]/Ha: %d' % N_AGN_NII_SII_OI_Ha
     print '# N.AGNs candidates (EW>3*%.3f): %d' % (bug, N_AGN)
     print '# N.AGNs strong (EW>%d*%.3f): %d [Very strong (EW>%d*%.3f): %d]' % (EW_strong, bug, N_SAGN, EW_verystrong, bug, N_VSAGN)
-    print '# N.P-AGB: %d (above K03: %d - above S06: %d)' % (N_pAGB, N_pAGB_aboveK03, N_pAGB_aboveK03)
-    print '# N_SF_EW: %d' % elines['DBName'][sel['SF_EW']].count()
+    print '# N.P-AGB: %d (above K01: %d - above K03: %d - above S06: %d)' % (N_pAGB, N_pAGB_aboveK01, N_pAGB_aboveK03, N_pAGB_aboveK03)
+    print '# N_SF_EW: %d' % N_SF_EW
+    print '# N.SF K01: %d (S: %d - VS: %d)' % (N_SF_K01, N_SSF_K01, N_VSSF_K01)
     print '# N.SF K03: %d (S: %d - VS: %d)' % (N_SF_K03, N_SSF_K03, N_VSSF_K03)
     print '# N.SF S06: %d (S: %d - VS: %d)' % (N_SF_S06, N_SSF_S06, N_VSSF_S06)
     print '##################'
-
-
-def create_selections(elines, bug=1, EW_strong=6, EW_verystrong=10):
-    L = Lines()
-
-    log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
-    log_SII_Ha_cen = elines['log_SII_Ha_cen_mean']
-    log_OI_Ha_cen = elines['log_OI_Ha_cen']
-    log_OIII_Hb_cen = elines['log_OIII_Hb_cen_mean']
-    EW_Ha_cen = -1. * elines['EW_Ha_cen_mean']
-
-    belowK03 = L.belowlinebpt('K03', log_NII_Ha_cen, log_OIII_Hb_cen)
-    belowS06 = L.belowlinebpt('S06', log_NII_Ha_cen, log_OIII_Hb_cen)
-
-    aboveK01NIIHa = ~(L.belowlinebpt('K01', log_NII_Ha_cen, log_OIII_Hb_cen))
-    aboveK01SIIHa = ~(L.belowlinebpt('K01_SII_Ha', log_SII_Ha_cen, log_OIII_Hb_cen))
-    aboveK06SIIHa = ~(L.belowlinebpt('K06_SII_Ha', log_SII_Ha_cen, log_OIII_Hb_cen))
-    aboveK01OIHa = ~(L.belowlinebpt('K01_OI_Ha', log_OI_Ha_cen, log_OIII_Hb_cen))
-    aboveK06OIHa = ~(L.belowlinebpt('K06_OI_Ha', log_OI_Ha_cen, log_OIII_Hb_cen))
-
-    sel_no_hDIG = EW_Ha_cen > 3*bug
-    sel_SF_EW = EW_Ha_cen > 14*bug
-    sel_strong_EW = EW_Ha_cen > EW_strong*bug
-    sel_verystrong_EW = EW_Ha_cen > EW_verystrong*bug
-    sel_AGN_NII_Ha = aboveK01NIIHa
-    sel_AGN_SII_Ha = aboveK01SIIHa & aboveK06SIIHa
-    sel_AGN_OI_Ha = aboveK01OIHa & aboveK06OIHa
-
-    sel = {
-        'no_hDIG': sel_no_hDIG,
-        'SF_K03': belowK03 & sel_no_hDIG,
-        'SF_S06': belowS06 & sel_no_hDIG,
-        'SF_EW': sel_SF_EW,
-        'S_EW': sel_strong_EW,
-        'VS_EW': sel_verystrong_EW,
-        'AGN_NII_Ha': sel_AGN_NII_Ha,
-        'AGN_SII_Ha': sel_AGN_SII_Ha,
-        'AGN_OI_Ha': sel_AGN_OI_Ha,
-        'AGN_NII_Ha_EW': sel_no_hDIG & sel_AGN_NII_Ha,
-        'AGN_NII_SII_Ha': sel_AGN_NII_Ha & sel_AGN_SII_Ha,
-        'AGN_NII_SII_Ha_EW': sel_no_hDIG & sel_AGN_NII_Ha & sel_AGN_SII_Ha,
-        'AGN_NII_OI_Ha': sel_AGN_NII_Ha & sel_AGN_OI_Ha,
-        'AGN_NII_OI_Ha_EW': sel_no_hDIG & sel_AGN_NII_Ha & sel_AGN_OI_Ha,
-        'AGN_NII_SII_OI_Ha': sel_AGN_NII_Ha & sel_AGN_SII_Ha & sel_AGN_OI_Ha,
-        'AGN_NII_SII_OI_Ha_EW': sel_no_hDIG & sel_AGN_NII_Ha & sel_AGN_SII_Ha & sel_AGN_OI_Ha,
-    }
-
-    return sel
 
 
 def plot_setup(width, aspect, fignum=None, dpi=300, cmap=None):
@@ -248,7 +232,6 @@ df = {}
 na_values = ['BAD', 'nan', -999, '-inf', 'inf']
 for k, v in fnames_short.iteritems():
     f_path = '%s/%s' % (csv_dir, k)
-    print f_path
     key_dataframe = fnames_short[k]
     df[key_dataframe] = pd.read_csv(f_path,
                                     na_values=na_values,
@@ -282,8 +265,9 @@ df['elines']['RA'] = df['RA_DEC']['RA']
 df['elines']['DEC'] = df['RA_DEC']['DEC']
 df['elines']['bar'] = df['3_joint']['bar']
 
+# report_ratios(df['elines'])
 # AGN candidates
-AGN_candidates(df['elines'], bug=bug, EW_strong=EW_strong, EW_verystrong=EW_verystrong)
+AGN_candidates(df['elines'])
 
 if plot:
     L = Lines()
@@ -298,7 +282,7 @@ if plot:
     EW_Ha_cen = -1. * df['elines']['EW_Ha_cen_mean']
     eEW_Ha_cen = df['elines']['EW_Ha_cen_stddev']
 
-    sel = create_selections(df['elines'], bug=bug, EW_strong=EW_strong, EW_verystrong=EW_verystrong)
+    sel = create_selections_BPT(df['elines'], bug=bug, EW_strong=EW_strong, EW_verystrong=EW_verystrong)
     ##########################
     ##########################
     ### BPT colored by EW_Ha
