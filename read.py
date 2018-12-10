@@ -72,7 +72,6 @@ def AGN_candidates(elines):
     N_NO_GAS = N_TOT - elines.groupby(g).ngroups
 
     L = Lines()
-
     consts_K01 = L.consts['K01']
     consts_K01_SII_Ha = L.consts['K01_SII_Ha']
     consts_K01_OI_Ha = L.consts['K01_OI_Ha']
@@ -83,8 +82,12 @@ def AGN_candidates(elines):
         consts_K01_SII_Ha = L.sigma_clip_consts['K01_SII_Ha']
 
     ###############################################################
-    # TODO:
-    # m_GAS = (elines['log_NII_Ha_cen_mean'] > 0) & (elines['log_OIII_Hb_cen_mean'] > 0)
+    sel_NIIHa = ~(elines['log_NII_Ha_cen_mean'].apply(np.isnan))
+    sel_OIIIHb = ~(elines['log_OIII_Hb_cen_mean'].apply(np.isnan))
+    sel_SIIHa = ~(elines['log_SII_Ha_cen_mean'].apply(np.isnan))
+    sel_OIHa = ~(elines['log_OI_Ha_cen'].apply(np.isnan))
+    sel_EW = ~(elines['EW_Ha_cen_mean'].apply(np.isnan))
+    ###############################################################
     y = elines['log_OIII_Hb_cen_mean']
     # [OIII] vs [NII]
     # AGN/LINER
@@ -92,57 +95,80 @@ def AGN_candidates(elines):
     y_mod_K01 = x.apply(fBPT, args=consts_K01)
     y_mod_K03 = x.apply(fBPT, args=consts_K03)
     y_mod_S06 = x.apply(fBPT, args=consts_S06)
-    m = (y > y_mod_K01)
-    N_AGN_NII_Ha = m.sum()
+    m = sel_NIIHa & sel_OIIIHb & (y > y_mod_K01)
+    N_AGN_NII_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    N_AGN_NII_Ha_EW = (m & (EW_Ha_cen > EW_hDIG*bug)).sum()
+    N_AGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
     # SF
-    m = (y <= y_mod_K01)
-    N_SF_K01 = m.sum()
-    N_SSF_K01 = (m & (EW_Ha_cen > EW_strong*bug)).sum()
-    N_VSSF_K01 = (m & (EW_Ha_cen > EW_verystrong*bug)).sum()
-    m = (y <= y_mod_K03)
-    N_SF_K03 = m.sum()
-    N_SSF_K03 = (m & (EW_Ha_cen > EW_strong*bug)).sum()
-    N_VSSF_K03 = (m & (EW_Ha_cen > EW_verystrong*bug)).sum()
-    m = (y <= y_mod_S06)
-    N_SF_S06 = m.sum()
-    N_SSF_S06 = (m & (EW_Ha_cen > EW_strong*bug)).sum()
-    N_VSSF_S06 = (m & (EW_Ha_cen > EW_verystrong*bug)).sum()
+    m = sel_NIIHa & sel_OIIIHb & (y <= y_mod_K01)
+    N_SF_K01 = m.values.astype('int').sum()
+    N_SF_K01_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
+    N_SSF_K01 = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
+    N_VSSF_K01 = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
+    m = sel_NIIHa & sel_OIIIHb & (y <= y_mod_K03)
+    N_SF_K03 = m.values.astype('int').sum()
+    N_SF_K03_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
+    elines.loc[(m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)), 'TYPE'] = 6
+    N_SSF_K03 = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
+    elines.loc[(m & sel_EW & (EW_Ha_cen > EW_strong*bug)), 'TYPE'] = 1
+    N_VSSF_K03 = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
+    m = sel_NIIHa & sel_OIIIHb & (y <= y_mod_S06)
+    N_SF_S06 = m.values.astype('int').sum()
+    N_SF_S06_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
+    N_SSF_S06 = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
+    N_VSSF_S06 = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
     ###############################################################
     # [OIII] vs [NII] + [OIII] vs [SII]
     x = elines['log_SII_Ha_cen_mean']
     y_mod_K01_SII = x.apply(fBPT, args=consts_K01_SII_Ha)
-    m = (y > y_mod_K01) & (y > y_mod_K01_SII)
-    N_AGN_NII_SII_Ha = m.sum()
+    m = sel_NIIHa & sel_OIIIHb & sel_SIIHa & (y > y_mod_K01) & (y > y_mod_K01_SII)
+    N_AGN_NII_SII_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    N_AGN_NII_SII_Ha_EW = (m & (EW_Ha_cen > EW_hDIG*bug)).sum()
+    N_AGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
     ###############################################################
     # [OIII] vs [NII] + [OIII] vs [OI]
     x = elines['log_OI_Ha_cen']
     y_mod_K01_OI = x.apply(fBPT, args=consts_K01_OI_Ha)
-    m = (y > y_mod_K01) & (y > y_mod_K01_OI)
-    N_AGN_NII_OI_Ha = m.sum()
+    m = sel_NIIHa & sel_OIIIHb & sel_OIHa & (y > y_mod_K01) & (y > y_mod_K01_OI)
+    N_AGN_NII_OI_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    N_AGN_NII_OI_Ha_EW = (m & (EW_Ha_cen > EW_hDIG*bug)).sum()
+    N_AGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
     ###############################################################
     # [OIII] vs [NII] + [OIII] vs [SII] + [OIII] vs [OI]
-    m = (y > y_mod_K01) & (y > y_mod_K01_SII) & (y > y_mod_K01_OI)
-    N_AGN_NII_SII_OI_Ha = m.sum()
+    m = sel_NIIHa & sel_OIIIHb & sel_SIIHa & sel_OIHa
+    m &= (y > y_mod_K01) & (y > y_mod_K01_SII) & (y > y_mod_K01_OI)
+    N_AGN_NII_SII_OI_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    N_AGN = (m & (EW_Ha_cen > EW_hDIG*bug)).sum()
-    N_SAGN = (m & (EW_Ha_cen > EW_strong*bug)).sum()
-    N_VSAGN = (m & (EW_Ha_cen > EW_verystrong*bug)).sum()
+    N_AGN = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
+    elines.loc[(m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)), 'TYPE'] = 2
+    N_SAGN = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
+    elines.loc[(m & sel_EW & (EW_Ha_cen > EW_strong*bug)), 'TYPE'] = 3
+    N_VSAGN = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
     ###############################################################
     # pAGB
-    m = (EW_Ha_cen <= EW_hDIG) & (EW_Ha_cen > 0.000001)
-    N_pAGB = m.sum()
-    N_pAGB_aboveK01 = (m & (y > y_mod_K01)).sum()
-    N_pAGB_aboveK03 = (m & (y > y_mod_K03)).sum()
-    N_pAGB_aboveS06 = (m & (y > y_mod_S06)).sum()
+    m = sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen <= EW_hDIG)
+    N_pAGB = m.values.astype('int').sum()
+    elines.loc[m, 'TYPE'] = 4
+    N_pAGB_aboveK01 = (m & (y > y_mod_K01)).values.astype('int').sum()
+    N_pAGB_aboveK03 = (m & (y > y_mod_K03)).values.astype('int').sum()
+    N_pAGB_aboveS06 = (m & (y > y_mod_S06)).values.astype('int').sum()
     ###############################################################
-    N_SF_EW = (EW_Ha_cen > EW_SF*bug).astype('int').sum()
+    N_SF_EW = (sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen > EW_SF*bug)).values.astype('int').sum()
     ###############################################################
+
+    m = (elines['TYPE'] == 2) | (elines['TYPE'] == 3)
+    elines.loc[m, 'AGN_FLAG'] = 2
+    m = ((elines['SN_broad'] > 8) & ((elines['TYPE'] == 2) | (elines['TYPE'] == 3))) | (elines['broad_by_eye'] == 1)
+    elines.loc[m, 'AGN_FLAG'] = 1
+    columns_to_csv = [
+        'RA', 'DEV', 'log_NII_Ha_cen_mean', 'log_NII_Ha_cen_stddev',
+        'log_OIII_Hb_cen_mean', 'log_OIII_Hb_cen_stddev',
+        'log_SII_Ha_cen_mean', 'log_SII_Ha_cen_stddev',
+        'log_OI_Ha_cen', 'e_log_OI_Ha_cen',
+        'EW_Ha_cen_mean', 'EW_Ha_cen_stddev',
+        'SN_broad', 'AGN_FLAG'
+    ]
+    elines.loc[elines['AGN_FLAG'] > 0].to_csv('AGN_CANDIDATES.csv', columns=columns_to_csv)
 
     print '##################'
     print '# N.TOTAL = %d' % N_TOT
@@ -155,9 +181,9 @@ def AGN_candidates(elines):
     print '# N.AGNs strong (EW>%d*%.3f): %d [Very strong (EW>%d*%.3f): %d]' % (EW_strong, bug, N_SAGN, EW_verystrong, bug, N_VSAGN)
     print '# N.P-AGB: %d (above K01: %d - above K03: %d - above S06: %d)' % (N_pAGB, N_pAGB_aboveK01, N_pAGB_aboveK03, N_pAGB_aboveK03)
     print '# N_SF_EW: %d' % N_SF_EW
-    print '# N.SF K01: %d (S: %d - VS: %d)' % (N_SF_K01, N_SSF_K01, N_VSSF_K01)
-    print '# N.SF K03: %d (S: %d - VS: %d)' % (N_SF_K03, N_SSF_K03, N_VSSF_K03)
-    print '# N.SF S06: %d (S: %d - VS: %d)' % (N_SF_S06, N_SSF_S06, N_VSSF_S06)
+    print '# N.SF K01: %d (%d S: %d - VS: %d)' % (N_SF_K01, N_SF_K01_EW, N_SSF_K01, N_VSSF_K01)
+    print '# N.SF K03: %d (%d S: %d - VS: %d)' % (N_SF_K03, N_SF_K03_EW, N_SSF_K03, N_VSSF_K03)
+    print '# N.SF S06: %d (%d S: %d - VS: %d)' % (N_SF_S06, N_SF_S06_EW, N_SSF_S06, N_VSSF_S06)
     print '##################'
 
 
@@ -226,6 +252,15 @@ fnames_short = {
     'get_RA_DEC.pandas.csv': 'RA_DEC',
     'get_proc_elines_CALIFA.clean.pandas.csv': 'elines',
 }
+fnames_long = {
+    '3_joint': 'CALIFA_3_joint_classnum.pandas.csv',
+    'basic_joint': 'CALIFA_basic_joint.pandas.csv',
+    'cen_broad': 'get_CALIFA_cen_broad.pandas.csv',
+    'mag_cubes_v2.2': 'get_mag_cubes_v2.2.pandas.csv',
+    'RA_DEC': 'get_RA_DEC.pandas.csv',
+    'elines': 'get_proc_elines_CALIFA.clean.pandas.csv',
+}
+
 
 # Read CSV files
 df = {}
@@ -241,15 +276,30 @@ for k, v in fnames_short.iteritems():
                                     index_col=False,
                                     )
     df[key_dataframe].set_index('DBName', inplace=True, drop=False)
-# What I need?
+
+# TODO: What I need?
 # Morpholgy, Stellar Mass, SFR, v, sigma, Ha, Hb, N2, O3, S2, O1, R90, R50,
 # EWHa, u, g, r, i, z, Mu, Mg, Mr, Mi, Mz, Stellar Age (Lum and Mass weighted),
 # Stellar and Gas Metallicity, Gas Mass
 
+###############################################################################
+# Setting some initial valyes #################################################
+###############################################################################
+# BROAD BY EYE
+df['elines']['broad_by_eye'] = 0
+with open('%s/list_Broad_by_eye.pandas.csv' % csv_dir, 'r') as f:
+    for l in f.readlines():
+        DBName = l.strip()
+        if DBName in df['elines'].index:
+            df['elines'].loc[DBName, 'broad_by_eye'] = 1
+        else:
+            print '%s: not in %s' % (DBName, fnames_long['elines'])
+        print '%s: %d' % (DBName, df['elines'].loc[DBName, 'broad_by_eye'])
 df['elines']['broad'] = 0
 df['elines']['MORPH'] = 'none'
 df['elines']['morph'] = -1
 df['elines']['SN_broad'] = df['cen_broad']['Nsigma']
+df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
 df['elines']['C'] = df['mag_cubes_v2.2']['C']
 df['elines']['e_C'] = df['mag_cubes_v2.2']['error_C']
 df['elines']['Mabs_R'] = df['mag_cubes_v2.2']['R_band_mag']
@@ -264,10 +314,17 @@ df['elines']['DEC'] = df['basic_joint']['de']
 df['elines']['RA'] = df['RA_DEC']['RA']
 df['elines']['DEC'] = df['RA_DEC']['DEC']
 df['elines']['bar'] = df['3_joint']['bar']
+df['elines']['TYPE'] = 0
+df['elines']['AGN_FLAG'] = 0
+###############################################################################
 
-# report_ratios(df['elines'])
-# AGN candidates
+###############################################################################
+report_ratios(df['elines'])
+###############################################################################
+
+###############################################################################
 AGN_candidates(df['elines'])
+###############################################################################
 
 if plot:
     L = Lines()
