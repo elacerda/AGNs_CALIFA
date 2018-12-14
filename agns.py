@@ -6,9 +6,9 @@ from pytu.lines import Lines
 from matplotlib.lines import Line2D
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
+from pytu.plots import add_subplot_axes, plot_text_ax
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator, MaxNLocator, \
                               ScalarFormatter
-from pytu.plots import add_subplot_axes, plot_text_ax
 
 
 bug = 0.8
@@ -18,26 +18,27 @@ EW_strong = 6
 EW_verystrong = 10
 sigma_clip = True
 plot = False
-# plot = True
+plot = True
 mpl.rcParams['font.family'] = 'serif'
 mpl.rcParams['font.serif'] = 'Times New Roman'
 mpl.rcParams['axes.unicode_minus'] = False
+mpl.rcParams['legend.numpoints'] = 1
 _transp_choice = False
 _dpi_choice = 300
-img_suffix = 'pdf'
+img_suffix = 'png'
 
 
 class color:
-   PURPLE = '\033[95m'
-   CYAN = '\033[96m'
-   DARKCYAN = '\033[36m'
-   BLUE = '\033[94m'
-   GREEN = '\033[92m'
-   YELLOW = '\033[93m'
-   RED = '\033[91m'
-   B = '\033[1m'
-   UNDERLINE = '\033[4m'
-   E = '\033[0m'
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    B = '\033[1m'
+    UNDERLINE = '\033[4m'
+    E = '\033[0m'
 
 
 def fBPT(x, a, b, c):
@@ -388,27 +389,18 @@ if plot:
         return plt.figure(fignum, figsize, dpi=dpi)
 
 
-    def ax_preconfigure(ax, NLocator, prune, extent, tick_params):
-        ax.set_xlim(extent[0:2])
-        ax.set_ylim(extent[2:4])
-        ax.xaxis.set_major_locator(MaxNLocator(NLocator, prune=prune))
-        ax.xaxis.set_minor_locator(AutoMinorLocator(5))
-        ax.yaxis.set_minor_locator(AutoMinorLocator(5))
-        ax.tick_params(**tick_params)
-        return ax
-
-
     ##########################
     EW_color = EW_Ha_cen.abs().apply(np.log10)
-    scatter_kwargs = dict(c=EW_color, s=2, vmax=2.5, vmin=-1, cmap='viridis', marker='o', edgecolor='none')
+    scatter_kwargs = dict(c=EW_color, s=2, vmax=2.5, vmin=-0.5, cmap='viridis_r', marker='o', edgecolor='none')
     color_AGN_tI = 'b'
     color_AGN_tII = 'k'
     scatter_AGN_tII_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tII)
     scatter_AGN_tI_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tI)
     legend_elements = [
-        Line2D([], [], marker='*', markeredgecolor=color_AGN_tI, label='Type-I AGN', markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
-        Line2D([], [], marker='*', markeredgecolor=color_AGN_tII, label='Type-II AGN', markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
+        Line2D([0], [0], marker='*', markeredgecolor=color_AGN_tI, label='Type-I AGN', markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
+        Line2D([0], [0], marker='*', markeredgecolor=color_AGN_tII, label='Type-II AGN', markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
     ]
+    print EW_color.max(), EW_color.min()
     ##########################
 
     ##########################
@@ -426,12 +418,10 @@ if plot:
     ##########################
     ### NII/Ha
     ax = ax0
-    extent = [-1.6, 1, -1.2, 1.5]
+    extent = [-1.6, 0.8, -1.2, 1.5]
     sc = ax.scatter(log_NII_Ha_cen, y, **scatter_kwargs)
-    mtII = elines['AGN_FLAG'] == 1
-    mtI = elines['AGN_FLAG'] == 2
-    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
-    ax  = ax_preconfigure(ax, 3, 'both', extent, tick_params)
+    mtI = elines['AGN_FLAG'] == 1
+    mtII = elines['AGN_FLAG'] == 2
     ax.scatter(log_NII_Ha_cen.loc[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(log_NII_Ha_cen.loc[mtI], y[mtI], **scatter_AGN_tI_kwargs)
     ax.plot(L.x['K01'], L.y['K01'], 'k--')
@@ -440,7 +430,16 @@ if plot:
     ax.set_xlabel(r'$\log\ ({\rm [NII]}/{\rm H\alpha})$', fontsize=fs+4)
     plot_text_ax(ax, 'SF', 0.1, 0.05, fs+2, 'bottom', 'left', 'k')
     plot_text_ax(ax, 'AGN/LINER', 0.9, 0.95, fs+2, 'top', 'right', 'k')
+    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+    ax.set_xlim(extent[0:2])
+    ax.set_ylim(extent[2:4])
+    ax.xaxis.set_major_locator(MaxNLocator(3, prune='both'))
+    ax.yaxis.set_major_locator(MaxNLocator(3))
+    ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+    ax.tick_params(**tick_params)
     ax.legend(handles=legend_elements, loc=2, frameon=False, fontsize='x-small', borderpad=0, borderaxespad=1)
+    ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
     ##########################
     # SII/Ha
     ##########################
@@ -448,15 +447,22 @@ if plot:
     sc = ax.scatter(log_SII_Ha_cen, y, **scatter_kwargs)
     ax.scatter(log_SII_Ha_cen.loc[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(log_SII_Ha_cen.loc[mtI], y[mtI], **scatter_AGN_tI_kwargs)
-    extent = [-1.6, 1, -1.2, 1.5]
+    extent = [-1.6, 0.8, -1.2, 1.5]
     ax.set_xlabel(r'$\log\ ({\rm [SII]}/{\rm H\alpha})$', fontsize=fs+4)
-    tick_params['labelleft'] = 'off'
-    ax = ax_preconfigure(ax, 3, 'both', extent, tick_params)
     ax.plot(L.x['K01_SII_Ha'], L.y['K01_SII_Ha'], 'k--')
     ax.plot(L.x['K06_SII_Ha'], L.y['K06_SII_Ha'], 'k-.')
     plot_text_ax(ax, 'SF', 0.1, 0.05, fs+2, 'bottom', 'left', 'k')
     plot_text_ax(ax, 'AGN', 0.65, 0.95, fs+2, 'top', 'right', 'k')
     plot_text_ax(ax, 'LINER', 0.95, 0.85, fs+2, 'top', 'right', 'k')
+    tick_params['labelleft'] = 'off'
+    ax.set_xlim(extent[0:2])
+    ax.set_ylim(extent[2:4])
+    ax.xaxis.set_major_locator(MaxNLocator(3, prune='both'))
+    ax.yaxis.set_major_locator(MaxNLocator(3))
+    ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+    ax.tick_params(**tick_params)
+    ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
     ##########################
     # OI/Ha
     ##########################
@@ -466,16 +472,25 @@ if plot:
     ax.scatter(log_OI_Ha_cen.loc[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(log_OI_Ha_cen.loc[mtI], y[mtI], **scatter_AGN_tI_kwargs)
     ax.set_xlabel(r'$\log\ ({\rm [OI]}/{\rm H\alpha})$', fontsize=fs+4)
-    ax  = ax_preconfigure(ax, 4, 'both', extent, tick_params)
     cb_ax = f.add_axes([right, bottom, 0.02, top-bottom])
     cb = plt.colorbar(sc, cax=cb_ax)
     cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+4)
     cb_ax.tick_params(direction='in')
+    cb.locator = MaxNLocator(4)
+    cb.update_ticks()
     ax.plot(L.x['K01_OI_Ha'], L.y['K01_OI_Ha'], 'k--')
     ax.plot(L.x['K06_OI_Ha'], L.y['K06_OI_Ha'], 'k-.')
     plot_text_ax(ax, 'SF', 0.1, 0.05, fs+2, 'bottom', 'left', 'k')
     plot_text_ax(ax, 'AGN', 0.65, 0.95, fs+2, 'top', 'right', 'k')
     plot_text_ax(ax, 'LINER', 0.95, 0.85, fs+2, 'top', 'right', 'k')
+    ax.set_xlim(extent[0:2])
+    ax.set_ylim(extent[2:4])
+    ax.xaxis.set_major_locator(MaxNLocator(4, prune='both'))
+    ax.yaxis.set_major_locator(MaxNLocator(3))
+    ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+    ax.tick_params(**tick_params)
+    ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
     ##########################
     f.text(0.01, 0.5, r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', va='center', rotation='vertical', fontsize=fs+4)
     f.savefig('fig1.%s' % img_suffix, dpi=_dpi_choice, transparent=_transp_choice)
@@ -492,21 +507,29 @@ if plot:
     # ax = f.gca()
     x = elines['log_Mass']
     y = elines['lSFR']
-    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
     extent = [8, 13, -4, 2.5]
-    ax = ax_preconfigure(ax, 5, 'both', extent, tick_params)
     ax.scatter(x, y, **scatter_kwargs)
     ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
-    ax.set_xlabel(r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', fontsize=fs+4)
-    ax.set_ylabel(r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', fontsize=fs+4)
+    ax.set_xlabel(r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', fontsize=fs+1)
+    ax.set_ylabel(r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', fontsize=fs+1)
     cb_width = 0.05
     cb_ax = f.add_axes([right-cb_width, bottom, cb_width, top-bottom])
     cb = plt.colorbar(sc, cax=cb_ax)
-    cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+4)
+    cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+1)
     cb_ax.tick_params(direction='in')
+    cb.locator = MaxNLocator(4)
+    cb.update_ticks()
+    ax.set_xlim(extent[0:2])
+    ax.set_ylim(extent[2:4])
+    ax.xaxis.set_major_locator(MaxNLocator(5, prune='both'))
+    ax.yaxis.set_major_locator(MaxNLocator(5))
+    ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+    ax.tick_params(**tick_params)
+    ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
     ###########################
-    #f.tight_layout(rect=[left, bottom, right, top])
     f.savefig('fig2.%s' % img_suffix, dpi=_dpi_choice, transparent=_transp_choice)
     ###########################
 
@@ -521,9 +544,6 @@ if plot:
     # ax = f.gca()
     x = elines['log_Mass']
     y = elines['lSFR_NO_CEN']
-    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
-    extent = [8, 13, -4, 2.5]
-    ax = ax_preconfigure(ax, 5, 'both', extent, tick_params)
     ax.scatter(x, y, **scatter_kwargs)
     ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
@@ -534,8 +554,22 @@ if plot:
     cb = plt.colorbar(sc, cax=cb_ax)
     cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+1)
     cb_ax.tick_params(direction='in')
-    #f.tight_layout(rect=[left, bottom, right, top])
+    cb.locator = MaxNLocator(4)
+    cb.update_ticks()
+    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+    extent = [8, 13, -4, 2.5]
+    ax.set_xlim(extent[0:2])
+    ax.set_ylim(extent[2:4])
+    ax.xaxis.set_major_locator(MaxNLocator(5, prune='both'))
+    ax.yaxis.set_major_locator(MaxNLocator(5))
+    ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+    ax.tick_params(**tick_params)
+    ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
+    ################################
     f.savefig('fig2_NC.%s' % img_suffix, dpi=_dpi_choice, transparent=_transp_choice)
+    ################################
 
 ###############################################################################
 # END PLOTS ###################################################################
