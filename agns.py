@@ -1,3 +1,4 @@
+#!/home/lacerda/anaconda2/bin/python
 import sys
 import numpy as np
 import pandas as pd
@@ -25,7 +26,9 @@ mpl.rcParams['axes.unicode_minus'] = False
 mpl.rcParams['legend.numpoints'] = 1
 _transp_choice = False
 _dpi_choice = 300
-img_suffix = 'png'
+img_suffix = 'pdf'
+verbose = 'vv'
+fs = 6
 
 
 class color:
@@ -128,6 +131,8 @@ elines['bar'] = df['3_joint']['bar']
 elines['TYPE'] = 0
 elines['AGN_FLAG'] = 0
 elines.loc[elines['log_Mass'] < 0, 'log_Mass'] = np.nan
+elines.loc[elines['lSFR'] < -10, 'lSFR'] = np.nan
+elines.loc[elines['lSFR_NO_CEN'] < -10, 'lSFR_NO_CEN'] = np.nan
 
 log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
 elog_NII_Ha_cen = elines['log_NII_Ha_cen_stddev']
@@ -360,8 +365,22 @@ if plot:
     latex_text_width_pt = 504.0
     latex_text_width = latex_text_width_pt/latex_ppi
     golden_mean = 0.5 * (1. + 5**0.5)
+    ##########################
+    EW_color = EW_Ha_cen.abs().apply(np.log10)
+    scatter_kwargs = dict(c=EW_color, s=2, vmax=2.5, vmin=-0.5, cmap='viridis_r', marker='o', edgecolor='none')
+    color_AGN_tI = 'b'
+    color_AGN_tII = 'k'
+    scatter_AGN_tII_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tII)
+    scatter_AGN_tI_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tI)
+    legend_elements = [
+        Line2D([0], [0], marker='*', markeredgecolor=color_AGN_tI, label='Type-I AGN', markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
+        Line2D([0], [0], marker='*', markeredgecolor=color_AGN_tII, label='Type-II AGN', markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
+    ]
+    ##########################
 
-
+    ############################
+    # PLOT ANCILLARY FUNCTIONS #
+    ############################
     def plot_setup(width, aspect, fignum=None, dpi=300, cmap=None):
         if cmap is None:
             cmap = 'inferno_r'
@@ -389,23 +408,81 @@ if plot:
         return plt.figure(fignum, figsize, dpi=dpi)
 
 
-    ##########################
-    EW_color = EW_Ha_cen.abs().apply(np.log10)
-    scatter_kwargs = dict(c=EW_color, s=2, vmax=2.5, vmin=-0.5, cmap='viridis_r', marker='o', edgecolor='none')
-    color_AGN_tI = 'b'
-    color_AGN_tII = 'k'
-    scatter_AGN_tII_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tII)
-    scatter_AGN_tI_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tI)
-    legend_elements = [
-        Line2D([0], [0], marker='*', markeredgecolor=color_AGN_tI, label='Type-I AGN', markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
-        Line2D([0], [0], marker='*', markeredgecolor=color_AGN_tII, label='Type-II AGN', markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
-    ]
-    print EW_color.max(), EW_color.min()
-    ##########################
+    def plot_colored_by_EW(x, y, xlabel=None, ylabel=None, extent=None,
+                           n_bins_maj_x=5, n_bins_maj_y=5,
+                           n_bins_min_x=5, n_bins_min_y=5,
+                           prune_x='upper', prune_y=None, verbose=False,
+                           output_name=None, markAGNs=False, f=None, ax=None):
+        bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+        if f is None:
+            f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+            N_rows, N_cols = 1, 1
+            gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+            ax = plt.subplot(gs[0])
+        ax.scatter(x, y, **scatter_kwargs)
+        if markAGNs:
+            ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
+            ax.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
+        if xlabel is not None:
+            ax.set_xlabel(xlabel, fontsize=fs+1)
+        if ylabel is not None:
+            ax.set_ylabel(ylabel, fontsize=fs+1)
+        cb_width = 0.05
+        cb_ax = f.add_axes([right, bottom, cb_width, top-bottom])
+        cb = plt.colorbar(sc, cax=cb_ax)
+        cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+1)
+        cb.locator = MaxNLocator(3)
+        # cb_ax.minorticks_on()
+        cb_ax.tick_params(which='both', direction='in')
+        cb.update_ticks()
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+        if extent is not None:
+            ax.set_xlim(extent[0:2])
+            ax.set_ylim(extent[2:4])
+        ax.xaxis.set_major_locator(MaxNLocator(n_bins_maj_x, prune=prune_x))
+        ax.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
+        ax.xaxis.set_minor_locator(AutoMinorLocator(n_bins_min_x))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+        ax.tick_params(**tick_params)
+        ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
+        if verbose:
+            # x #
+            xlim = ax.get_xlim()
+            x_low = x.loc[x < xlim[0]]
+            x_upp = x.loc[x > xlim[1]]
+            print '# N.x points < %.1f: %d' % (extent[0], x_low.count())
+            if type(verbose) is str and verbose > 'v':
+                for i in x_low.index:
+                    print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
+            print '# N.x points > %.1f: %d' % (extent[1], x_upp.count())
+            if type(verbose) is str and verbose > 'v':
+                for i in x_upp.index:
+                    print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
+            # y #
+            ylim = ax.get_ylim()
+            y_low = y.loc[y < ylim[0]]
+            y_upp = y.loc[y > ylim[1]]
+            print '# N.y points < %.1f: %d' % (extent[2], y_low.count())
+            if type(verbose) is str and verbose > 'v':
+                for i in y_low.index:
+                    print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
+            print '# N.y points > %.1f: %d' % (extent[3], y_upp.count())
+            if type(verbose) is str and verbose > 'v':
+                for i in y_upp.index:
+                    print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
+        if output_name is not None:
+            f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
+        return f, ax
+    ############################
+
 
     ##########################
     ## BPT colored by EW_Ha ##
     ##########################
+    print '\n##########################'
+    print '## BPT colored by EW_Ha ##'
+    print '##########################'
     f = plot_setup(width=latex_text_width, aspect=1/3.)
     N_rows, N_cols = 1, 3
     bottom, top, left, right = 0.18, 0.95, 0.08, 0.9
@@ -417,13 +494,17 @@ if plot:
     y = log_OIII_Hb_cen
     ##########################
     ### NII/Ha
+    print '##########################'
+    print '## [NII]/Ha             ##'
+    print '##########################'
     ax = ax0
+    x = log_NII_Ha_cen
     extent = [-1.6, 0.8, -1.2, 1.5]
-    sc = ax.scatter(log_NII_Ha_cen, y, **scatter_kwargs)
+    sc = ax.scatter(x, y, **scatter_kwargs)
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
-    ax.scatter(log_NII_Ha_cen.loc[mtII], y[mtII], **scatter_AGN_tII_kwargs)
-    ax.scatter(log_NII_Ha_cen.loc[mtI], y[mtI], **scatter_AGN_tI_kwargs)
+    ax.scatter(x.loc[mtII], y[mtII], **scatter_AGN_tII_kwargs)
+    ax.scatter(x.loc[mtI], y[mtI], **scatter_AGN_tI_kwargs)
     ax.plot(L.x['K01'], L.y['K01'], 'k--')
     ax.plot(L.x['S06'], L.y['S06'], 'k-.')
     ax.plot(L.x['K03'], L.y['K03'], 'k-')
@@ -443,11 +524,15 @@ if plot:
     ##########################
     # SII/Ha
     ##########################
+    print '##########################'
+    print '## [SII]/Ha             ##'
+    print '##########################'
     ax = ax1
-    sc = ax.scatter(log_SII_Ha_cen, y, **scatter_kwargs)
-    ax.scatter(log_SII_Ha_cen.loc[mtII], y[mtII], **scatter_AGN_tII_kwargs)
-    ax.scatter(log_SII_Ha_cen.loc[mtI], y[mtI], **scatter_AGN_tI_kwargs)
+    x = log_SII_Ha_cen
     extent = [-1.6, 0.8, -1.2, 1.5]
+    sc = ax.scatter(x, y, **scatter_kwargs)
+    ax.scatter(x.loc[mtII], y[mtII], **scatter_AGN_tII_kwargs)
+    ax.scatter(x.loc[mtI], y[mtI], **scatter_AGN_tI_kwargs)
     ax.set_xlabel(r'$\log\ ({\rm [SII]}/{\rm H\alpha})$', fontsize=fs+4)
     ax.plot(L.x['K01_SII_Ha'], L.y['K01_SII_Ha'], 'k--')
     ax.plot(L.x['K06_SII_Ha'], L.y['K06_SII_Ha'], 'k-.')
@@ -466,17 +551,21 @@ if plot:
     ##########################
     # OI/Ha
     ##########################
+    print '##########################'
+    print '## [OI]/Ha              ##'
+    print '##########################'
     ax = ax2
+    x = log_OI_Ha_cen
     extent = [-3, 0.8, -1.2, 1.5]
-    sc = ax.scatter(log_OI_Ha_cen, y, **scatter_kwargs)
-    ax.scatter(log_OI_Ha_cen.loc[mtII], y[mtII], **scatter_AGN_tII_kwargs)
-    ax.scatter(log_OI_Ha_cen.loc[mtI], y[mtI], **scatter_AGN_tI_kwargs)
+    sc = ax.scatter(x, y, **scatter_kwargs)
+    ax.scatter(x.loc[mtII], y[mtII], **scatter_AGN_tII_kwargs)
+    ax.scatter(x.loc[mtI], y[mtI], **scatter_AGN_tI_kwargs)
     ax.set_xlabel(r'$\log\ ({\rm [OI]}/{\rm H\alpha})$', fontsize=fs+4)
     cb_ax = f.add_axes([right, bottom, 0.02, top-bottom])
     cb = plt.colorbar(sc, cax=cb_ax)
     cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+4)
     cb_ax.tick_params(direction='in')
-    cb.locator = MaxNLocator(4)
+    cb.locator = MaxNLocator(3)
     cb.update_ticks()
     ax.plot(L.x['K01_OI_Ha'], L.y['K01_OI_Ha'], 'k--')
     ax.plot(L.x['K06_OI_Ha'], L.y['K06_OI_Ha'], 'k-.')
@@ -493,83 +582,91 @@ if plot:
     ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
     ##########################
     f.text(0.01, 0.5, r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', va='center', rotation='vertical', fontsize=fs+4)
-    f.savefig('fig1.%s' % img_suffix, dpi=_dpi_choice, transparent=_transp_choice)
+    f.savefig('fig_BPT.%s' % img_suffix, dpi=_dpi_choice, transparent=_transp_choice)
+    print '##########################\n'
     ##########################
 
     ###########################
     ## SFMS colored by EW_Ha ##
     ###########################
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.85
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    # ax = f.gca()
+    print '\n###########################'
+    print '## SFMS colored by EW_Ha ##'
+    print '###########################'
     x = elines['log_Mass']
-    y = elines['lSFR']
-    extent = [8, 13, -4, 2.5]
-    ax.scatter(x, y, **scatter_kwargs)
-    ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
-    ax.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
-    ax.set_xlabel(r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', fontsize=fs+1)
-    ax.set_ylabel(r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', fontsize=fs+1)
-    cb_width = 0.05
-    cb_ax = f.add_axes([right-cb_width, bottom, cb_width, top-bottom])
-    cb = plt.colorbar(sc, cax=cb_ax)
-    cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+1)
-    cb_ax.tick_params(direction='in')
-    cb.locator = MaxNLocator(4)
-    cb.update_ticks()
-    ax.set_xlim(extent[0:2])
-    ax.set_ylim(extent[2:4])
-    ax.xaxis.set_major_locator(MaxNLocator(5, prune='both'))
-    ax.yaxis.set_major_locator(MaxNLocator(5))
-    ax.xaxis.set_minor_locator(AutoMinorLocator(5))
-    ax.yaxis.set_minor_locator(AutoMinorLocator(5))
-    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
-    ax.tick_params(**tick_params)
-    ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
-    ###########################
-    f.savefig('fig2.%s' % img_suffix, dpi=_dpi_choice, transparent=_transp_choice)
-    ###########################
+    xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
+    extent = [8, 13, -4.5, 2.5]
+    n_bins_min_x = 2
+    n_bins_maj_y = 4
+    n_bins_min_y = 2
+    prune_x = None
+    plot_colored_by_EW(x=x, y=elines['lSFR'], markAGNs=True,
+                       ylabel=r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$',
+                       xlabel=xlabel, extent=extent,
+                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                       verbose=verbose,
+                       output_name='fig_SFMS.%s' % img_suffix)
+    print '###########################\n'
+    print '\n####################################'
+    print '## SFMS colored by EW_Ha (NO CEN) ##'
+    print '####################################'
+    plot_colored_by_EW(x=x, y=elines['lSFR_NO_CEN'], markAGNs=True,
+                       ylabel=r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$ NO CEN',
+                       xlabel=xlabel, extent=extent,
+                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                       verbose=verbose,
+                       output_name='fig_SFMS_NC.%s' % img_suffix)
+    print '####################################\n'
+    ################################
 
-    ################################
-    ## SFMS (NC) colored by EW_Ha ##
-    ################################
+    ##########################
+    ## M-C colored by EW_Ha ##
+    ##########################
+    print '\n##########################'
+    print '## M-C colored by EW_Ha ##'
+    print '##########################'
+    n_bins_min_x = 2
+    n_bins_maj_y = 6
+    n_bins_min_y = 2
+    plot_colored_by_EW(x=elines['log_Mass'], y=elines['C'], markAGNs=True,
+                       xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
+                       ylabel=r'$\log {\rm R}90/{\rm R}50$',
+                       extent=[8, 13, 0.5, 5.5],
+                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                       verbose=verbose,
+                       output_name='fig_M_C.%s' % img_suffix)
+    print '##########################\n'
+    ##########################
+
+    #############################
+    ## sSFR-C colored by EW_Ha ##
+    #############################
+    print '\n#############################'
+    print '## sSFR-C colored by EW_Ha ##'
+    print '#############################'
+    n_bins_min_x = 2
+    n_bins_maj_y = 6
+    n_bins_min_y = 2
+    output_name='fig_sSFR_C.%s' % img_suffix
     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
     N_rows, N_cols = 1, 1
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.85
+    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
-    # ax = f.gca()
-    x = elines['log_Mass']
-    y = elines['lSFR_NO_CEN']
-    ax.scatter(x, y, **scatter_kwargs)
-    ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
-    ax.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
-    ax.set_xlabel(r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', fontsize=fs+1)
-    ax.set_ylabel(r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$ NO CEN', fontsize=fs+1)
-    cb_width = 0.05
-    cb_ax = f.add_axes([right-cb_width, bottom, cb_width, top-bottom])
-    cb = plt.colorbar(sc, cax=cb_ax)
-    cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+1)
-    cb_ax.tick_params(direction='in')
-    cb.locator = MaxNLocator(4)
-    cb.update_ticks()
-    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
-    extent = [8, 13, -4, 2.5]
-    ax.set_xlim(extent[0:2])
-    ax.set_ylim(extent[2:4])
-    ax.xaxis.set_major_locator(MaxNLocator(5, prune='both'))
-    ax.yaxis.set_major_locator(MaxNLocator(5))
-    ax.xaxis.set_minor_locator(AutoMinorLocator(5))
-    ax.yaxis.set_minor_locator(AutoMinorLocator(5))
-    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
-    ax.tick_params(**tick_params)
-    ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
-    ################################
-    f.savefig('fig2_NC.%s' % img_suffix, dpi=_dpi_choice, transparent=_transp_choice)
-    ################################
+    f, ax = plot_colored_by_EW(f=f, ax=ax, x=elines['lSFR'] - elines['log_Mass'], y=elines['C'],
+                               xlabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
+                               ylabel=r'$\log {\rm R}90/{\rm R}50$',
+                               extent=[-13.5, -8.5, 0.5, 5.5], markAGNs=True,
+                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                               n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                               verbose=verbose)
+    ax.axvline(x=-11.8, c='k', ls='--')
+    ax.axvline(x=-10.8, c='k', ls='--')
+    f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
+    print '#############################\n'
+    ##########################
 
 ###############################################################################
 # END PLOTS ###################################################################
