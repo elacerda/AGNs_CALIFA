@@ -7,7 +7,8 @@ from pytu.lines import Lines
 from matplotlib.lines import Line2D
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
-from pytu.plots import add_subplot_axes, plot_text_ax
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from pytu.plots import add_subplot_axes, plot_text_ax, plot_scatter_histo
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator, MaxNLocator, \
                               ScalarFormatter
 
@@ -108,31 +109,33 @@ with open('%s/list_Broad_by_eye.pandas.csv' % csv_dir, 'r') as f:
                 print '%s%s%s: broad-line by eye' % (color.B, DBName, color.E)
             else:
                 print '%s: not in %s' % (DBName, fnames_long['elines'])
-elines = df['elines']
-elines['broad'] = 0
-elines['MORPH'] = 'none'
-elines['morph'] = -1
-elines['SN_broad'] = df['cen_broad']['Nsigma']
-elines.loc[elines['SN_broad'] <= 0, 'SN_broad'] = 0.
-elines['C'] = df['mag_cubes_v2.2']['C']
-elines['e_C'] = df['mag_cubes_v2.2']['error_C']
-elines['Mabs_R'] = df['mag_cubes_v2.2']['R_band_mag']
-elines['e_Mabs_R'] = df['mag_cubes_v2.2']['R_band_mag_error']
-elines['B_V'] = df['mag_cubes_v2.2']['B_V']
-elines['e_B_V'] = df['mag_cubes_v2.2']['error_B_V']
-elines['B_R'] = df['mag_cubes_v2.2']['B_R']
-elines['e_B_R'] = df['mag_cubes_v2.2']['error_B_R']
-elines['morph'] = df['3_joint']['hubtyp']
-elines['RA'] = df['basic_joint']['ra']
-elines['DEC'] = df['basic_joint']['de']
-elines['RA'] = df['RA_DEC']['RA']
-elines['DEC'] = df['RA_DEC']['DEC']
-elines['bar'] = df['3_joint']['bar']
-elines['TYPE'] = 0
-elines['AGN_FLAG'] = 0
-elines.loc[elines['log_Mass'] < 0, 'log_Mass'] = np.nan
-elines.loc[elines['lSFR'] < -10, 'lSFR'] = np.nan
-elines.loc[elines['lSFR_NO_CEN'] < -10, 'lSFR_NO_CEN'] = np.nan
+Elines = df['elines']
+Elines['broad'] = 0
+Elines['MORPH'] = 'none'
+Elines['morph'] = -1
+Elines['SN_broad'] = df['cen_broad']['Nsigma']
+Elines.loc[Elines['SN_broad'] <= 0, 'SN_broad'] = 0.
+Elines['C'] = df['mag_cubes_v2.2']['C']
+Elines['e_C'] = df['mag_cubes_v2.2']['error_C']
+Elines['Mabs_R'] = df['mag_cubes_v2.2']['R_band_mag']
+Elines['e_Mabs_R'] = df['mag_cubes_v2.2']['R_band_mag_error']
+Elines['B_V'] = df['mag_cubes_v2.2']['B_V']
+Elines['e_B_V'] = df['mag_cubes_v2.2']['error_B_V']
+Elines['B_R'] = df['mag_cubes_v2.2']['B_R']
+Elines['e_B_R'] = df['mag_cubes_v2.2']['error_B_R']
+Elines['morph'] = df['3_joint']['hubtyp']
+Elines['RA'] = df['basic_joint']['ra']
+Elines['DEC'] = df['basic_joint']['de']
+Elines['RA'] = df['RA_DEC']['RA']
+Elines['DEC'] = df['RA_DEC']['DEC']
+Elines['bar'] = df['3_joint']['bar']
+Elines['TYPE'] = 0
+Elines['AGN_FLAG'] = 0
+Elines.loc[Elines['log_Mass'] < 0, 'log_Mass'] = np.nan
+Elines.loc[Elines['lSFR'] < -10, 'lSFR'] = np.nan
+Elines.loc[Elines['lSFR_NO_CEN'] < -10, 'lSFR_NO_CEN'] = np.nan
+
+elines = Elines.loc[~(Elines['morph'].apply(np.isnan))].copy()
 
 log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
 elog_NII_Ha_cen = elines['log_NII_Ha_cen_stddev']
@@ -237,9 +240,10 @@ print '#RR#################\n'
 ###############################################################################
 print '\n#AC##################'
 print '#AC# AGN CANDIDATES #'
-N_TOT = len(elines)
+N_TOT = len(elines.index)
 g = ['log_NII_Ha_cen_mean', 'log_OIII_Hb_cen_mean']
-N_NO_GAS = N_TOT - elines.groupby(g).ngroups
+N_GAS = len(elines.loc[~(elines['log_NII_Ha_cen_mean'].apply(np.isnan)) & ~(elines['log_OIII_Hb_cen_mean'].apply(np.isnan))].index)
+N_NO_GAS = N_TOT - N_GAS
 ###############################################################
 # [OIII] vs [NII]
 ###############################################################
@@ -366,10 +370,12 @@ if plot:
     latex_text_width = latex_text_width_pt/latex_ppi
     golden_mean = 0.5 * (1. + 5**0.5)
     ##########################
-    EW_color = EW_Ha_cen.abs().apply(np.log10)
+    EW_color = EW_Ha_cen.apply(np.log10)
+    mtI = elines['AGN_FLAG'] == 1
+    mtII = elines['AGN_FLAG'] == 2
+    color_AGN_tI = 'k'
+    color_AGN_tII = 'grey'
     scatter_kwargs = dict(c=EW_color, s=2, vmax=2.5, vmin=-0.5, cmap='viridis_r', marker='o', edgecolor='none')
-    color_AGN_tI = 'b'
-    color_AGN_tII = 'k'
     scatter_AGN_tII_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tII)
     scatter_AGN_tI_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tI)
     legend_elements = [
@@ -435,7 +441,6 @@ if plot:
         # cb_ax.minorticks_on()
         cb_ax.tick_params(which='both', direction='in')
         cb.update_ticks()
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
         if extent is not None:
             ax.set_xlim(extent[0:2])
             ax.set_ylim(extent[2:4])
@@ -447,30 +452,32 @@ if plot:
         ax.tick_params(**tick_params)
         ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
         if verbose:
-            # x #
+            print '# x #'
             xlim = ax.get_xlim()
             x_low = x.loc[x < xlim[0]]
             x_upp = x.loc[x > xlim[1]]
-            print '# N.x points < %.1f: %d' % (extent[0], x_low.count())
+            print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
             if type(verbose) is str and verbose > 'v':
                 for i in x_low.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
-            print '# N.x points > %.1f: %d' % (extent[1], x_upp.count())
+            print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
             if type(verbose) is str and verbose > 'v':
                 for i in x_upp.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
-            # y #
+            print '#####'
+            print '# y #'
             ylim = ax.get_ylim()
             y_low = y.loc[y < ylim[0]]
             y_upp = y.loc[y > ylim[1]]
-            print '# N.y points < %.1f: %d' % (extent[2], y_low.count())
+            print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
             if type(verbose) is str and verbose > 'v':
                 for i in y_low.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
-            print '# N.y points > %.1f: %d' % (extent[3], y_upp.count())
+            print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
             if type(verbose) is str and verbose > 'v':
                 for i in y_upp.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
+            print '#####'
         if output_name is not None:
             f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
         return f, ax
@@ -501,8 +508,6 @@ if plot:
     x = log_NII_Ha_cen
     extent = [-1.6, 0.8, -1.2, 1.5]
     sc = ax.scatter(x, y, **scatter_kwargs)
-    mtI = elines['AGN_FLAG'] == 1
-    mtII = elines['AGN_FLAG'] == 2
     ax.scatter(x.loc[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(x.loc[mtI], y[mtI], **scatter_AGN_tI_kwargs)
     ax.plot(L.x['K01'], L.y['K01'], 'k--')
@@ -649,7 +654,7 @@ if plot:
     n_bins_min_x = 2
     n_bins_maj_y = 6
     n_bins_min_y = 2
-    output_name='fig_sSFR_C.%s' % img_suffix
+    output_name = 'fig_sSFR_C.%s' % img_suffix
     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
     N_rows, N_cols = 1, 1
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
@@ -667,6 +672,203 @@ if plot:
     f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
     print '#############################\n'
     ##########################
+
+
+    #############################
+    ## M-sSFR colored by EW_Ha ##
+    #############################
+    print '\n#############################'
+    print '## M-sSFR colored by EW_Ha ##'
+    print '#############################'
+    n_bins_min_x = 2
+    n_bins_maj_y = 5
+    n_bins_min_y = 2
+    output_name = 'fig_M_sSFR.%s' % img_suffix
+    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+    N_rows, N_cols = 1, 1
+    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+    ax = plt.subplot(gs[0])
+    f, ax = plot_colored_by_EW(f=f, ax=ax, y=elines['lSFR'] - elines['log_Mass'], x=elines['log_Mass'],
+                               ylabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
+                               xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
+                               extent=[8, 13, -13.5, -8.5], markAGNs=True,
+                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                               n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                               verbose=verbose)
+    ax.axhline(y=-11.8, c='k', ls='--')
+    ax.axhline(y=-10.8, c='k', ls='--')
+    f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
+    print '#############################\n'
+    ##########################
+
+
+    ###########
+    ## Morph ##
+    ###########
+    def morph_adjust(x):
+        r = x
+        if ~np.isnan(x) and x <= 7:
+            r = 7
+        return r
+
+
+    morph = elines['morph'].apply(morph_adjust)
+
+
+    def draw_x_morph(ax, verbose):
+        x = morph
+        H = ax.hist(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=True, facecolor='red', edgecolor='none', align='mid', normed=True)
+        ax.hist(x[mtII], hatch='////', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', rwidth=1, normed=True)
+        ax.hist(x[mtI], hatch='////', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', rwidth=1, normed=True)
+        ax.set_xlabel(r'morphology')
+        ax.set_xlim(6.5, 19.5)
+        ticks = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        ax.set_xticks(ticks)
+        ax.set_xticklabels([morph_name[tick] for tick in ticks], rotation=90)
+        ax.set_ylim(0, 0.5)
+        ax.yaxis.set_major_locator(MaxNLocator(2, prune='upper'))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=True, right=True, labelbottom='on', labeltop='off', labelleft='off', labelright='on')
+        ax.tick_params(**tick_params)
+        if verbose:
+            print '# x #'
+            xlim = ax.get_xlim()
+            x_low = x.loc[x < xlim[0]]
+            x_upp = x.loc[x > xlim[1]]
+            print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
+            if type(verbose) is str and verbose > 'v':
+                for i in x_low.index:
+                    print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
+            print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
+            if type(verbose) is str and verbose > 'v':
+                for i in x_upp.index:
+                    print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
+            print '#####'
+        return ax
+
+
+    def plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc,
+                                   ylabel=None, yrange=None,
+                                   n_bins_maj_y=5, n_bins_min_y=5,
+                                   prune_y=None, verbose=False):
+        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='red', edgecolor='none', align='mid', normed=True)
+        m = np.linspace(7, 19, 13).astype('int')
+        y_mean = np.array([y.loc[morph == mt].mean() for mt in m])
+        ax_Hy.hist(y[mtII], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', normed=True)
+        N_y_tII_above = np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[mtII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+        print '# Type-II AGN above mean: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
+        ax_Hy.hist(y[mtI], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', normed=True)
+        N_y_tI_above = np.array([np.array(y.loc[mtI & (morph == mt)] > y.loc[mtI & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+        print '# Type-I AGN above mean: %d (%.1f%%)' % (N_y_tI_above, 100.*N_y_tI_above/y[mtI].count())
+        ax_Hy.set_ylabel(ylabel)
+        ax_Hy.set_xlim(0, 0.5)
+        ax_Hy.xaxis.set_major_locator(MaxNLocator(2, prune='upper'))
+        ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(2))
+        ax_Hy.set_ylim(yrange)
+        ax_Hy.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
+        ax_Hy.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=False, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+        ax_Hy.tick_params(**tick_params)
+        sc = ax_sc.scatter(morph, y, **scatter_kwargs)
+        ax_sc.scatter(morph[mtII], y[mtII], **scatter_AGN_tII_kwargs)
+        ax_sc.scatter(morph[mtI], y[mtI], **scatter_AGN_tI_kwargs)
+        ax_sc.plot(m, y_mean, 'k--')
+        ax_sc.set_xlim(ax_Hx.get_xlim())
+        ax_sc.xaxis.set_major_locator(ax_Hx.xaxis.get_major_locator())
+        ax_sc.xaxis.set_minor_locator(ax_Hx.xaxis.get_minor_locator())
+        ax_sc.set_ylim(ax_Hy.get_ylim())
+        ax_sc.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
+        ax_sc.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='off', labeltop='off', labelleft='off', labelright='off')
+        ax_sc.tick_params(**tick_params)
+        divider = make_axes_locatable(ax_sc)
+        cb_ax = divider.append_axes('right', size='-10%')
+        cb = plt.colorbar(sc, cax=cb_ax)
+        cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+1)
+        cb.locator = MaxNLocator(3)
+        cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
+        cb.update_ticks()
+        if verbose:
+            print '# y #'
+            ylim = ax_sc.get_ylim()
+            y_low = y.loc[y < ylim[0]]
+            y_upp = y.loc[y > ylim[1]]
+            print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
+            if type(verbose) is str and verbose > 'v':
+                for i in y_low.index:
+                    print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
+            print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
+            if type(verbose) is str and verbose > 'v':
+                for i in y_upp.index:
+                    print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
+            print '#####'
+        return ax_Hx, ax_Hy, ax_sc
+
+
+    ############################
+    ## Morph colored by EW_Ha ##
+    ############################
+    print '\n############################'
+    print '## Morph colored by EW_Ha ##'
+    print '############################'
+    plots_dict = {
+        'fig_Morph_M': [elines['log_Mass'], [8, 13], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
+        'fig_Morph_C': [elines['C'], [0.5, 5.5], r'$\log {\rm R}90/{\rm R}50$', 6, 2],
+        'fig_Morph_SigmaMassCen': [elines['Sigma_Mass_cen'], [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^{-2})$', 4, 2],
+        'fig_Morph_vsigma': [elines['rat_vel_sigma'], [0, 1], r'${\rm v}/\sigma ({\rm R} < {\rm Re})$', 2, 2]
+    }
+    for k, v in plots_dict.iteritems():
+        print '\n############################'
+        print '# %s ' % k
+        y, yrange, ylabel, n_bins_maj_y, n_bins_min_y = v
+        f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+        output_name = '%s.%s' % (k, img_suffix)
+        bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+        gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+        ax_Hx = plt.subplot(gs[-1, 1:])
+        ax_Hy = plt.subplot(gs[0:3, 0])
+        ax_sc = plt.subplot(gs[0:-1, 1:])
+        ax_Hx = draw_x_morph(ax_Hx, verbose)
+        plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc, ylabel=ylabel, yrange=yrange, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, verbose=verbose)
+        # gs.tight_layout(f)
+        f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
+        print '############################\n'
+    print '############################\n'
+
+    ##################################
+    ## Morph paper colored by EW_Ha ##
+    ##################################
+    print '\n##################################'
+    print '## Morph paper colored by EW_Ha ##'
+    print '##################################'
+    output_name = 'fig_Morph_paper.%s' % img_suffix
+    ##################################
+    f = plot_setup(width=latex_text_width, aspect=1/golden_mean)
+    gs_out = gridspec.GridSpec(2, 2)
+    plots_array = [
+        [gs_out[0, 0], elines['log_Mass'], [8, 13], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
+        [gs_out[0, 1], elines['C'], [0.5, 5.5], r'$\log {\rm R}90/{\rm R}50$', 6, 2],
+        [gs_out[1, 0], elines['Sigma_Mass_cen'], [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^{-2})$', 4, 2],
+        [gs_out[1, 1], elines['rat_vel_sigma'], [0, 1], r'${\rm v}/\sigma ({\rm R} < {\rm Re})$', 2, 2]
+    ]
+    ##################################
+    ##################################
+    for plot_config in plots_array:
+        gs_loop, y, yrange, ylabel, n_bins_maj_y, n_bins_min_y = plot_config
+        N_rows, N_cols = 4, 4
+        gs = gridspec.GridSpecFromSubplotSpec(N_rows, N_cols, hspace=0., wspace=0., subplot_spec=gs_loop)
+        ax_Hx = plt.subplot(gs[-1, 1:])
+        ax_Hy = plt.subplot(gs[0:3, 0])
+        ax_sc = plt.subplot(gs[0:-1, 1:])
+        ax_Hx = draw_x_morph(ax_Hx, verbose)
+        plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc, ylabel=ylabel, yrange=yrange, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, verbose=verbose)
+    ##################################
+    ##################################
+    gs_out.tight_layout(f)
+    f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
+    print '##################################\n'
+    ##################################
 
 ###############################################################################
 # END PLOTS ###################################################################
