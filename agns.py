@@ -18,8 +18,10 @@ EW_hDIG = 3
 EW_strong = 6
 EW_verystrong = 10
 sigma_clip = True
-plot = False
+# plot = False
 plot = True
+# print_color = True
+print_color = False
 mpl.rcParams['font.family'] = 'serif'
 mpl.rcParams['font.serif'] = 'Times New Roman'
 mpl.rcParams['axes.unicode_minus'] = False
@@ -31,17 +33,30 @@ verbose = 'vv'
 fs = 6
 
 
-class color:
-    PURPLE = '\033[95m'
-    CYAN = '\033[96m'
-    DARKCYAN = '\033[36m'
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    B = '\033[1m'
-    UNDERLINE = '\033[4m'
-    E = '\033[0m'
+if print_color:
+    class color:
+        PURPLE = '\033[95m'
+        CYAN = '\033[96m'
+        DARKCYAN = '\033[36m'
+        BLUE = '\033[94m'
+        GREEN = '\033[92m'
+        YELLOW = '\033[93m'
+        RED = '\033[91m'
+        B = '\033[1m'
+        UNDERLINE = '\033[4m'
+        E = '\033[0m'
+else:
+    class color:
+        PURPLE = ''
+        CYAN = ''
+        DARKCYAN = ''
+        BLUE = ''
+        GREEN = ''
+        YELLOW = ''
+        RED = ''
+        B = ''
+        UNDERLINE = ''
+        E = ''
 
 
 def fBPT(x, a, b, c):
@@ -85,6 +100,7 @@ df = {}
 na_values = ['BAD', 'nan', -999, '-inf', 'inf']
 for k, v in fnames_short.iteritems():
     f_path = '%s/%s' % (csv_dir, k)
+    # print f_path
     key_dataframe = fnames_short[k]
     df[key_dataframe] = pd.read_csv(f_path, na_values=na_values, sep=',', comment='#', header='infer', index_col=False)
     df[key_dataframe].set_index('DBName', inplace=True, drop=False)
@@ -108,38 +124,40 @@ with open('%s/list_Broad_by_eye.pandas.csv' % csv_dir, 'r') as f:
                 print '%s%s%s: broad-line by eye' % (color.B, DBName, color.E)
             else:
                 print '%s: not in %s' % (DBName, fnames_long['elines'])
-Elines = df['elines']
-Elines['broad'] = 0
-Elines['MORPH'] = 'none'
-Elines['morph'] = -1
-Elines['SN_broad'] = df['cen_broad']['Nsigma']
-Elines.loc[Elines['SN_broad'] <= 0, 'SN_broad'] = 0.
-Elines['C'] = df['mag_cubes_v2.2']['C']
-Elines['e_C'] = df['mag_cubes_v2.2']['error_C']
-Elines['Mabs_i'] = df['mag_cubes_v2.2']['i_band_abs_mag']
-Elines['e_Mabs_i'] = df['mag_cubes_v2.2']['i_band_abs_mag_error']
-Elines['Mabs_R'] = df['mag_cubes_v2.2']['R_band_abs_mag']
-Elines['e_Mabs_R'] = df['mag_cubes_v2.2']['R_band_abs_mag_error']
-Elines['B_V'] = df['mag_cubes_v2.2']['B_V']
-Elines['e_B_V'] = df['mag_cubes_v2.2']['error_B_V']
-Elines['B_R'] = df['mag_cubes_v2.2']['B_R']
-Elines['e_B_R'] = df['mag_cubes_v2.2']['error_B_R']
-Elines['u'] = df['mag_cubes_v2.2']['u_band_mag']
-Elines['i'] = df['mag_cubes_v2.2']['i_band_mag']
-Elines['redshift'] = df['mag_cubes_v2.2']['redshift']
-Elines['morph'] = df['3_joint']['hubtyp']
-Elines['RA'] = df['basic_joint']['ra']
-Elines['DEC'] = df['basic_joint']['de']
-Elines['RA'] = df['RA_DEC']['RA']
-Elines['DEC'] = df['RA_DEC']['DEC']
-Elines['bar'] = df['3_joint']['bar']
-Elines['TYPE'] = 0
-Elines['AGN_FLAG'] = 0
-Elines.loc[Elines['log_Mass'] < 0, 'log_Mass'] = np.nan
-Elines.loc[Elines['lSFR'] < -10, 'lSFR'] = np.nan
-Elines.loc[Elines['lSFR_NO_CEN'] < -10, 'lSFR_NO_CEN'] = np.nan
 
-elines = Elines.loc[~(Elines['morph'].apply(np.isnan))].copy()
+# Populating dataframe elines joining different data from other dataframes
+df['elines']['broad'] = 0
+df['elines']['MORPH'] = 'none'
+df['elines']['morph'] = -1
+df['elines']['SN_broad'] = df['cen_broad']['Nsigma']
+df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
+df['elines']['C'] = df['mag_cubes_v2.2']['C']
+df['elines']['e_C'] = df['mag_cubes_v2.2']['error_C']
+df['elines']['Mabs_i'] = df['mag_cubes_v2.2']['i_band_abs_mag']
+df['elines']['e_Mabs_i'] = df['mag_cubes_v2.2']['i_band_abs_mag_error']
+df['elines']['Mabs_R'] = df['mag_cubes_v2.2']['R_band_abs_mag']
+df['elines']['e_Mabs_R'] = df['mag_cubes_v2.2']['R_band_abs_mag_error']
+df['elines']['B_V'] = df['mag_cubes_v2.2']['B_V']
+df['elines']['e_B_V'] = df['mag_cubes_v2.2']['error_B_V']
+df['elines']['B_R'] = df['mag_cubes_v2.2']['B_R']
+df['elines']['e_B_R'] = df['mag_cubes_v2.2']['error_B_R']
+df['elines']['u'] = df['mag_cubes_v2.2']['u_band_mag']
+df['elines']['i'] = df['mag_cubes_v2.2']['i_band_mag']
+df['elines']['redshift'] = df['mag_cubes_v2.2']['redshift']
+df['elines']['morph'] = df['3_joint']['hubtyp']
+df['elines']['RA'] = df['basic_joint']['ra']
+df['elines']['DEC'] = df['basic_joint']['de']
+df['elines']['RA'] = df['RA_DEC']['RA']
+df['elines']['DEC'] = df['RA_DEC']['DEC']
+df['elines']['bar'] = df['3_joint']['bar']
+df['elines']['TYPE'] = 0
+df['elines']['AGN_FLAG'] = 0
+df['elines'].loc[df['elines']['log_Mass'] < 0, 'log_Mass'] = np.nan
+df['elines'].loc[df['elines']['lSFR'] < -10, 'lSFR'] = np.nan
+df['elines'].loc[df['elines']['lSFR_NO_CEN'] < -10, 'lSFR_NO_CEN'] = np.nan
+
+# Create an object spanning only galaxies with defined morphology
+elines = df['elines'].loc[~(df['elines']['morph'].apply(np.isnan))].copy()
 
 log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
 elog_NII_Ha_cen = elines['log_NII_Ha_cen_stddev']
@@ -709,8 +727,10 @@ if plot:
     ###########
     ## Morph ##
     ###########
+    # Created to adjust the morphtype of ellipticals
     def morph_adjust(x):
         r = x
+        # If not NAN or M_TYPE E* (0-7) call it E
         if ~np.isnan(x) and x <= 7:
             r = 7
         return r
