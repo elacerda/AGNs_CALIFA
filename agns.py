@@ -18,7 +18,7 @@ EW_hDIG = 3
 EW_strong = 6
 EW_verystrong = 10
 sigma_clip = True
-# plot = False
+plot = False
 plot = True
 # print_color = True
 print_color = False
@@ -126,11 +126,6 @@ with open('%s/list_Broad_by_eye.pandas.csv' % csv_dir, 'r') as f:
                 print '%s: not in %s' % (DBName, fnames_long['elines'])
 
 # Populating dataframe elines joining different data from other dataframes
-df['elines']['broad'] = 0
-df['elines']['MORPH'] = 'none'
-df['elines']['morph'] = -1
-df['elines']['SN_broad'] = df['cen_broad']['Nsigma']
-df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
 df['elines']['C'] = df['mag_cubes_v2.2']['C']
 df['elines']['e_C'] = df['mag_cubes_v2.2']['error_C']
 df['elines']['Mabs_i'] = df['mag_cubes_v2.2']['i_band_abs_mag']
@@ -150,11 +145,51 @@ df['elines']['DEC'] = df['basic_joint']['de']
 df['elines']['RA'] = df['RA_DEC']['RA']
 df['elines']['DEC'] = df['RA_DEC']['DEC']
 df['elines']['bar'] = df['3_joint']['bar']
+df['elines']['SN_broad'] = df['cen_broad']['Nsigma']
+df['elines']['broad'] = 0
 df['elines']['TYPE'] = 0
 df['elines']['AGN_FLAG'] = 0
+df['elines']['MORPH'] = 'none'
+df['elines']['GalaxyName'] = df['3_joint']['REALNAME']
+df['elines']['GalaxyName'] = df['elines']['GalaxyName'].fillna('')
+# df['elines'].loc[np.isnan(df['elines']['morph']), 'morph'] = -1
+df['elines']['morph'] = df['elines']['morph'].fillna(-1)
+df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
 df['elines'].loc[df['elines']['log_Mass'] < 0, 'log_Mass'] = np.nan
 df['elines'].loc[df['elines']['lSFR'] < -10, 'lSFR'] = np.nan
 df['elines'].loc[df['elines']['lSFR_NO_CEN'] < -10, 'lSFR_NO_CEN'] = np.nan
+df['elines'].loc[df['elines']['log_Mass_gas'] == -12, 'log_Mass_gas'] = np.nan
+
+
+#####################
+# check unique names
+#####################
+# gal_indexes = []
+# for k in df.iterkeys():
+#     x = set(df[k].index)
+#     gal_indexes = list(set(gal_indexes) & x) + list(set(gal_indexes) ^ x)
+# for n in sorted(gal_indexes):
+#     print n
+# sys.exit()
+# +------------+-------------+------+-----+---------+-------+
+# | Field      | Type        | Null | Key | Default | Extra |
+# +------------+-------------+------+-----+---------+-------+
+# | GalID      | int(4)      | NO   | PRI | NULL    |       |
+# | DBName     | varchar(50) | NO   |     | NULL    |       |
+# | GalaxyName | varchar(50) | YES  |     | NULL    |       |
+# | comment    | blob        | YES  |     | NULL    |       |
+# | WarningID  | int(2)      | YES  | MUL | NULL    |       |
+# | MorphID    | int(2)      | YES  | MUL | NULL    |       |
+# +------------+-------------+------+-----+---------+-------+
+###########################################################
+# print to create database to morphological classification
+###########################################################
+# k = 0
+# print 'INSERT INTO morph_class.to_classify VALUES'
+# for i, reg in df['elines'].iterrows():
+#     print "(%d, '%s', '%s', '', -1, %d)," % (k, i, reg['GalaxyName'], int(reg['morph']))
+#     k = k + 1
+# print ';'
 
 # REMOVE SOME GALS FROM AGN STUDY
 with open('%s/remove_gals_AGNpaper.csv' % csv_dir, 'r') as f:
@@ -407,7 +442,7 @@ if plot:
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     color_AGN_tI = 'k'
-    color_AGN_tII = 'grey'
+    color_AGN_tII = 'mediumslateblue'
     scatter_kwargs = dict(s=2, vmax=2.5, vmin=-0.5, cmap='viridis_r', marker='o', edgecolor='none')
     scatter_AGN_tII_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tII)
     scatter_AGN_tI_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tI)
@@ -465,7 +500,7 @@ if plot:
         cb_width = 0.05
         cb_ax = f.add_axes([right, bottom, cb_width, top-bottom])
         cb = plt.colorbar(sc, cax=cb_ax)
-        cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+1)
+        cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=fs+1)
         cb.locator = MaxNLocator(4)
         # cb_ax.minorticks_on()
         cb_ax.tick_params(which='both', direction='in')
@@ -597,7 +632,7 @@ if plot:
     ax.set_xlabel(r'$\log\ ({\rm [OI]}/{\rm H\alpha})$', fontsize=fs+4)
     cb_ax = f.add_axes([right, bottom, 0.02, top-bottom])
     cb = plt.colorbar(sc, cax=cb_ax)
-    cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+4)
+    cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=fs+4)
     cb_ax.tick_params(direction='in')
     cb.locator = MaxNLocator(4)
     cb.update_ticks()
@@ -635,7 +670,7 @@ if plot:
     n_bins_min_y = 2
     prune_x = None
     plot_colored_by_EW(x=x, y=elines['lSFR'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
-                       ylabel=r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$',
+                       ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})$',
                        xlabel=xlabel, extent=extent,
                        n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                        n_bins_min_x=n_bins_min_x, prune_x=prune_x,
@@ -646,7 +681,7 @@ if plot:
     print '## SFMS colored by EW_Ha (NO CEN) ##'
     print '####################################'
     plot_colored_by_EW(x=x, y=elines['lSFR_NO_CEN'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
-                       ylabel=r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$ NO CEN',
+                       ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$',
                        xlabel=xlabel, extent=extent,
                        n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                        n_bins_min_x=n_bins_min_x, prune_x=prune_x,
@@ -667,7 +702,7 @@ if plot:
     n_bins_min_y = 2
     plot_colored_by_EW(x=elines['log_Mass'], y=elines['C'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
                        xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                       ylabel=r'$\log {\rm R}90/{\rm R}50$',
+                       ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
                        extent=[8, 13, 0.5, 5.5],
                        n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                        n_bins_min_x=n_bins_min_x, prune_x=prune_x,
@@ -694,7 +729,7 @@ if plot:
     ax = plt.subplot(gs[0])
     f, ax = plot_colored_by_EW(f=f, ax=ax, x=elines['lSFR'] - elines['log_Mass'], y=elines['C'], z=EW_Ha_cen.apply(np.log10),
                                xlabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
-                               ylabel=r'$\log {\rm R}90/{\rm R}50$',
+                               ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
                                extent=[-13.5, -8.5, 0.5, 5.5], markAGNs=True,
                                n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                                n_bins_min_x=n_bins_min_x, prune_x=prune_x,
@@ -738,8 +773,8 @@ if plot:
     ## X Y histo colored by EW_Ha ##
     ################################
     def plot_histo_xy_colored_by_EW(x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=False):
-        ax_Hx.hist(x, bins=20, range=xrange, histtype='step', fill=True, facecolor='red', edgecolor='none', align='mid', normed=True)
-        ax_Hx.hist(x[mtII], hatch='////', bins=20, range=xrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', normed=True)
+        ax_Hx.hist(x, bins=20, range=xrange, histtype='step', fill=True, facecolor='coral', edgecolor='none', align='mid', normed=True)
+        ax_Hx.hist(x[mtII], hatch='//', bins=20, range=xrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', normed=True)
         ax_Hx.hist(x[mtI], hatch='////', bins=20, range=xrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', normed=True)
         ax_Hx.set_xlabel(xlabel)
         ax_Hx.set_xlim(xrange)
@@ -751,8 +786,8 @@ if plot:
         tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=True, right=True, labelbottom='on', labeltop='off', labelleft='off', labelright='on')
         ax_Hx.tick_params(**tick_params)
         ####################################
-        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='red', edgecolor='none', align='mid', normed=True)
-        ax_Hy.hist(y[mtII], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', normed=True)
+        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='coral', edgecolor='none', align='mid', normed=True)
+        ax_Hy.hist(y[mtII], orientation='horizontal', hatch='//', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', normed=True)
         ax_Hy.hist(y[mtI], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', normed=True)
         ax_Hy.set_ylabel(ylabel)
         ax_Hy.set_ylim(yrange)
@@ -779,7 +814,7 @@ if plot:
         divider = make_axes_locatable(ax_sc)
         cb_ax = divider.append_axes('right', size='-10%')
         cb = plt.colorbar(sc, cax=cb_ax)
-        cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+1)
+        cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=fs+1)
         cb.locator = MaxNLocator(4)
         cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
         cb.update_ticks()
@@ -843,19 +878,19 @@ if plot:
         ####################################
         ## SFMS colored by EW_Ha (NO CEN) ##
         ####################################
-        'fig_histo_SFMS_NC': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr}) NO CEN$', 4, 2, None, EW_Ha_cen.apply(np.log10), [8, 13, -4.5, 2.5]],
+        'fig_histo_SFMS_NC': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None, EW_Ha_cen.apply(np.log10), [8, 13, -4.5, 2.5]],
         ####################################
 
         ##########################
         ## M-C colored by EW_Ha ##
         ##########################
-        'fig_histo_M_C': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['C'], r'$\log {\rm R}90/{\rm R}50$', 6, 2, None, EW_Ha_cen.apply(np.log10), [8, 13, 0.5, 5.5]],
+        'fig_histo_M_C': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None, EW_Ha_cen.apply(np.log10), [8, 13, 0.5, 5.5]],
         ##########################
 
         #############################
         ## sSFR-C colored by EW_Ha ##
         #############################
-        'fig_histo_sSFR_C': [elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None, elines['C'], r'$\log {\rm R}90/{\rm R}50$', 6, 2, None, EW_Ha_cen.apply(np.log10), [-13.5, -8.5, 0.5, 5.5]],
+        'fig_histo_sSFR_C': [elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None, elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None, EW_Ha_cen.apply(np.log10), [-13.5, -8.5, 0.5, 5.5]],
         #############################
 
         #############################
@@ -897,7 +932,7 @@ if plot:
     ## Morph ##
     ###########
     # Create an object spanning only galaxies with defined morphology
-    elines_wmorph = elines.loc[~(elines['morph'].apply(np.isnan))].copy()
+    elines_wmorph = elines.loc[elines['morph'] >= 0].copy()
     N_TOT_WMORPH = len(elines_wmorph.index)
     N_GAS_WMORPH = len(elines_wmorph.loc[~(elines_wmorph['log_NII_Ha_cen_mean'].apply(np.isnan)) & ~(elines_wmorph['log_OIII_Hb_cen_mean'].apply(np.isnan))].index)
     N_NO_GAS_WMORPH = N_TOT - N_GAS
@@ -922,11 +957,10 @@ if plot:
 
     morph = elines_wmorph['morph'].apply(morph_adjust)
 
-
     def plot_x_morph(ax, verbose):
         x = morph
-        H = ax.hist(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=True, facecolor='red', edgecolor='none', align='mid', normed=True)
-        ax.hist(x[mtII], hatch='////', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', rwidth=1, normed=True)
+        H = ax.hist(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=True, facecolor='coral', edgecolor='none', align='mid', normed=True)
+        ax.hist(x[mtII], hatch='//', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', rwidth=1, normed=True)
         ax.hist(x[mtI], hatch='////', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', rwidth=1, normed=True)
         ax.set_xlabel(r'morphology')
         ax.set_xlim(6.5, 19.5)
@@ -957,10 +991,10 @@ if plot:
 
 
     def plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=False):
-        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='red', edgecolor='none', align='mid', normed=True)
+        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='coral', edgecolor='none', align='mid', normed=True)
         m = np.linspace(7, 19, 13).astype('int')
         y_mean = np.array([y.loc[morph == mt].mean() for mt in m])
-        ax_Hy.hist(y[mtII], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', normed=True)
+        ax_Hy.hist(y[mtII], orientation='horizontal', hatch='//', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', normed=True)
         N_y_tII_above = np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[mtII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
         print '# Type-II AGN above mean: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
         ax_Hy.hist(y[mtI], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', normed=True)
@@ -990,9 +1024,9 @@ if plot:
         ax_sc.tick_params(**tick_params)
         ####################################
         divider = make_axes_locatable(ax_sc)
-        cb_ax = divider.append_axes('right', size='-10%')
-        cb = plt.colorbar(sc, cax=cb_ax)
-        cb.set_label(r'$\log\ |{\rm EW(H\alpha)}|$', fontsize=fs+1)
+        cb_ax = divider.append_axes('right', size='5%', pad=0.05)
+        cb = plt.colorbar(sc, cax=cb_ax, orientation='vertical')
+        cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=fs+1)
         cb.locator = MaxNLocator(4)
         cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
         cb.update_ticks()
@@ -1022,7 +1056,7 @@ if plot:
     print '############################'
     plots_dict = {
         'fig_Morph_M': ['log_Mass', [8, 13], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
-        'fig_Morph_C': ['C', [0.5, 5.5], r'$\log {\rm R}90/{\rm R}50$', 6, 2],
+        'fig_Morph_C': ['C', [0.5, 5.5], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2],
         'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^{-2})$', 4, 2],
         'fig_Morph_vsigma': ['rat_vel_sigma', [0, 1], r'${\rm v}/\sigma ({\rm R} < {\rm Re})$', 2, 2],
         'fig_Morph_Re': ['Re_kpc', [0, 25], r'${\rm Re}/{\rm kpc}$', 6, 2]
@@ -1060,7 +1094,7 @@ if plot:
     gs_out = gridspec.GridSpec(2, 2)
     plots_array = [
         [gs_out[0, 0], 'log_Mass', [8, 13], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
-        [gs_out[0, 1], 'C', [0.5, 5.5], r'$\log {\rm R}90/{\rm R}50$', 6, 2],
+        [gs_out[0, 1], 'C', [0.5, 5.5], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2],
         [gs_out[1, 0], 'Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^{-2})$', 4, 2],
         [gs_out[1, 1], 'rat_vel_sigma', [0, 1], r'${\rm v}/\sigma ({\rm R} < {\rm Re})$', 2, 2]
     ]
