@@ -152,14 +152,12 @@ df['elines']['AGN_FLAG'] = 0
 df['elines']['MORPH'] = 'none'
 df['elines']['GalaxyName'] = df['3_joint']['REALNAME']
 df['elines']['GalaxyName'] = df['elines']['GalaxyName'].fillna('')
-# df['elines'].loc[np.isnan(df['elines']['morph']), 'morph'] = -1
 df['elines']['morph'] = df['elines']['morph'].fillna(-1)
 df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
 df['elines'].loc[df['elines']['log_Mass'] < 0, 'log_Mass'] = np.nan
 df['elines'].loc[df['elines']['lSFR'] < -10, 'lSFR'] = np.nan
 df['elines'].loc[df['elines']['lSFR_NO_CEN'] < -10, 'lSFR_NO_CEN'] = np.nan
 df['elines'].loc[df['elines']['log_Mass_gas'] == -12, 'log_Mass_gas'] = np.nan
-
 
 #####################
 # check unique names
@@ -171,12 +169,18 @@ df['elines'].loc[df['elines']['log_Mass_gas'] == -12, 'log_Mass_gas'] = np.nan
 # for n in sorted(gal_indexes):
 #     print n
 # sys.exit()
+
+##########################
+# MySQL dump for morph DB
+##########################
 # +------------+-------------+------+-----+---------+-------+
 # | Field      | Type        | Null | Key | Default | Extra |
 # +------------+-------------+------+-----+---------+-------+
 # | GalID      | int(4)      | NO   | PRI | NULL    |       |
 # | DBName     | varchar(50) | NO   |     | NULL    |       |
 # | GalaxyName | varchar(50) | YES  |     | NULL    |       |
+# | RA         | double      | YES  |     | NULL    |       |
+# | DECL       | double      | YES  |     | NULL    |       |
 # | comment    | blob        | YES  |     | NULL    |       |
 # | WarningID  | int(2)      | YES  | MUL | NULL    |       |
 # | MorphID    | int(2)      | YES  | MUL | NULL    |       |
@@ -187,9 +191,10 @@ df['elines'].loc[df['elines']['log_Mass_gas'] == -12, 'log_Mass_gas'] = np.nan
 # k = 0
 # print 'INSERT INTO morph_class.to_classify VALUES'
 # for i, reg in df['elines'].iterrows():
-#     print "(%d, '%s', '%s', '', -1, %d)," % (k, i, reg['GalaxyName'], int(reg['morph']))
+#     print "(%d, '%s', '%s', '%f', '%f', '', -1, %d)," % (k, i, reg['GalaxyName'], reg['RA'], reg['DEC'], int(reg['morph']))
 #     k = k + 1
 # print ';'
+# sys.exit()
 
 # REMOVE SOME GALS FROM AGN STUDY
 with open('%s/remove_gals_AGNpaper.csv' % csv_dir, 'r') as f:
@@ -206,6 +211,7 @@ with open('%s/remove_gals_AGNpaper.csv' % csv_dir, 'r') as f:
         df_elines_clean = df['elines'].drop(DBNames_to_drop, axis=0)
 
 elines = df_elines_clean.copy()
+del df_elines_clean;
 
 log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
 elog_NII_Ha_cen = elines['log_NII_Ha_cen_stddev']
