@@ -18,8 +18,8 @@ EW_hDIG = 3
 EW_strong = 6
 EW_verystrong = 10
 sigma_clip = True
-plot = False
 plot = True
+plot = False
 # print_color = True
 print_color = False
 mpl.rcParams['font.family'] = 'serif'
@@ -79,6 +79,7 @@ fname3 = 'get_CALIFA_cen_broad.pandas.csv'
 fname4 = 'get_mag_cubes_v2.2.pandas.csv'
 fname5 = 'get_RA_DEC.pandas.csv'
 fname6 = 'get_proc_elines_CALIFA.clean.pandas.csv'
+fname6 = 'NII_Ha_fit.csv'
 fnames_short = {
     'CALIFA_3_joint_classnum.pandas.csv': '3_joint',
     'CALIFA_basic_joint.pandas.csv': 'basic_joint',
@@ -86,6 +87,7 @@ fnames_short = {
     'get_mag_cubes_v2.2.pandas.csv': 'mag_cubes_v2.2',
     'get_RA_DEC.pandas.csv': 'RA_DEC',
     'get_proc_elines_CALIFA.clean.pandas.csv': 'elines',
+    'NII_Ha_fit.csv': 'broad_fit',
 }
 fnames_long = {
     '3_joint': 'CALIFA_3_joint_classnum.pandas.csv',
@@ -94,6 +96,7 @@ fnames_long = {
     'mag_cubes_v2.2': 'get_mag_cubes_v2.2.pandas.csv',
     'RA_DEC': 'get_RA_DEC.pandas.csv',
     'elines': 'get_proc_elines_CALIFA.clean.pandas.csv',
+    'broad_fit': 'NII_Ha_fit.csv',
 }
 # Read CSV files
 df = {}
@@ -153,6 +156,10 @@ df['elines']['MORPH'] = 'none'
 df['elines']['GalaxyName'] = df['3_joint']['REALNAME']
 df['elines']['GalaxyName'] = df['elines']['GalaxyName'].fillna('')
 df['elines']['morph'] = df['elines']['morph'].fillna(-1)
+df['elines']['Ha_broad'] = df['broad_fit']['Ha_broad']
+df['elines']['Ha_narrow'] = df['broad_fit']['Ha_narrow']
+df['elines']['NII_6583'] = df['broad_fit']['NII_6583']
+df['elines']['NII_6548'] = df['broad_fit']['NII_6548']
 df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
 df['elines'].loc[df['elines']['log_Mass'] < 0, 'log_Mass'] = np.nan
 df['elines'].loc[df['elines']['lSFR'] < -10, 'lSFR'] = np.nan
