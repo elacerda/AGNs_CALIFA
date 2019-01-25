@@ -1,0 +1,1 @@
+sed 's/^# ([0-9]\{1,3\}) /#/g' get_mag_cubes_v2.2.csv | head -n63 | sed 's/ \+$//g' | sed 's/-/_/g' | sed 's/[[:blank:]]\+/_/g' | tr -d '#' | tr '\n' ',' | sed 's/,$/\n/g' > get_mag_cubes_v2.2.pandas.csv && tail -n+64 get_mag_cubes_v2.2.csv >> get_mag_cubes_v2.2.pandas.csv 
