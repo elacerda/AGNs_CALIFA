@@ -7,7 +7,6 @@ from pytu.lines import Lines
 from matplotlib.lines import Line2D
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from pytu.plots import add_subplot_axes, plot_text_ax, plot_scatter_histo
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator, MaxNLocator, ScalarFormatter
 
@@ -117,13 +116,13 @@ for k, v in fnames_short.iteritems():
 # SETTING INITIAL VALUES ######################################################
 ###############################################################################
 # BROAD BY EYE
-df['elines']['broad_by_eye'] = 0
+df['elines']['broad_by_eye'] = False
 with open('%s/list_Broad_by_eye.pandas.csv' % csv_dir, 'r') as f:
     for l in f.readlines():
         if l[0] != '#':
             DBName = l.strip()
             if DBName in df['elines'].index:
-                df['elines'].loc[DBName, 'broad_by_eye'] = 1
+                df['elines'].loc[DBName, 'broad_by_eye'] = True
                 print '%s%s%s: broad-line by eye' % (color.B, DBName, color.E)
             else:
                 print '%s: not in %s' % (DBName, fnames_long['elines'])
@@ -409,9 +408,12 @@ N_SF_EW = (m).values.astype('int').sum()
 ###############################################################
 m = (elines['TYPE'] == 2) | (elines['TYPE'] == 3)
 elines.loc[m, 'AGN_FLAG'] = 2
-m = ((elines['SN_broad'] > 8) & ((elines['TYPE'] == 2) | (elines['TYPE'] == 3))) | (elines['broad_by_eye'] == 1)
-m = ((elines['SN_broad'] > 8) & (elines['AGN_FLAG'] == 2)) | (elines['broad_by_eye'] == 1)
+# m = ((elines['SN_broad'] > 8) & ((elines['TYPE'] == 2) | (elines['TYPE'] == 3))) | (elines['broad_by_eye'] == True)
+m = (elines['SN_broad'] > 8) & (elines['AGN_FLAG'] == 2) | (elines['broad_by_eye'] == True)
+# m = (elines['SN_broad'] > 8)
 elines.loc[m, 'AGN_FLAG'] = 1
+N_AGN_tI = elines['AGN_FLAG'].loc[elines['AGN_FLAG']==1].count()
+N_AGN_tII = elines['AGN_FLAG'].loc[elines['AGN_FLAG']==2].count()
 columns_to_csv = [
     'AGN_FLAG', 'SN_broad',
     'RA', 'DEC', 'log_NII_Ha_cen_mean', 'log_NII_Ha_cen_stddev',
@@ -436,7 +438,7 @@ print '#AC# N.AGNs/LINERs candidates by [NII]/Ha: %d (%sN%s: %d - %sS%s: %d - %s
 print '#AC# N.AGNs candidates by [NII]/Ha and [SII]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_Ha, color.B, color.E, N_AGN_NII_SII_Ha_EW, color.B, color.E, N_SAGN_NII_SII_Ha_EW, color.B, color.E, N_VSAGN_NII_SII_Ha_EW)
 print '#AC# N.AGNs candidates by [NII]/Ha and [OI]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_OI_Ha, color.B, color.E, N_AGN_NII_OI_Ha_EW, color.B, color.E, N_SAGN_NII_OI_Ha_EW, color.B, color.E, N_VSAGN_NII_OI_Ha_EW)
 print '#AC# N.AGNs candidates by [NII]/Ha, [SII]/Ha and [OI]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_OI_Ha, color.B, color.E, N_AGN, color.B, color.E, N_SAGN, color.B, color.E, N_VSAGN)
-print '#AC# N.AGNs %sType-II%s: %d - %sType-I%s: %d' % (color.B, color.E, elines['AGN_FLAG'].loc[elines['AGN_FLAG']==2].count(), color.B, color.E, elines['AGN_FLAG'].loc[elines['AGN_FLAG']==1].count())
+print '#AC# N.AGNs %sType-II%s: %d - %sType-I%s: %d' % (color.B, color.E, N_AGN_tII, color.B, color.E, N_AGN_tI)
 print '#AC# N.pAGB: %d (%sabove K01%s: %d - %sabove K03%s: %d - %sabove S06%s: %d)' % (N_pAGB, color.B, color.E, N_pAGB_aboveK01, color.B, color.E, N_pAGB_aboveK03, color.B, color.E, N_pAGB_aboveK03)
 print '#AC# N_SF %sEW%s: %d' % (color.B, color.E, N_SF_EW)
 print '#AC# N.SF %sK01%s: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (color.B, color.E, N_SF_K01, color.B, color.E, N_SF_K01_EW, color.B, color.E, N_SSF_K01, color.B, color.E, N_VSSF_K01)
@@ -466,8 +468,8 @@ if plot:
     scatter_AGN_tII_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tII)
     scatter_AGN_tI_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tI)
     legend_elements = [
-        Line2D([0], [0], marker='*', markeredgecolor=color_AGN_tI, label='Type-I AGN', markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
-        Line2D([0], [0], marker='*', markeredgecolor=color_AGN_tII, label='Type-II AGN', markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
+        Line2D([0], [0], marker='*', markeredgecolor=color_AGN_tI, label='Type-I AGN (%d)' % N_AGN_tI, markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
+        Line2D([0], [0], marker='*', markeredgecolor=color_AGN_tII, label='Type-II AGN (%d)' % N_AGN_tII, markerfacecolor='none', markersize=7, markeredgewidth=0.12, linewidth=0),
     ]
     ##########################
 
