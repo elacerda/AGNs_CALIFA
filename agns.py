@@ -1,38 +1,88 @@
 #!/home/lacerda/anaconda2/bin/python
+import os
 import sys
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
 from pytu.lines import Lines
+from pytu.functions import debug_var
 from matplotlib.lines import Line2D
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
+from pytu.objects import readFileArgumentParser
 from pytu.plots import add_subplot_axes, plot_text_ax, plot_scatter_histo
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator, MaxNLocator, ScalarFormatter
 
-
-bug = 0.8
-EW_SF = 14
-EW_hDIG = 3
-EW_strong = 6
-EW_verystrong = 10
-sigma_clip = True
-plot = False
-plot = True
-# print_color = True
-print_color = False
 mpl.rcParams['font.family'] = 'serif'
 mpl.rcParams['font.serif'] = 'Times New Roman'
 mpl.rcParams['axes.unicode_minus'] = False
 mpl.rcParams['legend.numpoints'] = 1
 _transp_choice = False
-_dpi_choice = 300
-img_suffix = 'pdf'
-verbose = 'vv'
-fs = 6
 
+def parser_args(default_args_file='args/default.args'):
+    '''
+        Parse the command line args
+        With fromfile_prefix_chars=@ we can read and parse command line args
+        inside a file with @file.txt.
+        default args inside default_args_file
+    '''
+    default_args = {
+        'broad_fit_rules': False,
+        'sigma_clip': True,
+        'plot': False,
+        'print_color': False,
+        'csv_dir': 'csv',
+        'figs_dir': 'figs',
+        'bug': 0.8,
+        'output_agn_candidates': 'AGN_CANDIDATES.csv',
+        'img_suffix': 'pdf',
+        'EW_SF': 14,
+        'EW_hDIG': 3,
+        'EW_strong': 6,
+        'EW_verystrong': 10,
+        'dpi': 300,
+        'fontsize': 6,
+        'min_SN_broad': 8,
+    }
+    parser = readFileArgumentParser(fromfile_prefix_chars='@')
+    parser.add_argument('--plot', '-P',
+                        action='store_true', default=default_args['plot'])
+    parser.add_argument('--broad_fit_rules', '-B',
+                        action='store_true', default=default_args['broad_fit_rules'])
+    parser.add_argument('--sigma_clip',
+                        action='store_false', default=default_args['sigma_clip'])
+    parser.add_argument('--print_color',
+                        action='store_true', default=default_args['print_color'])
+    parser.add_argument('--csv_dir',
+                        metavar='DIR', type=str, default=default_args['csv_dir'])
+    parser.add_argument('--figs_dir', '-D',
+                        metavar='DIR', type=str, default=default_args['figs_dir'])
+    parser.add_argument('--output_agn_candidates', '-O',
+                        metavar='FILE', type=str, default=default_args['output_agn_candidates'])
+    parser.add_argument('--verbose', '-v', action='count')
+    parser.add_argument('--img_suffix', '-I',
+                        metavar='IMG_SUFFIX', type=str, default=default_args['img_suffix'])
+    parser.add_argument('--EW_SF', metavar='FLOAT', type=float, default=default_args['EW_SF'])
+    parser.add_argument('--EW_hDIG', metavar='FLOAT', type=float, default=default_args['EW_hDIG'])
+    parser.add_argument('--EW_strong', metavar='FLOAT', type=float, default=default_args['EW_strong'])
+    parser.add_argument('--EW_verystrong', metavar='FLOAT', type=float, default=default_args['EW_verystrong'])
+    parser.add_argument('--min_SN_broad', metavar='FLOAT', type=float, default=default_args['min_SN_broad'])
+    parser.add_argument('--bug', metavar='FLOAT', type=float, default=default_args['bug'])
+    parser.add_argument('--dpi', metavar='INT', type=int, default=default_args['dpi'])
+    parser.add_argument('--fontsize', metavar='INT', type=int, default=default_args['fontsize'])
+    args_list = sys.argv[1:]
+    # if exists file default.args, load default args
+    if os.path.isfile(default_args_file):
+        args_list.insert(0, '@%s' % default_args_file)
+    debug_var(True, args_list=args_list)
+    args = parser.parse_args(args=args_list)
+    args = parser.parse_args(args=args_list)
+    debug_var(True, args=args)
+    return args
 
-if print_color:
+args = parser_args()
+
+if args.print_color:
     class color:
         PURPLE = '\033[95m'
         CYAN = '\033[96m'
@@ -71,7 +121,6 @@ morph_name = ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'S0', 'S0a', 'Sa', 'Sab', 
 # morph_name = ['E0','E1','E2','E3','E4','E5','E6','E7','S0','S0a','Sa','Sab','Sb', 'Sbc','Sc','Scd','Sd','Sdm','I','BCD']
 
 # Files and directories
-csv_dir = 'csv'
 fname1 = 'CALIFA_3_joint_classnum.pandas.csv'
 fname2 = 'CALIFA_basic_joint.pandas.csv'
 fname3 = 'get_CALIFA_cen_broad.pandas.csv'
@@ -101,7 +150,7 @@ fnames_long = {
 df = {}
 na_values = ['BAD', 'nan', -999, '-inf', 'inf']
 for k, v in fnames_short.iteritems():
-    f_path = '%s/%s' % (csv_dir, k)
+    f_path = '%s/%s' % (args.csv_dir, k)
     # print f_path
     key_dataframe = fnames_short[k]
     df[key_dataframe] = pd.read_csv(f_path, na_values=na_values, sep=',', comment='#', header='infer', index_col=False)
@@ -117,7 +166,7 @@ for k, v in fnames_short.iteritems():
 ###############################################################################
 # BROAD BY EYE
 df['elines']['broad_by_eye'] = False
-with open('%s/list_Broad_by_eye.pandas.csv' % csv_dir, 'r') as f:
+with open('%s/list_Broad_by_eye.pandas.csv' % args.csv_dir, 'r') as f:
     for l in f.readlines():
         if l[0] != '#':
             DBName = l.strip()
@@ -139,6 +188,8 @@ df['elines']['e_B_V'] = df['mag_cubes_v2.2']['error_B_V']
 df['elines']['B_R'] = df['mag_cubes_v2.2']['B_R']
 df['elines']['e_B_R'] = df['mag_cubes_v2.2']['error_B_R']
 df['elines']['u'] = df['mag_cubes_v2.2']['u_band_mag']
+df['elines']['g'] = df['mag_cubes_v2.2']['g_band_mag']
+df['elines']['r'] = df['mag_cubes_v2.2']['r_band_mag']
 df['elines']['i'] = df['mag_cubes_v2.2']['i_band_mag']
 df['elines']['redshift'] = df['mag_cubes_v2.2']['redshift']
 df['elines']['morph'] = df['3_joint']['hubtyp']
@@ -207,7 +258,7 @@ df['elines']['log_NII_Ha_cen_fit'] = np.log10(df['elines']['NII_6583'] / df['eli
 # sys.exit()
 
 # REMOVE SOME GALS FROM AGN STUDY
-with open('%s/remove_gals_AGNpaper.csv' % csv_dir, 'r') as f:
+with open('%s/remove_gals_AGNpaper.csv' % args.csv_dir, 'r') as f:
     DBNames_to_drop = []
     for l in f.readlines():
         if l[0] != '#':
@@ -241,7 +292,7 @@ consts_K01_SII_Ha = L.consts['K01_SII_Ha']
 consts_K01_OI_Ha = L.consts['K01_OI_Ha']
 consts_K03 = L.consts['K03']
 consts_S06 = L.consts['S06']
-if sigma_clip:
+if args.sigma_clip:
     consts_K01 = L.sigma_clip_consts['K01']
     consts_K01_SII_Ha = L.sigma_clip_consts['K01_SII_Ha']
 ###############################################################
@@ -281,11 +332,11 @@ sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_O
 sel_AGN_OIHa_OIIIHb_K01 = sel_OIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01_OI)
 sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01
 sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01 & sel_AGN_OIHa_OIIIHb_K01
-sel_AGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > EW_hDIG*bug))
-sel_SAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > EW_strong*bug))
-sel_VSAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > EW_verystrong*bug))
-sel_pAGB = sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen <= EW_hDIG)
-sel_SF_EW = sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen > EW_SF*bug)
+sel_AGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug))
+sel_SAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug))
+sel_VSAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug))
+sel_pAGB = sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen <= args.EW_hDIG)
+sel_SF_EW = sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen > args.EW_SF*args.bug)
 ###############################################################################
 # END SETTING VALUES ##########################################################
 ###############################################################################
@@ -338,45 +389,45 @@ N_NO_GAS = N_TOT - N_GAS
 m = sel_AGNLINER_NIIHa_OIIIHb
 N_AGN_NII_Ha = m.values.astype('int').sum()
 # plus EW(Ha)
-N_AGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
-N_SAGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
-N_VSAGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
+N_AGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+N_SAGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+N_VSAGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
 # SF
 m = sel_SF_NIIHa_OIIIHb_K01
 N_SF_K01 = m.values.astype('int').sum()
-N_SF_K01_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
-N_SSF_K01 = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
-N_VSSF_K01 = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
+N_SF_K01_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+N_SSF_K01 = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+N_VSSF_K01 = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
 m = sel_SF_NIIHa_OIIIHb_K03
 N_SF_K03 = m.values.astype('int').sum()
-N_SF_K03_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
-elines.loc[(m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)), 'TYPE'] = 6
-N_SSF_K03 = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
-elines.loc[(m & sel_EW & (EW_Ha_cen > EW_strong*bug)), 'TYPE'] = 1
-N_VSSF_K03 = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
+N_SF_K03_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)), 'TYPE'] = 6
+N_SSF_K03 = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)), 'TYPE'] = 1
+N_VSSF_K03 = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
 m = sel_SF_NIIHa_OIIIHb_S06
 N_SF_S06 = m.values.astype('int').sum()
-N_SF_S06_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
-N_SSF_S06 = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
-N_VSSF_S06 = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
+N_SF_S06_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+N_SSF_S06 = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+N_VSSF_S06 = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
 ###############################################################
 # [OIII] vs [NII] + [OIII] vs [SII]
 ###############################################################
 m = sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01
 N_AGN_NII_SII_Ha = m.values.astype('int').sum()
 # plus EW(Ha)
-N_AGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
-N_SAGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
-N_VSAGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
+N_AGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+N_SAGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+N_VSAGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
 ###############################################################
 # [OIII] vs [NII] + [OIII] vs [OI]
 ###############################################################
 m = sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01
 N_AGN_NII_OI_Ha = m.values.astype('int').sum()
 # plus EW(Ha)
-N_AGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
-N_SAGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
-N_VSAGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
+N_AGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+N_SAGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+N_VSAGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
 ###############################################################
 # [OIII] vs [NII] + [OIII] vs [SII] + [OIII] vs [OI]
 ###############################################################
@@ -384,11 +435,11 @@ N_VSAGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.ast
 m = sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01
 N_AGN_NII_SII_OI_Ha = m.values.astype('int').sum()
 # plus EW(Ha)
-N_AGN = (m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)).values.astype('int').sum()
-elines.loc[(m & sel_EW & (EW_Ha_cen > EW_hDIG*bug)), 'TYPE'] = 2
-N_SAGN = (m & sel_EW & (EW_Ha_cen > EW_strong*bug)).values.astype('int').sum()
-elines.loc[(m & sel_EW & (EW_Ha_cen > EW_strong*bug)), 'TYPE'] = 3
-N_VSAGN = (m & sel_EW & (EW_Ha_cen > EW_verystrong*bug)).values.astype('int').sum()
+N_AGN = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)), 'TYPE'] = 2
+N_SAGN = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)), 'TYPE'] = 3
+N_VSAGN = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
 ###############################################################
 ###############################################################
 # pAGB
@@ -409,8 +460,10 @@ N_SF_EW = (m).values.astype('int').sum()
 m = (elines['TYPE'] == 2) | (elines['TYPE'] == 3)
 elines.loc[m, 'AGN_FLAG'] = 2
 # m = ((elines['SN_broad'] > 8) & ((elines['TYPE'] == 2) | (elines['TYPE'] == 3))) | (elines['broad_by_eye'] == True)
-m = (elines['SN_broad'] > 8) & (elines['AGN_FLAG'] == 2) | (elines['broad_by_eye'] == True)
-# m = (elines['SN_broad'] > 8)
+if args.broad_fit_rules:
+    m = (elines['SN_broad'] > 8)
+else:
+    m = (elines['SN_broad'] > args.min_SN_broad) & (elines['AGN_FLAG'] == 2) | (elines['broad_by_eye'] == True)
 elines.loc[m, 'AGN_FLAG'] = 1
 N_AGN_tI = elines['AGN_FLAG'].loc[elines['AGN_FLAG']==1].count()
 N_AGN_tII = elines['AGN_FLAG'].loc[elines['AGN_FLAG']==2].count()
@@ -422,17 +475,17 @@ columns_to_csv = [
     'log_OI_Ha_cen', 'e_log_OI_Ha_cen',
     'EW_Ha_cen_mean', 'EW_Ha_cen_stddev',
 ]
-elines.loc[elines['AGN_FLAG'] > 0].to_csv('AGN_CANDIDATES.csv', columns=columns_to_csv)
+elines.loc[elines['AGN_FLAG'] > 0].to_csv('%s/AGN_CANDIDATES.csv' % args.csv_dir, columns=columns_to_csv)
 # OUTPUT ######################################################################
 print '#AC##################'
 print '#AC# %sN.TOTAL%s = %d' % (color.B, color.E, N_TOT)
 print '#AC# %sN.NO GAS%s (without %s[NII]/Ha%s and %s[OIII]/Hb%s) = %d' % (color.B, color.E, color.B, color.E, color.B, color.E, N_NO_GAS)
 print '#AC##################'
 print '#AC# %sEW cuts%s:' % (color.B, color.E)
-print '#AC# \t%snot-pAGB%s (%sN%s): EW > %d * %.2f A' % (color.B, color.E, color.B, color.E, EW_hDIG, bug)
-print '#AC# \t%sStrong%s (%sS%s): EW > %d * %.2f A' % (color.B, color.E, color.B, color.E, EW_strong, bug)
-print '#AC# \t%sVery strong%s (%sVS%s): EW > %d * %.2f A' % (color.B, color.E, color.B, color.E, EW_verystrong, bug)
-print '#AC# \t%sSF%s: EW > %d A' % (color.B, color.E, EW_SF)
+print '#AC# \t%snot-pAGB%s (%sN%s): EW > %d * %.2f A' % (color.B, color.E, color.B, color.E, args.EW_hDIG, args.bug)
+print '#AC# \t%sStrong%s (%sS%s): EW > %d * %.2f A' % (color.B, color.E, color.B, color.E, args.EW_strong, args.bug)
+print '#AC# \t%sVery strong%s (%sVS%s): EW > %d * %.2f A' % (color.B, color.E, color.B, color.E, args.EW_verystrong, args.bug)
+print '#AC# \t%sSF%s: EW > %d A' % (color.B, color.E, args.EW_SF)
 print '#AC##################'
 print '#AC# N.AGNs/LINERs candidates by [NII]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_Ha, color.B, color.E, N_AGN_NII_Ha_EW, color.B, color.E, N_SAGN_NII_Ha_EW, color.B, color.E, N_VSAGN_NII_Ha_EW)
 print '#AC# N.AGNs candidates by [NII]/Ha and [SII]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_Ha, color.B, color.E, N_AGN_NII_SII_Ha_EW, color.B, color.E, N_SAGN_NII_SII_Ha_EW, color.B, color.E, N_VSAGN_NII_SII_Ha_EW)
@@ -452,7 +505,7 @@ print '#AC##################\n'
 ###############################################################################
 # BEGIN PLOTS #################################################################
 ###############################################################################
-if plot:
+if args.plot:
     latex_ppi = 72.0
     latex_column_width_pt = 240.0
     latex_column_width = latex_column_width_pt/latex_ppi
@@ -503,7 +556,7 @@ if plot:
         return plt.figure(fignum, figsize, dpi=dpi)
 
 
-    def plot_colored_by_EW(x, y, z, xlabel=None, ylabel=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, verbose=False, output_name=None, markAGNs=False, f=None, ax=None):
+    def plot_colored_by_EW(x, y, z, xlabel=None, ylabel=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, verbose=0, output_name=None, markAGNs=False, f=None, ax=None):
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
         if f is None:
             f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
@@ -515,14 +568,14 @@ if plot:
             ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
             ax.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
         if xlabel is not None:
-            ax.set_xlabel(xlabel, fontsize=fs+1)
+            ax.set_xlabel(xlabel, fontsize=args.fontsize+1)
         if ylabel is not None:
-            ax.set_ylabel(ylabel, fontsize=fs+1)
+            ax.set_ylabel(ylabel, fontsize=args.fontsize+1)
         cb_width = 0.05
         cb_ax = f.add_axes([right, bottom, cb_width, top-bottom])
         cb = plt.colorbar(sc, cax=cb_ax)
-        cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=fs+1)
-        cb.locator = MaxNLocator(4)
+        cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=args.fontsize+1)
+        cb.locator = MaxNLocator(3)
         # cb_ax.minorticks_on()
         cb_ax.tick_params(which='both', direction='in')
         cb.update_ticks()
@@ -536,17 +589,17 @@ if plot:
         tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
         ax.tick_params(**tick_params)
         ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
-        if verbose:
+        if verbose > 0:
             print '# x #'
             xlim = ax.get_xlim()
             x_low = x.loc[x < xlim[0]]
             x_upp = x.loc[x > xlim[1]]
             print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in x_low.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
             print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in x_upp.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
             print '#####'
@@ -555,16 +608,16 @@ if plot:
             y_low = y.loc[y < ylim[0]]
             y_upp = y.loc[y > ylim[1]]
             print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in y_low.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
             print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in y_upp.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
             print '#####'
         if output_name is not None:
-            f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
+            f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         return f, ax
     ############################
 
@@ -582,7 +635,7 @@ if plot:
     ax0 = plt.subplot(gs[0])
     ax1 = plt.subplot(gs[1])
     ax2 = plt.subplot(gs[2])
-    fs = 7
+    fs = args.fontsize + 1
     y = log_OIII_Hb_cen
     ##########################
     ### NII/Ha
@@ -655,7 +708,7 @@ if plot:
     cb = plt.colorbar(sc, cax=cb_ax)
     cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=fs+4)
     cb_ax.tick_params(direction='in')
-    cb.locator = MaxNLocator(4)
+    cb.locator = MaxNLocator(3)
     cb.update_ticks()
     ax.plot(L.x['K01_OI_Ha'], L.y['K01_OI_Ha'], 'k--')
     ax.plot(L.x['K06_OI_Ha'], L.y['K06_OI_Ha'], 'k-.')
@@ -672,7 +725,7 @@ if plot:
     ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
     ##########################
     f.text(0.01, 0.5, r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', va='center', rotation='vertical', fontsize=fs+4)
-    f.savefig('fig_BPT.%s' % img_suffix, dpi=_dpi_choice, transparent=_transp_choice)
+    f.savefig('%s/fig_BPT.%s' % (args.figs_dir, args.img_suffix), dpi=args.dpi, transparent=_transp_choice)
     print '##########################\n'
     ##########################
 
@@ -695,8 +748,8 @@ if plot:
                        xlabel=xlabel, extent=extent,
                        n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                        n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                       verbose=verbose,
-                       output_name='fig_SFMS.%s' % img_suffix)
+                       verbose=args.verbose,
+                       output_name='%s/fig_SFMS.%s' % (args.figs_dir, args.img_suffix))
     print '###########################\n'
     print '\n####################################'
     print '## SFMS colored by EW_Ha (NO CEN) ##'
@@ -706,8 +759,8 @@ if plot:
                        xlabel=xlabel, extent=extent,
                        n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                        n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                       verbose=verbose,
-                       output_name='fig_SFMS_NC.%s' % img_suffix)
+                       verbose=args.verbose,
+                       output_name='%s/fig_SFMS_NC.%s' % (args.figs_dir, args.img_suffix))
     print '####################################\n'
     ################################
 
@@ -727,8 +780,8 @@ if plot:
                        extent=[8, 13, 0.5, 5.5],
                        n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                        n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                       verbose=verbose,
-                       output_name='fig_M_C.%s' % img_suffix)
+                       verbose=args.verbose,
+                       output_name='%s/fig_M_C.%s' % (args.figs_dir, args.img_suffix))
     print '##########################\n'
     ##########################
 
@@ -742,7 +795,7 @@ if plot:
     n_bins_min_x = 2
     n_bins_maj_y = 6
     n_bins_min_y = 2
-    output_name = 'fig_sSFR_C.%s' % img_suffix
+    output_name = '%s/fig_sSFR_C.%s' % (args.figs_dir, args.img_suffix)
     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
     N_rows, N_cols = 1, 1
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
@@ -754,10 +807,10 @@ if plot:
                                extent=[-13.5, -8.5, 0.5, 5.5], markAGNs=True,
                                n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                                n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                               verbose=verbose)
+                               verbose=args.verbose)
     ax.axvline(x=-11.8, c='k', ls='--')
     ax.axvline(x=-10.8, c='k', ls='--')
-    f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
+    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     print '#############################\n'
     ##########################
 
@@ -771,7 +824,7 @@ if plot:
     n_bins_min_x = 2
     n_bins_maj_y = 5
     n_bins_min_y = 2
-    output_name = 'fig_M_sSFR.%s' % img_suffix
+    output_name = '%s/fig_M_sSFR.%s' % (args.figs_dir, args.img_suffix)
     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
     N_rows, N_cols = 1, 1
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
@@ -783,43 +836,41 @@ if plot:
                                extent=[8, 13, -13.5, -8.5], markAGNs=True,
                                n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                                n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                               verbose=verbose)
+                               verbose=args.verbose)
     ax.axhline(y=-11.8, c='k', ls='--')
     ax.axhline(y=-10.8, c='k', ls='--')
-    f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
+    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     print '#############################\n'
     ##########################
 
     ################################
     ## X Y histo colored by EW_Ha ##
     ################################
-    def plot_histo_xy_colored_by_EW(x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=False):
-        ax_Hx.hist(x, bins=20, range=xrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
-        ax_Hx.hist(x[mtI], bins=20, range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
-        ax_Hx.hist(x[mtII], bins=20, hatch='//////', range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
+    def plot_histo_xy_colored_by_EW(x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=0):
+        ax_Hx.hist(x, bins=10, range=xrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
+        ax_Hx.hist(x[mtI], bins=10, range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
+        ax_Hx.hist(x[mtII], bins=10, hatch='//////', range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
         ax_Hx.set_xlabel(xlabel)
         ax_Hx.set_xlim(xrange)
         ax_Hx.xaxis.set_major_locator(MaxNLocator(n_bins_maj_x, prune=prune_x))
         ax_Hx.xaxis.set_minor_locator(AutoMinorLocator(n_bins_min_x))
-        ax_Hx.set_ylim(0, 1)
+        # ax_Hx.set_ylim(0, 1)
         ax_Hx.yaxis.set_major_locator(MaxNLocator(2, prune='upper'))
         ax_Hx.yaxis.set_minor_locator(AutoMinorLocator(5))
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=True, right=True, labelbottom=True, labeltop=False, labelleft=False, labelright=True)
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=False, right=False, labelbottom=True, labeltop=False, labelleft=False, labelright=False)
         ax_Hx.tick_params(**tick_params)
         ####################################
-        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
-        ax_Hy.hist(y[mtI], orientation='horizontal', bins=20, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
-        ax_Hy.hist(y[mtII], orientation='horizontal', bins=20, hatch='//////', range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
-        # ax_Hy.hist(y[mtI], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
-        # ax_Hy.hist(y[mtII], orientation='horizontal', hatch='//', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
+        ax_Hy.hist(y, orientation='horizontal', bins=10, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
+        ax_Hy.hist(y[mtI], orientation='horizontal', bins=10, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
+        ax_Hy.hist(y[mtII], orientation='horizontal', bins=10, hatch='//////', range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
         ax_Hy.set_ylabel(ylabel)
         ax_Hy.set_ylim(yrange)
         ax_Hy.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
         ax_Hy.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
-        ax_Hy.set_xlim(0, 1)
+        # ax_Hy.set_xlim(0, 1)
         ax_Hy.xaxis.set_major_locator(MaxNLocator(2, prune='upper'))
         ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(5))
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=False, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
+        tick_params = dict(axis='both', which='both', direction='in', bottom=False, top=False, left=True, right=False, labelbottom=False, labeltop=False, labelleft=True, labelright=False)
         ax_Hy.tick_params(**tick_params)
         ####################################
         sc = ax_sc.scatter(x, y, c=z, **scatter_kwargs)
@@ -838,23 +889,23 @@ if plot:
         cb_width = 0.05
         cb_ax = f.add_axes([pos.x1, pos.y0, cb_width, pos.y1-pos.y0])
         cb = plt.colorbar(sc, cax=cb_ax)
-        cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=fs+1)
-        cb.locator = MaxNLocator(4)
+        cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=args.fontsize+2)
+        cb.locator = MaxNLocator(3)
         # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
         cb_ax.tick_params(which='both', direction='in')
         cb.update_ticks()
         ####################################
-        if verbose:
+        if verbose > 0:
             print '# x #'
             xlim = ax_sc.get_xlim()
             x_low = x.loc[x < xlim[0]]
             x_upp = x.loc[x > xlim[1]]
             print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in x_low.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
             print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in x_upp.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
             print '#####'
@@ -863,11 +914,11 @@ if plot:
             y_low = y.loc[y < ylim[0]]
             y_upp = y.loc[y > ylim[1]]
             print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in y_low.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
             print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in y_upp.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
             print '#####'
@@ -932,21 +983,21 @@ if plot:
         y, ylabel, n_bins_maj_y, n_bins_min_y, prune_y = v[5:10]
         extent = v[-1]
         z = v[-2]
-        output_name = '%s.%s' % (k, img_suffix)
+        output_name = '%s/%s.%s' % (args.figs_dir, k, args.img_suffix)
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
         gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax_Hx = plt.subplot(gs[-1, 1:])
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
-        plot_histo_xy_colored_by_EW(x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=xlabel, xrange=extent[0:2], n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, ylabel=ylabel, yrange=extent[2:4], n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=prune_y, verbose=verbose)
+        plot_histo_xy_colored_by_EW(x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=xlabel, xrange=extent[0:2], n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, ylabel=ylabel, yrange=extent[2:4], n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=prune_y, verbose=args.verbose)
         if k == 'fig_histo_sSFR_C':
             ax_sc.axvline(x=-11.8, c='k', ls='--')
             ax_sc.axvline(x=-10.8, c='k', ls='--')
         if k == 'fig_histo_M_sSFR':
             ax_sc.axhline(y=-11.8, c='k', ls='--')
             ax_sc.axhline(y=-10.8, c='k', ls='--')
-        f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
+        f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         print '################################\n'
     print '################################\n'
     ################################
@@ -995,50 +1046,45 @@ if plot:
         ticks = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
         ax.set_xticks(ticks)
         ax.set_xticklabels([morph_name[tick] for tick in ticks], rotation=90)
-        ax.set_ylim(0, 0.5)
         ax.yaxis.set_major_locator(MaxNLocator(2, prune='upper'))
         ax.yaxis.set_minor_locator(AutoMinorLocator(5))
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=True, right=True, labelbottom=True, labeltop=False, labelleft=False, labelright=True)
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=False, right=False, labelbottom=True, labeltop=False, labelleft=False, labelright=False)
         ax.tick_params(**tick_params)
         ####################################
-        if verbose:
+        if verbose > 0:
             print '# x #'
             xlim = ax.get_xlim()
             x_low = x.loc[x < xlim[0]]
             x_upp = x.loc[x > xlim[1]]
             print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in x_low.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines_wmorph.loc[i, 'AGN_FLAG'])
             print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in x_upp.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines_wmorph.loc[i, 'AGN_FLAG'])
             print '#####'
         return ax
 
 
-    def plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=False):
-        # ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True)
-        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
+    def plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=0):
+        ax_Hy.hist(y, orientation='horizontal', bins=10, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
         m = np.linspace(7, 19, 13).astype('int')
         y_mean = np.array([y.loc[morph == mt].mean() for mt in m])
-        # ax_Hy.hist(y[mtI], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
-        ax_Hy.hist(y[mtI], orientation='horizontal', bins=20, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
+        ax_Hy.hist(y[mtI], orientation='horizontal', bins=10, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
         N_y_tI_above = np.array([np.array(y.loc[mtI & (morph == mt)] > y.loc[mtI & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
         print '# Type-I AGN above mean: %d (%.1f%%)' % (N_y_tI_above, 100.*N_y_tI_above/y[mtI].count())
-        # ax_Hy.hist(y[mtII], orientation='horizontal', hatch='//', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
-        ax_Hy.hist(y[mtII], orientation='horizontal', bins=20, hatch='//////', range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
+        ax_Hy.hist(y[mtII], orientation='horizontal', bins=10, hatch='//////', range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
         N_y_tII_above = np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[mtII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
         print '# Type-II AGN above mean: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
         ax_Hy.set_ylabel(ylabel)
-        # ax_Hy.set_xlim(0, 1)
         ax_Hy.xaxis.set_major_locator(MaxNLocator(2, prune='upper'))
         ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(5))
         ax_Hy.set_ylim(yrange)
         ax_Hy.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
         ax_Hy.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=False, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
+        tick_params = dict(axis='both', which='both', direction='in', bottom=False, top=False, left=True, right=False, labelbottom=False, labeltop=False, labelleft=True, labelright=False)
         ax_Hy.tick_params(**tick_params)
         ####################################
         sc = ax_sc.scatter(morph, y, **scatter_kwargs)
@@ -1058,23 +1104,23 @@ if plot:
         cb_width = 0.05
         cb_ax = f.add_axes([pos.x1, pos.y0, cb_width, pos.y1-pos.y0])
         cb = plt.colorbar(sc, cax=cb_ax)
-        cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=fs+1)
-        cb.locator = MaxNLocator(4)
+        cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=args.fontsize+2)
+        cb.locator = MaxNLocator(3)
         # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
         cb_ax.tick_params(which='both', direction='in')
         cb.update_ticks()
         ####################################
-        if verbose:
+        if verbose > 0:
             print '# y #'
             ylim = ax_sc.get_ylim()
             y_low = y.loc[y < ylim[0]]
             y_upp = y.loc[y > ylim[1]]
             print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in y_low.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines_wmorph.loc[i, 'AGN_FLAG'])
             print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
-            if type(verbose) is str and verbose > 'v':
+            if verbose > 1:
                 for i in y_upp.index:
                     print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines_wmorph.loc[i, 'AGN_FLAG'])
             print '#####'
@@ -1100,16 +1146,16 @@ if plot:
         ykey, yrange, ylabel, n_bins_maj_y, n_bins_min_y = v
         y = elines_wmorph[ykey]
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-        output_name = '%s.%s' % (k, img_suffix)
+        output_name = '%s/%s.%s' % (args.figs_dir, k, args.img_suffix)
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
         gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax_Hx = plt.subplot(gs[-1, 1:])
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
-        ax_Hx = plot_x_morph(ax_Hx, verbose)
-        plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc, ylabel=ylabel, yrange=yrange, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, verbose=verbose)
+        ax_Hx = plot_x_morph(ax_Hx, args.verbose)
+        plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc, ylabel=ylabel, yrange=yrange, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, verbose=args.verbose)
         # gs.tight_layout(f)
-        f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
+        f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         print '############################\n'
     print '############################\n'
     ############################
