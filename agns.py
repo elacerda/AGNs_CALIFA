@@ -531,7 +531,7 @@ if plot:
         ax.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
         ax.xaxis.set_minor_locator(AutoMinorLocator(n_bins_min_x))
         ax.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
         ax.tick_params(**tick_params)
         ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
         if verbose:
@@ -599,7 +599,7 @@ if plot:
     ax.set_xlabel(r'$\log\ ({\rm [NII]}/{\rm H\alpha})$', fontsize=fs+4)
     plot_text_ax(ax, 'SF', 0.1, 0.05, fs+2, 'bottom', 'left', 'k')
     plot_text_ax(ax, 'AGN/LINER', 0.9, 0.95, fs+2, 'top', 'right', 'k')
-    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
     ax.set_xlim(extent[0:2])
     ax.set_ylim(extent[2:4])
     ax.xaxis.set_major_locator(MaxNLocator(3, prune='both'))
@@ -627,7 +627,7 @@ if plot:
     plot_text_ax(ax, 'SF', 0.1, 0.05, fs+2, 'bottom', 'left', 'k')
     plot_text_ax(ax, 'AGN', 0.65, 0.95, fs+2, 'top', 'right', 'k')
     plot_text_ax(ax, 'LINER', 0.95, 0.85, fs+2, 'top', 'right', 'k')
-    tick_params['labelleft'] = 'off'
+    tick_params['labelleft'] = False
     ax.set_xlim(extent[0:2])
     ax.set_ylim(extent[2:4])
     ax.xaxis.set_major_locator(MaxNLocator(3, prune='both'))
@@ -802,7 +802,7 @@ if plot:
         ax_Hx.set_ylim(0, 1)
         ax_Hx.yaxis.set_major_locator(MaxNLocator(2, prune='upper'))
         ax_Hx.yaxis.set_minor_locator(AutoMinorLocator(5))
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=True, right=True, labelbottom='on', labeltop='off', labelleft='off', labelright='on')
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=True, right=True, labelbottom=True, labeltop=False, labelleft=False, labelright=True)
         ax_Hx.tick_params(**tick_params)
         ####################################
         ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
@@ -817,7 +817,7 @@ if plot:
         ax_Hy.set_xlim(0, 1)
         ax_Hy.xaxis.set_major_locator(MaxNLocator(2, prune='upper'))
         ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(5))
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=False, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=False, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
         ax_Hy.tick_params(**tick_params)
         ####################################
         sc = ax_sc.scatter(x, y, c=z, **scatter_kwargs)
@@ -829,7 +829,7 @@ if plot:
         ax_sc.set_ylim(ax_Hy.get_ylim())
         ax_sc.yaxis.set_major_locator(ax_Hy.yaxis.get_major_locator())
         ax_sc.yaxis.set_minor_locator(ax_Hy.yaxis.get_minor_locator())
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='off', labeltop='off', labelleft='off', labelright='off')
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=False, labeltop=False, labelleft=False, labelright=False)
         ax_sc.tick_params(**tick_params)
         ####################################
         pos = ax_sc.get_position()
@@ -996,7 +996,7 @@ if plot:
         ax.set_ylim(0, 0.5)
         ax.yaxis.set_major_locator(MaxNLocator(2, prune='upper'))
         ax.yaxis.set_minor_locator(AutoMinorLocator(5))
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=True, right=True, labelbottom='on', labeltop='off', labelleft='off', labelright='on')
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=True, right=True, labelbottom=True, labeltop=False, labelleft=False, labelright=True)
         ax.tick_params(**tick_params)
         ####################################
         if verbose:
@@ -1036,7 +1036,7 @@ if plot:
         ax_Hy.set_ylim(yrange)
         ax_Hy.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
         ax_Hy.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=False, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=False, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
         ax_Hy.tick_params(**tick_params)
         ####################################
         sc = ax_sc.scatter(morph, y, **scatter_kwargs)
@@ -1049,7 +1049,7 @@ if plot:
         ax_sc.set_ylim(ax_Hy.get_ylim())
         ax_sc.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
         ax_sc.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
-        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='off', labeltop='off', labelleft='off', labelright='off')
+        tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=False, labeltop=False, labelleft=False, labelright=False)
         ax_sc.tick_params(**tick_params)
         ####################################
         pos = ax_sc.get_position()
