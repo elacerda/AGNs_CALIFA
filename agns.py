@@ -18,8 +18,8 @@ EW_hDIG = 3
 EW_strong = 6
 EW_verystrong = 10
 sigma_clip = True
-plot = True
 plot = False
+plot = True
 # print_color = True
 print_color = False
 mpl.rcParams['font.family'] = 'serif'
@@ -165,6 +165,10 @@ df['elines'].loc[df['elines']['log_Mass'] < 0, 'log_Mass'] = np.nan
 df['elines'].loc[df['elines']['lSFR'] < -10, 'lSFR'] = np.nan
 df['elines'].loc[df['elines']['lSFR_NO_CEN'] < -10, 'lSFR_NO_CEN'] = np.nan
 df['elines'].loc[df['elines']['log_Mass_gas'] == -12, 'log_Mass_gas'] = np.nan
+df['elines']['log_NII_Ha_cen_fit'] = np.log10(df['elines']['NII_6583'] / df['elines']['Ha_narrow'])
+# f = np.log10(df['elines']['F_Ha_cen']) - np.log10(df['elines']['Ha_narrow'])  # -16 +16
+# df['elines']['log_SII_Ha_cen_fit'] = df['elines']['log_SII_Ha_cen_mean'] + f
+# df['elines']['log_OI_Ha_cen_fit'] = df['elines']['log_OI_Ha_cen']  + f
 
 #####################
 # check unique names
@@ -220,7 +224,8 @@ with open('%s/remove_gals_AGNpaper.csv' % csv_dir, 'r') as f:
 elines = df_elines_clean.copy()
 del df_elines_clean;
 
-log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
+# log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
+log_NII_Ha_cen = elines['log_NII_Ha_cen_fit']
 elog_NII_Ha_cen = elines['log_NII_Ha_cen_stddev']
 log_SII_Ha_cen = elines['log_SII_Ha_cen_mean']
 elog_SII_Ha_cen = elines['log_SII_Ha_cen_stddev']
@@ -405,6 +410,7 @@ N_SF_EW = (m).values.astype('int').sum()
 m = (elines['TYPE'] == 2) | (elines['TYPE'] == 3)
 elines.loc[m, 'AGN_FLAG'] = 2
 m = ((elines['SN_broad'] > 8) & ((elines['TYPE'] == 2) | (elines['TYPE'] == 3))) | (elines['broad_by_eye'] == 1)
+m = ((elines['SN_broad'] > 8) & (elines['AGN_FLAG'] == 2)) | (elines['broad_by_eye'] == 1)
 elines.loc[m, 'AGN_FLAG'] = 1
 columns_to_csv = [
     'AGN_FLAG', 'SN_broad',
@@ -786,29 +792,31 @@ if plot:
     ## X Y histo colored by EW_Ha ##
     ################################
     def plot_histo_xy_colored_by_EW(x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=False):
-        ax_Hx.hist(x, bins=20, range=xrange, histtype='step', fill=True, facecolor='coral', edgecolor='none', align='mid', normed=True)
-        ax_Hx.hist(x[mtII], hatch='//', bins=20, range=xrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', normed=True)
-        ax_Hx.hist(x[mtI], hatch='////', bins=20, range=xrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', normed=True)
+        ax_Hx.hist(x, bins=20, range=xrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
+        ax_Hx.hist(x[mtI], bins=20, range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
+        ax_Hx.hist(x[mtII], bins=20, hatch='//////', range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
         ax_Hx.set_xlabel(xlabel)
         ax_Hx.set_xlim(xrange)
         ax_Hx.xaxis.set_major_locator(MaxNLocator(n_bins_maj_x, prune=prune_x))
         ax_Hx.xaxis.set_minor_locator(AutoMinorLocator(n_bins_min_x))
-        ax_Hx.set_ylim(0, 0.5)
+        ax_Hx.set_ylim(0, 1)
         ax_Hx.yaxis.set_major_locator(MaxNLocator(2, prune='upper'))
-        ax_Hx.yaxis.set_minor_locator(AutoMinorLocator(2))
+        ax_Hx.yaxis.set_minor_locator(AutoMinorLocator(5))
         tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=True, right=True, labelbottom='on', labeltop='off', labelleft='off', labelright='on')
         ax_Hx.tick_params(**tick_params)
         ####################################
-        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='coral', edgecolor='none', align='mid', normed=True)
-        ax_Hy.hist(y[mtII], orientation='horizontal', hatch='//', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', normed=True)
-        ax_Hy.hist(y[mtI], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', normed=True)
+        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
+        ax_Hy.hist(y[mtI], orientation='horizontal', bins=20, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
+        ax_Hy.hist(y[mtII], orientation='horizontal', bins=20, hatch='//////', range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
+        # ax_Hy.hist(y[mtI], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
+        # ax_Hy.hist(y[mtII], orientation='horizontal', hatch='//', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
         ax_Hy.set_ylabel(ylabel)
         ax_Hy.set_ylim(yrange)
         ax_Hy.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
         ax_Hy.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
-        ax_Hy.set_xlim(0, 0.5)
+        ax_Hy.set_xlim(0, 1)
         ax_Hy.xaxis.set_major_locator(MaxNLocator(2, prune='upper'))
-        ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(2))
+        ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(5))
         tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=False, labelbottom='on', labeltop='off', labelleft='on', labelright='off')
         ax_Hy.tick_params(**tick_params)
         ####################################
@@ -824,12 +832,14 @@ if plot:
         tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='off', labeltop='off', labelleft='off', labelright='off')
         ax_sc.tick_params(**tick_params)
         ####################################
-        divider = make_axes_locatable(ax_sc)
-        cb_ax = divider.append_axes('right', size='-10%')
+        pos = ax_sc.get_position()
+        cb_width = 0.05
+        cb_ax = f.add_axes([pos.x1, pos.y0, cb_width, pos.y1-pos.y0])
         cb = plt.colorbar(sc, cax=cb_ax)
         cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=fs+1)
         cb.locator = MaxNLocator(4)
-        cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
+        # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
+        cb_ax.tick_params(which='both', direction='in')
         cb.update_ticks()
         ####################################
         if verbose:
@@ -959,7 +969,7 @@ if plot:
     EW_color = elines_wmorph['EW_Ha_cen_mean'].apply(np.abs).apply(np.log10)
     mtI = elines_wmorph['AGN_FLAG'] == 1
     mtII = elines_wmorph['AGN_FLAG'] == 2
-    scatter_kwargs = dict(color=EW_color, s=2, vmax=2.5, vmin=-0.5, cmap='viridis_r', marker='o', edgecolor='none')
+    scatter_kwargs = dict(c=EW_color, s=2, vmax=2.5, vmin=-0.5, cmap='viridis_r', marker='o', edgecolor='none')
     # Created to adjust the morphtype of ellipticals
     def morph_adjust(x):
         r = x
@@ -972,9 +982,12 @@ if plot:
 
     def plot_x_morph(ax, verbose):
         x = morph
-        H = ax.hist(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=True, facecolor='coral', edgecolor='none', align='mid', normed=True)
-        ax.hist(x[mtII], hatch='//', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', rwidth=1, normed=True)
-        ax.hist(x[mtI], hatch='////', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', rwidth=1, normed=True)
+        H = ax_Hx.hist(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
+        ax_Hx.hist(x[mtI], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
+        ax_Hx.hist(x[mtII], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], hatch='//////', histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
+        # ax.hist(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True)
+        # ax.hist(x[mtII], hatch='//', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', rwidth=1, density=True)
+        # ax.hist(x[mtI], hatch='////', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', rwidth=1, density=True)
         ax.set_xlabel(r'morphology')
         ax.set_xlim(6.5, 19.5)
         ticks = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
@@ -982,7 +995,7 @@ if plot:
         ax.set_xticklabels([morph_name[tick] for tick in ticks], rotation=90)
         ax.set_ylim(0, 0.5)
         ax.yaxis.set_major_locator(MaxNLocator(2, prune='upper'))
-        ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(5))
         tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=True, right=True, labelbottom='on', labeltop='off', labelleft='off', labelright='on')
         ax.tick_params(**tick_params)
         ####################################
@@ -1004,19 +1017,22 @@ if plot:
 
 
     def plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=False):
-        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='coral', edgecolor='none', align='mid', normed=True)
+        # ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True)
+        ax_Hy.hist(y, orientation='horizontal', bins=20, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
         m = np.linspace(7, 19, 13).astype('int')
         y_mean = np.array([y.loc[morph == mt].mean() for mt in m])
-        ax_Hy.hist(y[mtII], orientation='horizontal', hatch='//', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', normed=True)
-        N_y_tII_above = np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[mtII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
-        print '# Type-II AGN above mean: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
-        ax_Hy.hist(y[mtI], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', normed=True)
+        # ax_Hy.hist(y[mtI], orientation='horizontal', hatch='////', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
+        ax_Hy.hist(y[mtI], orientation='horizontal', bins=20, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
         N_y_tI_above = np.array([np.array(y.loc[mtI & (morph == mt)] > y.loc[mtI & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
         print '# Type-I AGN above mean: %d (%.1f%%)' % (N_y_tI_above, 100.*N_y_tI_above/y[mtI].count())
+        # ax_Hy.hist(y[mtII], orientation='horizontal', hatch='//', bins=20, range=yrange, histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
+        ax_Hy.hist(y[mtII], orientation='horizontal', bins=20, hatch='//////', range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
+        N_y_tII_above = np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[mtII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+        print '# Type-II AGN above mean: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
         ax_Hy.set_ylabel(ylabel)
-        ax_Hy.set_xlim(0, 0.5)
+        # ax_Hy.set_xlim(0, 1)
         ax_Hy.xaxis.set_major_locator(MaxNLocator(2, prune='upper'))
-        ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(2))
+        ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(5))
         ax_Hy.set_ylim(yrange)
         ax_Hy.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
         ax_Hy.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
@@ -1036,12 +1052,14 @@ if plot:
         tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom='off', labeltop='off', labelleft='off', labelright='off')
         ax_sc.tick_params(**tick_params)
         ####################################
-        divider = make_axes_locatable(ax_sc)
-        cb_ax = divider.append_axes('right', size='5%', pad=0.05)
-        cb = plt.colorbar(sc, cax=cb_ax, orientation='vertical')
+        pos = ax_sc.get_position()
+        cb_width = 0.05
+        cb_ax = f.add_axes([pos.x1, pos.y0, cb_width, pos.y1-pos.y0])
+        cb = plt.colorbar(sc, cax=cb_ax)
         cb.set_label(r'$\log\ |{\rm W}_{{\rm H}\alpha}|$', fontsize=fs+1)
         cb.locator = MaxNLocator(4)
-        cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
+        # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
+        cb_ax.tick_params(which='both', direction='in')
         cb.update_ticks()
         ####################################
         if verbose:
@@ -1093,43 +1111,6 @@ if plot:
         print '############################\n'
     print '############################\n'
     ############################
-
-
-    ##################################
-    ## Morph paper colored by EW_Ha ##
-    ##################################
-    print '\n##################################'
-    print '## Morph paper colored by EW_Ha ##'
-    print '##################################'
-    output_name = 'fig_Morph_paper.%s' % img_suffix
-    ##################################
-    f = plot_setup(width=latex_text_width, aspect=1/golden_mean)
-    gs_out = gridspec.GridSpec(2, 2)
-    plots_array = [
-        [gs_out[0, 0], 'log_Mass', [8, 13], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
-        [gs_out[0, 1], 'C', [0.5, 5.5], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2],
-        [gs_out[1, 0], 'Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^{-2})$', 4, 2],
-        [gs_out[1, 1], 'rat_vel_sigma', [0, 1], r'${\rm v}/\sigma ({\rm R} < {\rm Re})$', 2, 2]
-    ]
-    ##################################
-    for plot_config in plots_array:
-        gs_loop, ykey, yrange, ylabel, n_bins_maj_y, n_bins_min_y = plot_config
-        print '# %s' % ykey
-        y = elines_wmorph[ykey]
-        N_rows, N_cols = 4, 4
-        gs = gridspec.GridSpecFromSubplotSpec(N_rows, N_cols, hspace=0., wspace=0., subplot_spec=gs_loop)
-        ax_Hx = plt.subplot(gs[-1, 1:])
-        ax_Hy = plt.subplot(gs[0:3, 0])
-        ax_sc = plt.subplot(gs[0:-1, 1:])
-        ax_Hx = plot_x_morph(ax_Hx, verbose)
-        plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc, ylabel=ylabel, yrange=yrange, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, verbose=verbose)
-    ##################################
-    gs_out.tight_layout(f)
-    f.savefig(output_name, dpi=_dpi_choice, transparent=_transp_choice)
-    print '##################################\n'
-    ##################################
-    ###########
-    ###########
 
 ###############################################################################
 # END PLOTS ###################################################################
