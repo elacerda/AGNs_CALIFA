@@ -19,6 +19,42 @@ mpl.rcParams['axes.unicode_minus'] = False
 mpl.rcParams['legend.numpoints'] = 1
 _transp_choice = False
 
+def redf(func, x, fill_value):
+    if x.size == 0: return fill_value, fill_value
+    if x.ndim == 1: return func(x), len(x)
+    return func(x, axis=-1), x.shape[-1]
+
+
+def mean_xy_bins_interval(x, y, bins__r, interval=None, mode='mean'):
+    if mode == 'mean':
+        reduce_func = np.mean
+    elif mode == 'median':
+        reduce_func = np.median
+    elif mode == 'sum':
+        reduce_func = np.sum
+    elif mode == 'var':
+        reduce_func = np.var
+    elif mode == 'std':
+        reduce_func = np.std
+    else:
+        raise ValueError('Invalid mode: %s' % mode)
+    nbins = len(bins__r) - 1
+    m = ~(np.isnan(x) | np.isnan(y))
+    if interval is not None:
+        m &= (x > interval[0]) & (x < interval[1]) & (y > interval[2]) & (y < interval[3])
+    X = x[m]
+    Y = y[m]
+    iS = np.argsort(X)
+    XS = X[iS]
+    YS = Y[iS]
+    Y__R = np.empty((nbins,), dtype='float')
+    idx = np.digitize(XS, bins__r)
+    N__R = np.empty((nbins,))
+    for i in range(0, nbins):
+        Y__R[i], N__R[i] = redf(reduce_func, YS[idx == i+1], np.nan)
+    return Y__R, N__R
+
+
 def parser_args(default_args_file='args/default.args'):
     '''
         Parse the command line args
@@ -618,6 +654,7 @@ if args.plot:
             print '#####'
         if output_name is not None:
             f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+            plt.close(f)
         return f, ax
     ############################
 
@@ -726,6 +763,7 @@ if args.plot:
     ##########################
     f.text(0.01, 0.5, r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', va='center', rotation='vertical', fontsize=fs+4)
     f.savefig('%s/fig_BPT.%s' % (args.figs_dir, args.img_suffix), dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
     print '##########################\n'
     ##########################
 
@@ -738,7 +776,7 @@ if args.plot:
     print '###########################'
     x = elines['log_Mass']
     xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
-    extent = [8, 13, -4.5, 2.5]
+    extent = [8, 12.5, -4.5, 2.5]
     n_bins_min_x = 2
     n_bins_maj_y = 4
     n_bins_min_y = 2
@@ -777,7 +815,7 @@ if args.plot:
     plot_colored_by_EW(x=elines['log_Mass'], y=elines['C'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
                        xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
                        ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
-                       extent=[8, 13, 0.5, 5.5],
+                       extent=[8, 12.5, 0.5, 5.5],
                        n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                        n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                        verbose=args.verbose,
@@ -811,6 +849,7 @@ if args.plot:
     ax.axvline(x=-11.8, c='k', ls='--')
     ax.axvline(x=-10.8, c='k', ls='--')
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
     print '#############################\n'
     ##########################
 
@@ -833,13 +872,14 @@ if args.plot:
     f, ax = plot_colored_by_EW(f=f, ax=ax, y=elines['lSFR'] - elines['log_Mass'], x=elines['log_Mass'], z=EW_Ha_cen.apply(np.log10),
                                ylabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
                                xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                               extent=[8, 13, -13.5, -8.5], markAGNs=True,
+                               extent=[8, 12.5, -13.5, -8.5], markAGNs=True,
                                n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                                n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                                verbose=args.verbose)
     ax.axhline(y=-11.8, c='k', ls='--')
     ax.axhline(y=-10.8, c='k', ls='--')
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
     print '#############################\n'
     ##########################
 
@@ -948,19 +988,19 @@ if args.plot:
         ###########################
         ## SFMS colored by EW_Ha ##
         ###########################
-        'fig_histo_SFMS': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None, EW_Ha_cen.apply(np.log10), [8, 13, -4.5, 2.5]],
+        'fig_histo_SFMS': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None, EW_Ha_cen.apply(np.log10), [8, 12.5, -4.5, 2.5]],
         ###########################
 
         ####################################
         ## SFMS colored by EW_Ha (NO CEN) ##
         ####################################
-        'fig_histo_SFMS_NC': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None, EW_Ha_cen.apply(np.log10), [8, 13, -4.5, 2.5]],
+        'fig_histo_SFMS_NC': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None, EW_Ha_cen.apply(np.log10), [8, 12.5, -4.5, 2.5]],
         ####################################
 
         ##########################
         ## M-C colored by EW_Ha ##
         ##########################
-        'fig_histo_M_C': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None, EW_Ha_cen.apply(np.log10), [8, 13, 0.5, 5.5]],
+        'fig_histo_M_C': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None, EW_Ha_cen.apply(np.log10), [8, 12.5, 0.5, 5.5]],
         ##########################
 
         #############################
@@ -972,8 +1012,32 @@ if args.plot:
         #############################
         ## M-sSFR colored by EW_Ha ##
         #############################
-        'fig_histo_M_sSFR': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None, EW_Ha_cen.apply(np.log10), [8, 13, -13.5, -8.5]],
+        'fig_histo_M_sSFR': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None, EW_Ha_cen.apply(np.log10), [8, 12.5, -13.5, -8.5]],
         #############################
+
+        ###############################
+        ## M-ZHLWRe colored by EW_Ha ##
+        ###############################
+        'fig_histo_M_ZHLW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['ZH_LW_Re_fit'], r'[Z/H] LW', 5, 2, None, EW_Ha_cen.apply(np.log10), [8, 12.5, -1, 0.5]],
+        ###############################
+
+        ###############################
+        ## M-ZHLWRe colored by EW_Ha ##
+        ###############################
+        'fig_histo_M_ZHLW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None, EW_Ha_cen.apply(np.log10), [8, 12.5, -0.7, 0.3]],
+        ###############################
+
+        ###############################
+        ## M-ZHMWRe colored by EW_Ha ##
+        ###############################
+        'fig_histo_M_ZHMW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['ZH_MW_Re_fit'], r'[Z/H] LW', 3, 2, None, EW_Ha_cen.apply(np.log10), [8, 12.5, -0.7, 0.3]],
+        ###############################
+
+        ##########################
+        ## MZR colored by EW_Ha ##
+        ##########################
+        'fig_histo_MZR': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['OH_Re_fit_t2'], r'$12 + \log (O/H)$ t2 ', 2, 5, None, EW_Ha_cen.apply(np.log10), [8, 12.5, 8.3, 9.1]],
+        ###############################
     }
 
     for k, v in plot_histo_xy_dict.iteritems():
@@ -997,7 +1061,53 @@ if args.plot:
         if k == 'fig_histo_M_sSFR':
             ax_sc.axhline(y=-11.8, c='k', ls='--')
             ax_sc.axhline(y=-10.8, c='k', ls='--')
+        if k == 'fig_histo_MZR':
+            ### MZR ###
+            from scipy.optimize import curve_fit
+            def modlogOHSF2017(x, a, b, c):
+                return a + b * (x - c) * np.exp(c - x)
+            def modlogOHSF2017_t2(x):
+                a = 8.85
+                b = 0.007
+                c = 11.5
+                return modlogOHSF2017(x, a, b, c)
+            mXnotnan = ~np.isnan(x)
+            X = x.loc[mXnotnan].values
+            iS = np.argsort(X)
+            XS = X[iS]
+            elines['modlogOHSF2017_t2'] = modlogOHSF2017_t2(elines['log_Mass'])
+            YS = (elines['modlogOHSF2017_t2'].loc[mXnotnan].values)[iS]
+            mY = YS > 8.4
+            mX = XS < 11.5
+            ax_sc.plot(XS[mX & mY], YS[mX & mY], 'k-')
+            ### best-fit ###
+            mnotnan = ~(np.isnan(x) | np.isnan(y)) & (x < 11.5) & (x > 8.3)
+            XFIT = x.loc[mnotnan].values
+            iSFIT = np.argsort(XFIT)
+            XFITS = XFIT[iSFIT]
+            YFIT = y.loc[mnotnan].values
+            YFITS = YFIT[iSFIT]
+            popt, pcov = curve_fit(f=modlogOHSF2017, xdata=XFITS, ydata=YFITS, p0=[8.8, 0.015, 11.5], bounds=[[8.54, 0.005, 11.499], [9, 0.022, 11.501]])
+            ax_sc.plot(XFITS, modlogOHSF2017(XFITS, *popt), 'k--')
+            print 'a:%.2f b:%.4f c:%.1f' % (popt[0], popt[1], popt[2])
+            ### Above ###
+            m_y_tI_above = y.loc[mtI] > x.loc[mtI].apply(modlogOHSF2017_t2)
+            m_y_tII_above = y.loc[mtII] > x.loc[mtII].apply(modlogOHSF2017_t2)
+            print elines.loc[m_y_tI_above.index[m_y_tI_above], ['DBName', 'log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+            print elines.loc[m_y_tII_above.index[m_y_tII_above], ['DBName', 'log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+            N_y_tI_above = m_y_tI_above.astype('int').sum()
+            N_y_tII_above = m_y_tII_above.astype('int').sum()
+            print '# Type-I AGN above SF2017 curve: %d (%.1f%%)' % (N_y_tI_above, 100.*N_y_tI_above/y[mtI].count())
+            print '# Type-II AGN above SF2017 curve: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
+        if k == 'fig_histo_M_ZHMW':
+            x_bins = np.arange(8.35, 11.35+0.3, 0.3)
+            x_bincenter = (x_bins[:-1] + x_bins[1:]) / 2.0
+            nbins = len(x_bincenter)
+            interval = [8., 12, -0.7, 0.3]
+            y_mean, N_y_mean = mean_xy_bins_interval(x.values, y.values, x_bins, interval)
+            ax_sc.plot(x_bincenter, y_mean, 'k-')
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+        plt.close(f)
         print '################################\n'
     print '################################\n'
     ################################
@@ -1134,7 +1244,7 @@ if args.plot:
     print '## Morph colored by EW_Ha ##'
     print '############################'
     plots_dict = {
-        'fig_Morph_M': ['log_Mass', [8, 13], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
+        'fig_Morph_M': ['log_Mass', [8, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
         'fig_Morph_C': ['C', [0.5, 5.5], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2],
         'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^{-2})$', 4, 2],
         'fig_Morph_vsigma': ['rat_vel_sigma', [0, 1], r'${\rm v}/\sigma ({\rm R} < {\rm Re})$', 2, 2],
@@ -1156,6 +1266,7 @@ if args.plot:
         plot_morph_y_colored_by_EW(y, ax_Hx, ax_Hy, ax_sc, ylabel=ylabel, yrange=yrange, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, verbose=args.verbose)
         # gs.tight_layout(f)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+        plt.close(f)
         print '############################\n'
     print '############################\n'
     ############################
