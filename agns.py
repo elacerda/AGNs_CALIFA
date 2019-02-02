@@ -20,6 +20,15 @@ mpl.rcParams['legend.numpoints'] = 1
 _transp_choice = False
 
 
+def y_mean_std(x, y, x_bins):
+    idx = np.digitize(x, x_bins)
+    # return np.array([(y[idx == i] > y_mean[i - 1]).astype('int').sum() for i in np.unique(idx)]).sum()
+    for i in np.unique(idx):
+        delta = y[idx == i] - y_mean[i - 1]
+        sigma = delta.std()
+    return above
+
+
 def count_y_above_mean(x, y, y_mean, x_bins):
     idx = np.digitize(x, x_bins)
     # return np.array([(y[idx == i] > y_mean[i - 1]).astype('int').sum() for i in np.unique(idx)]).sum()
@@ -29,7 +38,7 @@ def count_y_above_mean(x, y, y_mean, x_bins):
     return above
 
 
-def mean_xy_bins_interval(x, y, bins__r, interval=None, mode='mean'):
+def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
     def redf(func, x, fill_value):
         if x.size == 0: return fill_value, fill_value
         if x.ndim == 1: return func(x), len(x)
@@ -49,12 +58,26 @@ def mean_xy_bins_interval(x, y, bins__r, interval=None, mode='mean'):
     iS = np.argsort(X)
     XS = X[iS]
     YS = Y[iS]
-    Y__R = np.empty((nbins,), dtype='float')
     idx = np.digitize(XS, bins__r)
+    Y__R = np.empty((nbins,), dtype='float')
     N__R = np.empty((nbins,))
-    for i in range(0, nbins):
-        Y__R[i], N__R[i] = redf(reduce_func, YS[idx == i+1], np.nan)
-    return Y__R, N__R
+    if clip is not None:
+        Yc__R = np.empty((nbins,), dtype='float')
+        Y_sigma__R = np.empty((nbins,), dtype='float')
+        Nc__R = np.empty((nbins,))
+        for i in range(0, nbins):
+            Y_bin = YS[idx == i+1]
+            Y__R[i], N__R[i] = redf(np.mean, Y_bin, np.nan)
+            delta = Y_bin - Y__R[i]
+            Y_sigma__R[i] = delta.std()
+            Y_bin = Y_bin[np.abs(delta) < clip*Y_sigma__R[i]]
+            Yc__R[i], Nc__R[i] = redf(reduce_func, Y_bin, np.nan)
+        return Yc__R, Nc__R, Y__R, N__R
+    else:
+        for i in range(0, nbins):
+            Y_bin = YS[idx == i+1]
+            Y__R[i], N__R[i] = redf(reduce_func, Y_bin, np.nan)
+        return Y__R, N__R
 
 
 def parser_args(default_args_file='args/default.args'):
@@ -248,6 +271,8 @@ df['elines']['Ha_broad'] = df['broad_fit']['Ha_broad']
 df['elines']['Ha_narrow'] = df['broad_fit']['Ha_narrow']
 df['elines']['NII_6583'] = df['broad_fit']['NII_6583']
 df['elines']['NII_6548'] = df['broad_fit']['NII_6548']
+df['elines']['EW_Ha_cen_mean'] = df['elines']['EW_Ha_cen_mean'].apply(np.abs)
+df['elines']['EW_Ha_ALL'] = df['elines']['EW_Ha_ALL'].apply(np.abs)
 df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
 df['elines'].loc[df['elines']['log_Mass'] < 0, 'log_Mass'] = np.nan
 df['elines'].loc[df['elines']['lSFR'] < -10, 'lSFR'] = np.nan
@@ -321,7 +346,7 @@ log_OI_Ha_cen = elines['log_OI_Ha_cen']
 elog_OI_Ha_cen = elines['e_log_OI_Ha_cen']
 log_OIII_Hb_cen = elines['log_OIII_Hb_cen_mean']
 elog_OIII_Hb_cen = elines['log_OIII_Hb_cen_stddev']
-EW_Ha_cen = elines['EW_Ha_cen_mean'].apply(np.abs)
+EW_Ha_cen = elines['EW_Ha_cen_mean']
 eEW_Ha_cen = elines['EW_Ha_cen_stddev']
 ###############################################################
 L = Lines()
@@ -1130,6 +1155,8 @@ if args.plot:
             print '# Type-I AGN above mean: %d (%.1f%%)' % (N_y_tI_above, 100.*N_y_tI_above/y[mtI].count())
             print '# Type-II AGN above mean: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
         if k == 'fig_histo_M_tLW' or k == 'fig_histo_M_tMW':
+            WHa = elines['EW_Ha_ALL']
+
             x_AGNs_mean = x.loc[elines['AGN_FLAG'] > 0].mean()
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
