@@ -909,9 +909,9 @@ if __name__ == '__main__':
             YS_SF = y_SF[iS]
             SFRHaS_SF = SFRHa_SF[iS]
             x_bins = np.arange(8, 11.5, 0.3)
-            aSF, bSF = np.polyfit(XS_SF, SFRHaS_SF, 1)
-            print aSF, bSF
-            ax_sc.plot(XS_SF, aSF * XS_SF + bSF, 'k--')
+            p = np.polyfit(XS_SF, SFRHaS_SF, 1)
+            print p
+            ax_sc.plot(XS_SF, np.polyfit(p, XS_SF), 'k--')
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print '################################\n'
