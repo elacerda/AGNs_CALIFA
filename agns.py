@@ -20,15 +20,6 @@ mpl.rcParams['legend.numpoints'] = 1
 _transp_choice = False
 
 
-def y_mean_std(x, y, x_bins):
-    idx = np.digitize(x, x_bins)
-    # return np.array([(y[idx == i] > y_mean[i - 1]).astype('int').sum() for i in np.unique(idx)]).sum()
-    for i in np.unique(idx):
-        delta = y[idx == i] - y_mean[i - 1]
-        sigma = delta.std()
-    return above
-
-
 def count_y_above_mean(x, y, y_mean, x_bins):
     idx = np.digitize(x, x_bins)
     # return np.array([(y[idx == i] > y_mean[i - 1]).astype('int').sum() for i in np.unique(idx)]).sum()
@@ -38,7 +29,7 @@ def count_y_above_mean(x, y, y_mean, x_bins):
     return above
 
 
-def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
+def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, z=None, mode='mean'):
     def redf(func, x, fill_value):
         if x.size == 0: return fill_value, fill_value
         if x.ndim == 1: return func(x), len(x)
@@ -50,11 +41,14 @@ def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
     elif mode == 'std': reduce_func = np.std
     else: raise ValueError('Invalid mode: %s' % mode)
     nbins = len(bins__r) - 1
-    m = ~(np.isnan(x) | np.isnan(y))
+    if z is not None:
+        m_ini = ~(np.isnan(x) | np.isnan(y) | np.isnan(z))
+    else:
+        m_ini = ~(np.isnan(x) | np.isnan(y))
     if interval is not None:
-        m &= (x > interval[0]) & (x < interval[1]) & (y > interval[2]) & (y < interval[3])
-    X = x[m]
-    Y = y[m]
+        m_ini &= (x > interval[0]) & (x < interval[1]) & (y > interval[2]) & (y < interval[3])
+    X = x[m_ini]
+    Y = y[m_ini]
     iS = np.argsort(X)
     XS = X[iS]
     YS = Y[iS]
@@ -62,6 +56,8 @@ def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
     Y__R = np.empty((nbins,), dtype='float')
     N__R = np.empty((nbins,))
     if clip is not None:
+        Y_sel = []
+        Z_sel = []
         Yc__R = np.empty((nbins,), dtype='float')
         Y_sigma__R = np.empty((nbins,), dtype='float')
         Nc__R = np.empty((nbins,))
@@ -70,9 +66,18 @@ def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
             Y__R[i], N__R[i] = redf(np.mean, Y_bin, np.nan)
             delta = Y_bin - Y__R[i]
             Y_sigma__R[i] = delta.std()
-            Y_bin = Y_bin[np.abs(delta) < clip*Y_sigma__R[i]]
+            m = np.abs(delta) < clip*Y_sigma__R[i]
+            Y_bin = Y_bin[m]
+            Y_sel = np.append(Y_sel, Y_bin)
             Yc__R[i], Nc__R[i] = redf(reduce_func, Y_bin, np.nan)
-        return Yc__R, Nc__R, Y__R, N__R
+            if z is not None:
+                Z = z[m_ini]
+                ZS = Z[iS]
+                Z_sel = np.append(Z_sel, ZS[idx == i+1][m])
+        if z is not None:
+            return Yc__R, Nc__R, Y_sel, Z_sel
+        else:
+            return Yc__R, Nc__R, Y_sel
     else:
         for i in range(0, nbins):
             Y_bin = YS[idx == i+1]
@@ -83,7 +88,7 @@ def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
 def parser_args(default_args_file='args/default.args'):
     '''
         Parse the command line args
-        With fromfile_prefix_chars=@ we can read and parse command line args
+        With fromfile_pidxrefix_chars=@ we can read and parse command line args
         inside a file with @file.txt.
         default args inside default_args_file
     '''
@@ -1132,17 +1137,17 @@ if args.plot:
             ### Above ###
             m_y_tI_above = y.loc[mtI] > x.loc[mtI].apply(modlogOHSF2017_t2)
             m_y_tII_above = y.loc[mtII] > x.loc[mtII].apply(modlogOHSF2017_t2)
-            print elines.loc[m_y_tI_above.index[m_y_tI_above], ['DBName', 'log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-            print elines.loc[m_y_tII_above.index[m_y_tII_above], ['DBName', 'log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+            print elines.loc[m_y_tI_above.index[m_y_tI_above], ['log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+            print elines.loc[m_y_tII_above.index[m_y_tII_above], ['log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
             N_y_tI_above = m_y_tI_above.astype('int').sum()
             N_y_tII_above = m_y_tII_above.astype('int').sum()
             print '# Type-I AGN above SF2017 curve: %d (%.1f%%)' % (N_y_tI_above, 100.*N_y_tI_above/y[mtI].count())
             print '# Type-II AGN above SF2017 curve: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
         if k == 'fig_histo_M_ZHMW':
-            x_bins = np.arange(9.15, 11.35+0.3, 0.3)
+            x_bins = np.arange(9-0.3, 11.5+0.3, 0.3)
             x_bincenter = (x_bins[:-1] + x_bins[1:]) / 2.0
             nbins = len(x_bincenter)
-            interval = [9.15, 12, -0.7, 0.3]
+            interval = [8.7, 11.8, -0.7, 0.3]
             y_mean, N_y_mean = mean_xy_bins_interval(x.values, y.values, x_bins, interval)
             ax_sc.plot(x_bincenter, y_mean, 'k-')
             ### above ###
@@ -1156,8 +1161,35 @@ if args.plot:
             print '# Type-II AGN above mean: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
         if k == 'fig_histo_M_tLW' or k == 'fig_histo_M_tMW':
             WHa = elines['EW_Ha_ALL']
-
-            x_AGNs_mean = x.loc[elines['AGN_FLAG'] > 0].mean()
+            y_AGNs_mean = y.loc[elines['AGN_FLAG'] > 0].mean()
+            y_AGNs_tI_mean = y.loc[elines['AGN_FLAG'] == 1].mean()
+            y_AGNs_tII_mean = y.loc[elines['AGN_FLAG'] == 2].mean()
+            m = ~(np.isnan(x) | np.isnan(y) | np.isnan(WHa))
+            x_SF = x.loc[m & (WHa > 14)]
+            y_SF = y.loc[m & (WHa > 14)]
+            y_SF_mean = y_SF.mean()
+            x_hDIG = x.loc[m & (WHa <= 3)]
+            y_hDIG = y.loc[m & (WHa <= 3)]
+            y_hDIG_mean = y.loc[m & (WHa <= 3)].mean()
+            print 'y_AGNs_mean: %.2f Gyr' % 10**(y_AGNs_mean - 9)
+            print 'y_AGNs_tI_mean: %.2f Gyr' % 10**(y_AGNs_tI_mean - 9)
+            print 'y_AGNs_tII_mean: %.2f Gyr' % 10**(y_AGNs_tII_mean - 9)
+            print 'y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9)
+            print 'y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9)
+            ### MSFS ###
+            SFRHa = elines['lSFR']
+            m = ~(np.isnan(x) | np.isnan(y) | np.isnan(SFRHa))
+            x_SF = x.loc[m & (WHa > 14)]
+            y_SF = y.loc[m & (WHa > 14)]
+            SFRHa_SF = SFRHa.loc[m & (WHa > 14)]
+            iS = np.argsort(x_SF)
+            XS_SF = x_SF[iS]
+            YS_SF = YS_SF[iS]
+            SFRHaS_SF = SFRHaS_SF[iS]
+            x_bins = np.arange(8, 11.5, 0.3)
+            aSF, bSF = np.polyfit(XS_SF, SFRHaS_SF, 1)
+            print aSF, bSF
+            ax_sc.plot(XS_SF, aSF * XS_SF + bSF, 'k--')
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print '################################\n'
