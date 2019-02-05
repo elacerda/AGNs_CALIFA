@@ -214,16 +214,16 @@ if __name__ == '__main__':
     print '#RR# REPORT RATIOS #'
     print '#RR#################'
     groups = [
-        ['log_NII_Ha_cen_mean'],
+        ['log_NII_Ha_cen_fit'],
         ['log_SII_Ha_cen_mean'],
         ['log_OI_Ha_cen'],
         ['log_OIII_Hb_cen_mean'],
-        ['log_NII_Ha_cen_mean', 'log_OIII_Hb_cen_mean'],
+        ['log_NII_Ha_cen_fit', 'log_OIII_Hb_cen_mean'],
         ['log_SII_Ha_cen_mean', 'log_OIII_Hb_cen_mean'],
         ['log_OI_Ha_cen', 'log_OIII_Hb_cen_mean'],
-        ['log_NII_Ha_cen_mean', 'log_SII_Ha_cen_mean', 'log_OIII_Hb_cen_mean'],
-        ['log_NII_Ha_cen_mean', 'log_OI_Ha_cen', 'log_OIII_Hb_cen_mean'],
-        ['log_NII_Ha_cen_mean', 'log_SII_Ha_cen_mean', 'log_OI_Ha_cen', 'log_OIII_Hb_cen_mean'],
+        ['log_NII_Ha_cen_fit', 'log_SII_Ha_cen_mean', 'log_OIII_Hb_cen_mean'],
+        ['log_NII_Ha_cen_fit', 'log_OI_Ha_cen', 'log_OIII_Hb_cen_mean'],
+        ['log_NII_Ha_cen_fit', 'log_SII_Ha_cen_mean', 'log_OI_Ha_cen', 'log_OIII_Hb_cen_mean'],
     ]
     for g in groups:
         if len(g) > 1:
@@ -242,7 +242,7 @@ if __name__ == '__main__':
     print '\n#AC##################'
     print '#AC# AGN CANDIDATES #'
     N_TOT = len(elines.index)
-    N_GAS = len(elines.loc[~(elines['log_NII_Ha_cen_mean'].apply(np.isnan)) & ~(elines['log_OIII_Hb_cen_mean'].apply(np.isnan))].index)
+    N_GAS = len(elines.loc[~(elines['log_NII_Ha_cen_fit'].apply(np.isnan)) & ~(elines['log_OIII_Hb_cen_mean'].apply(np.isnan))].index)
     N_NO_GAS = N_TOT - N_GAS
     ###############################################################
     # [OIII] vs [NII]
@@ -324,15 +324,15 @@ if __name__ == '__main__':
     elines.loc[m, 'AGN_FLAG'] = 2
     # m = ((elines['SN_broad'] > 8) & ((elines['TYPE'] == 2) | (elines['TYPE'] == 3))) | (elines['broad_by_eye'] == True)
     if args.broad_fit_rules is True:
-        m = (elines['SN_broad'] > 8)
+        m = (elines['SN_broad'] > args.min_SN_broad)
     else:
-        m = (elines['SN_broad'] > args.min_SN_broad) & (elines['AGN_FLAG'] == 2) | (elines['broad_by_eye'] is True)
+        m = (elines['SN_broad'] > args.min_SN_broad) & (elines['AGN_FLAG'] == 2) | (elines['broad_by_eye'] == True)
     elines.loc[m, 'AGN_FLAG'] = 1
     N_AGN_tI = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 1].count()
     N_AGN_tII = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 2].count()
     columns_to_csv = [
         'AGN_FLAG', 'SN_broad',
-        'RA', 'DEC', 'log_NII_Ha_cen_mean', 'log_NII_Ha_cen_stddev',
+        'RA', 'DEC', 'log_NII_Ha_cen_fit', 'log_NII_Ha_cen_stddev',
         'log_OIII_Hb_cen_mean', 'log_OIII_Hb_cen_stddev',
         'log_SII_Ha_cen_mean', 'log_SII_Ha_cen_stddev',
         'log_OI_Ha_cen', 'e_log_OI_Ha_cen',
@@ -364,7 +364,7 @@ if __name__ == '__main__':
 
     elines_wmorph = elines.loc[elines['morph'] >= 0]
     N_TOT_WMORPH = len(elines_wmorph.index)
-    N_GAS_WMORPH = len(elines_wmorph.loc[~(elines_wmorph['log_NII_Ha_cen_mean'].apply(np.isnan)) & ~(elines_wmorph['log_OIII_Hb_cen_mean'].apply(np.isnan))].index)
+    N_GAS_WMORPH = len(elines_wmorph.loc[~(elines_wmorph['log_NII_Ha_cen_fit'].apply(np.isnan)) & ~(elines_wmorph['log_OIII_Hb_cen_mean'].apply(np.isnan))].index)
     N_NO_GAS_WMORPH = N_TOT_WMORPH - N_GAS_WMORPH
     print '###################'
     print '## Morph studies ##'

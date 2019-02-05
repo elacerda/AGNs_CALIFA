@@ -613,7 +613,7 @@ if __name__ == '__main__':
     f.text(0.01, 0.5, r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', va='center', rotation='vertical', fontsize=fs+4)
     f.savefig('%s/fig_BPT.%s' % (args.figs_dir, args.img_suffix), dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
-    print '##########################\n'
+    print '##########################'
     ##########################
 
     ###########################
@@ -636,10 +636,9 @@ if __name__ == '__main__':
                        n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                        verbose=args.verbose,
                        output_name='%s/fig_SFMS.%s' % (args.figs_dir, args.img_suffix))
-    print '###########################\n'
-    print '\n####################################'
-    print '## SFMS colored by EW_Ha (NO CEN) ##'
-    print '####################################'
+    print '##############'
+    print '## (NO CEN) ##'
+    print '##############'
     plot_colored_by_EW(elines=elines, x=x, y=elines['lSFR_NO_CEN'], z=EW_Ha_cen, markAGNs=True,
                        ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$',
                        xlabel=xlabel, extent=extent,
@@ -647,7 +646,7 @@ if __name__ == '__main__':
                        n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                        verbose=args.verbose,
                        output_name='%s/fig_SFMS_NC.%s' % (args.figs_dir, args.img_suffix))
-    print '####################################\n'
+    print '###########################'
     ################################
 
     ##########################
@@ -667,7 +666,7 @@ if __name__ == '__main__':
                        n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                        verbose=args.verbose,
                        output_name='%s/fig_M_C.%s' % (args.figs_dir, args.img_suffix))
-    print '##########################\n'
+    print '##########################'
     ##########################
 
     #############################
@@ -696,7 +695,7 @@ if __name__ == '__main__':
     ax.axvline(x=-10.8, c='k', ls='--')
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
-    print '#############################\n'
+    print '#############################'
     ##########################
 
 
@@ -726,7 +725,7 @@ if __name__ == '__main__':
     ax.axhline(y=-10.8, c='k', ls='--')
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
-    print '#############################\n'
+    print '#############################'
     ##########################
 
     ################################
@@ -746,67 +745,56 @@ if __name__ == '__main__':
         ################################
         'fig_histo_CMD_NSA': [elines['Mabs_R'], r'${\rm M}_{\rm R}$ (mag)', 5, 2, None, elines['B_R'], r'${\rm B-R}$ (mag)', 3, 5, None, EW_Ha_cen, [-24, -10, 0, 1.5]],
         ################################
-
         ##################################
         ## CMD (CUBES) colored by EW_Ha ##
         ##################################
         'fig_histo_CMD_CUBES': [elines.loc[m_redshift, 'Mabs_i'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None, elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None, EW_color_zcut, [-24, -10, 0, 3.5]],
         ##################################
-
         ###########################
         ## SFMS colored by EW_Ha ##
         ###########################
         'fig_histo_SFMS': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None, EW_Ha_cen, [8, 12.5, -4.5, 2.5]],
         ###########################
-
         ####################################
         ## SFMS colored by EW_Ha (NO CEN) ##
         ####################################
         'fig_histo_SFMS_NC': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None, EW_Ha_cen, [8, 12.5, -4.5, 2.5]],
         ####################################
-
         ##########################
         ## M-C colored by EW_Ha ##
         ##########################
         'fig_histo_M_C': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None, EW_Ha_cen, [8, 12.5, 0.5, 5.5]],
         ##########################
-
         #############################
         ## sSFR-C colored by EW_Ha ##
         #############################
         'fig_histo_sSFR_C': [elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None, elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None, EW_Ha_cen, [-13.5, -8.5, 0.5, 5.5]],
         #############################
-
         #############################
         ## M-sSFR colored by EW_Ha ##
         #############################
         'fig_histo_M_sSFR': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None, EW_Ha_cen, [8, 12.5, -13.5, -8.5]],
         #############################
-
         ###############################
         ## M-ZHLWRe colored by EW_Ha ##
         ###############################
         'fig_histo_M_ZHLW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None, EW_Ha_cen, [8, 12.5, -0.7, 0.3]],
         ###############################
-
         ###############################
         ## M-ZHMWRe colored by EW_Ha ##
         ###############################
         'fig_histo_M_ZHMW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['ZH_MW_Re_fit'], r'[Z/H] LW', 3, 2, None, EW_Ha_cen, [8, 12.5, -0.7, 0.3]],
         ###############################
-
         ##########################
         ## MZR colored by EW_Ha ##
         ##########################
         'fig_histo_MZR': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['OH_Re_fit_t2'], r'$12 + \log (O/H)$ t2 ', 2, 5, None, EW_Ha_cen, [8, 12.5, 8.3, 9.1]],
         ###############################
-
         ############################
         ## M-tLW colored by EW_Ha ##
         ############################
         'fig_histo_M_tLW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['Age_LW_Re_fit'], r'$\log({\rm age/yr})$ LW', 4, 5, None, EW_Ha_cen, [8, 12.5, 7.5, 10.5]],
         ###############################
-
         ############################
         ## M-tMW colored by EW_Ha ##
         ############################
@@ -870,7 +858,7 @@ if __name__ == '__main__':
             x_bincenter = (x_bins[:-1] + x_bins[1:]) / 2.0
             nbins = len(x_bincenter)
             interval = [8.7, 11.8, -0.7, 0.3]
-            y_mean, N_y_mean = mean_xy_bins_interval(x.values, y.values, x_bins, interval)
+            y_mean, N_y_mean, _ = mean_xy_bins_interval(x.values, y.values, x_bins, interval)
             ax_sc.plot(x_bincenter, y_mean, 'k-')
             ### above ###
             x_AGNs_tI = x.loc[elines['AGN_FLAG'] == 1].values
@@ -900,22 +888,17 @@ if __name__ == '__main__':
             print 'y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9)
             ### MSFS ###
             SFRHa = elines['lSFR']
-            m = ~(np.isnan(x) | np.isnan(y) | np.isnan(SFRHa))
-            x_SF = x.loc[m & (WHa > 14)]
-            y_SF = y.loc[m & (WHa > 14)]
-            SFRHa_SF = SFRHa.loc[m & (WHa > 14)]
-            iS = np.argsort(x_SF)
-            XS_SF = x_SF[iS]
-            YS_SF = y_SF[iS]
-            SFRHaS_SF = SFRHa_SF[iS]
+            x_SF = x.loc[(WHa > 14)]
+            y_SF = y.loc[(WHa > 14)]
+            SFRHa_SF = SFRHa.loc[(WHa > 14)]
+            XS_SF, YS_SF, SFRHaS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values, SFRHa_SF.values)
             x_bins = np.arange(8, 11.5, 0.3)
-            p = np.polyfit(XS_SF, SFRHaS_SF, 1)
+            p = np.ma.polyfit(XS_SF, SFRHaS_SF, 1)
             print p
-            ax_sc.plot(XS_SF, np.polyfit(p, XS_SF), 'k--')
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
-        print '################################\n'
-    print '################################\n'
+        print '################################'
+    print '\n################################'
     ################################
     ################################
 
@@ -924,9 +907,9 @@ if __name__ == '__main__':
     ###########
     # Create an object spanning only galaxies with defined morphology
     elines_wmorph = elines.loc[elines['morph'] >= 0].copy()
-    print '#################'
+    print '\n#################'
     print '## Morph plots ##'
-    print '#################\n'
+    print '#################'
     ##########################
     ## Morph colored by EW_Ha ##
     ############################
@@ -957,8 +940,8 @@ if __name__ == '__main__':
         # gs.tight_layout(f)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
-        print '############################\n'
-    print '############################\n'
+        print '############################'
+    print '\n#################'
     ############################
 
 ###############################################################################
