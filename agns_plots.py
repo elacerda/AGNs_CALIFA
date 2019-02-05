@@ -2,6 +2,7 @@
 import os
 import sys
 import pickle
+import itertools
 import numpy as np
 import matplotlib as mpl
 from pytu.lines import Lines
@@ -39,12 +40,13 @@ scatter_AGN_tII_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none',
 scatter_AGN_tI_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tI)
 
 
-def parser_args(default_args_file='args/default.args'):
+def parser_args(default_args_file='args/default_plots.args'):
     """
-        Parse the command line args
-        With fromfile_pidxrefix_chars=@ we can read and parse command line args
-        inside a file with @file.txt.
-        default args inside default_args_file
+    Parse the command line args.
+
+    With fromfile_pidxrefix_chars=@ we can read and parse command line args
+    inside a file with @file.txt.
+    default args inside default_args_file
     """
     default_args = {
         'input': 'elines.pkl',
@@ -111,9 +113,29 @@ def count_y_above_mean(x, y, y_mean, x_bins):
     return above
 
 
-def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, z=None, mode='mean'):
+def xyz_clean_sort_interval(x, y, z=None, interval=None):
+    if z is None:
+        m = ~(np.isnan(x) | np.isnan(y))
+    else:
+        m = ~(np.isnan(x) | np.isnan(y) | np.isnan(z))
+    if interval is not None:
+        m &= (x > interval[0]) & (x < interval[1]) & (y > interval[2]) & (y < interval[3])
+    X = x[m]
+    Y = y[m]
+    iS = np.argsort(X)
+    XS = X[iS]
+    YS = Y[iS]
+    if z is not None:
+        Z = z[m]
+        ZS = Z[iS]
+        return XS, YS, ZS
+    else:
+        return XS, YS
+
+
+def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
     def redf(func, x, fill_value):
-        if x.size == 0: return fill_value, fill_value
+        if x.size == 0: return fill_value, 0
         if x.ndim == 1: return func(x), len(x)
         return func(x, axis=-1), x.shape[-1]
     if mode == 'mean': reduce_func = np.mean
@@ -123,48 +145,32 @@ def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, z=None, mode=
     elif mode == 'std': reduce_func = np.std
     else: raise ValueError('Invalid mode: %s' % mode)
     nbins = len(bins__r) - 1
-    if z is not None:
-        m_ini = ~(np.isnan(x) | np.isnan(y) | np.isnan(z))
-    else:
-        m_ini = ~(np.isnan(x) | np.isnan(y))
-    if interval is not None:
-        m_ini &= (x > interval[0]) & (x < interval[1]) & (y > interval[2]) & (y < interval[3])
-    X = x[m_ini]
-    Y = y[m_ini]
-    iS = np.argsort(X)
-    XS = X[iS]
-    YS = Y[iS]
-    idx = np.digitize(XS, bins__r)
-    Y__R = np.empty((nbins,), dtype='float')
+    idx = np.digitize(x, bins__r)
+    y__R = np.ma.empty((nbins,), dtype='float')
     N__R = np.empty((nbins,))
+    y_idxs = np.arange(0, y.shape[-1], dtype='int')
     if clip is not None:
-        Y_sel = []
-        Z_sel = []
-        Yc__R = np.empty((nbins,), dtype='float')
-        Y_sigma__R = np.empty((nbins,), dtype='float')
-        Nc__R = np.empty((nbins,))
+        sel = []
+        y_c__R = np.ma.empty((nbins,), dtype='float')
+        y_sigma__R = np.ma.empty((nbins,), dtype='float')
+        N_c__R = np.empty((nbins,))
         for i in range(0, nbins):
-            Y_bin = YS[idx == i+1]
-            Y__R[i], N__R[i] = redf(np.mean, Y_bin, np.nan)
-            delta = Y_bin - Y__R[i]
-            Y_sigma__R[i] = delta.std()
-            m = np.abs(delta) < clip*Y_sigma__R[i]
-            Y_bin = Y_bin[m]
-            Y_sel = np.append(Y_sel, Y_bin)
-            Yc__R[i], Nc__R[i] = redf(reduce_func, Y_bin, np.nan)
-            if z is not None:
-                Z = z[m_ini]
-                ZS = Z[iS]
-                Z_sel = np.append(Z_sel, ZS[idx == i+1][m])
-        if z is not None:
-            return Yc__R, Nc__R, Y_sel, Z_sel
-        else:
-            return Yc__R, Nc__R, Y_sel
+            y_bin = y[idx == i+1]
+            y__R[i], N__R[i] = redf(np.mean, y_bin, np.ma.masked)
+            delta = y_bin - y__R[i]
+            y_sigma__R[i] = delta.std()
+            m = np.abs(delta) < clip*y_sigma__R[i]
+            y_bin = y_bin[m]
+            sel = np.append(np.unique(sel), np.unique(y_idxs[idx == i+1][m]))
+            y_c__R[i], N_c__R[i] = redf(reduce_func, y_bin, np.ma.masked)
+        return y_c__R, N_c__R, y__R, N__R, sel.astype('int').tolist()
     else:
+        sel = []
         for i in range(0, nbins):
-            Y_bin = YS[idx == i+1]
-            Y__R[i], N__R[i] = redf(reduce_func, Y_bin, np.nan)
-        return Y__R, N__R
+            y_bin = y[idx == i+1]
+            y__R[i], N__R[i] = redf(reduce_func, y_bin, np.ma.masked)
+            sel = np.append(np.unique(sel), np.unique(y_idxs[idx == i+1]))
+        return y__R, N__R, sel.astype('int').tolist()
 
 
 def plot_setup(width, aspect, fignum=None, dpi=300, cmap=None):

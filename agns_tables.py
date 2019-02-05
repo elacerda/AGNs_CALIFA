@@ -8,12 +8,13 @@ from pytu.functions import debug_var
 from pytu.objects import readFileArgumentParser
 
 
-def parser_args(default_args_file='args/default.args'):
+def parser_args(default_args_file='args/default_tables.args'):
     """
-        Parse the command line args
-        With fromfile_pidxrefix_chars=@ we can read and parse command line args
-        inside a file with @file.txt.
-        default args inside default_args_file
+    Parse the command line args.
+
+    With fromfile_pidxrefix_chars=@ we can read and parse command line args
+    inside a file with @file.txt.
+    default args inside default_args_file
     """
     default_args = {
         'output': 'dataframes.pkl',
