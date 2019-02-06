@@ -133,7 +133,7 @@ def xyz_clean_sort_interval(x, y, z=None, interval=None):
         return XS, YS
 
 
-def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
+def redf_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
     def redf(func, x, fill_value):
         if x.size == 0: return fill_value, 0
         if x.ndim == 1: return func(x), len(x)
@@ -147,23 +147,28 @@ def mean_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
     nbins = len(bins__r) - 1
     idx = np.digitize(x, bins__r)
     y__R = np.ma.empty((nbins,), dtype='float')
-    N__R = np.empty((nbins,))
+    N__R = np.empty((nbins,), dtype='int')
     y_idxs = np.arange(0, y.shape[-1], dtype='int')
     if clip is not None:
         sel = []
+        sel_c = []
         y_c__R = np.ma.empty((nbins,), dtype='float')
         y_sigma__R = np.ma.empty((nbins,), dtype='float')
-        N_c__R = np.empty((nbins,))
+        N_c__R = np.empty((nbins,), dtype='int')
         for i in range(0, nbins):
             y_bin = y[idx == i+1]
             y__R[i], N__R[i] = redf(np.mean, y_bin, np.ma.masked)
-            delta = y_bin - y__R[i]
-            y_sigma__R[i] = delta.std()
-            m = np.abs(delta) < clip*y_sigma__R[i]
-            y_bin = y_bin[m]
-            sel = np.append(np.unique(sel), np.unique(y_idxs[idx == i+1][m]))
-            y_c__R[i], N_c__R[i] = redf(reduce_func, y_bin, np.ma.masked)
-        return y_c__R, N_c__R, y__R, N__R, sel.astype('int').tolist()
+            sel = np.append(np.unique(sel), np.unique(y_idxs[idx == i+1]))
+            if N__R[i] != 0:
+                delta = y_bin - y__R[i]
+                y_sigma__R[i] = delta.std()
+                m = np.abs(delta) < clip*y_sigma__R[i]
+                y_bin = y_bin[m]
+                sel_c = np.append(np.unique(sel_c), np.unique(y_idxs[idx == i+1][m]))
+                y_c__R[i], N_c__R[i] = redf(reduce_func, y_bin, np.ma.masked)
+            else:
+                y_c__R[i], N_c__R[i] = np.ma.masked, 0
+        return y_c__R, N_c__R, sel_c.astype('int').tolist(), y__R, N__R, sel.astype('int').tolist()
     else:
         sel = []
         for i in range(0, nbins):
@@ -448,6 +453,121 @@ def plot_morph_y_colored_by_EW(elines, y, ax_Hx, ax_Hy, ax_sc, ylabel=None, yran
                 print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '#####'
     return ax_Hx, ax_Hy, ax_sc
+
+
+def plot_fig_histo_MZR(elines, x, y, ax):
+    mtI = elines['AGN_FLAG'] == 1
+    mtII = elines['AGN_FLAG'] == 2
+    ### MZR ###
+    mXnotnan = ~np.isnan(x)
+    X = x.loc[mXnotnan].values
+    iS = np.argsort(X)
+    XS = X[iS]
+    elines['modlogOHSF2017_t2'] = modlogOHSF2017_t2(elines['log_Mass'])
+    YS = (elines['modlogOHSF2017_t2'].loc[mXnotnan].values)[iS]
+    mY = YS > 8.4
+    mX = XS < 11.5
+    ax.plot(XS[mX & mY], YS[mX & mY], 'k-')
+    # ### best-fit ###
+    # mnotnan = ~(np.isnan(x) | np.isnan(y)) & (x < 11.5) & (x > 8.3)
+    # XFIT = x.loc[mnotnan].values
+    # iSFIT = np.argsort(XFIT)
+    # XFITS = XFIT[iSFIT]
+    # YFIT = y.loc[mnotnan].values
+    # YFITS = YFIT[iSFIT]
+    # popt, pcov = curve_fit(f=modlogOHSF2017, xdata=XFITS, ydata=YFITS, p0=[8.8, 0.015, 11.5], bounds=[[8.54, 0.005, 11.499], [9, 0.022, 11.501]])
+    # ax.plot(XFITS, modlogOHSF2017(XFITS, *popt), 'k--')
+    # print 'a:%.2f b:%.4f c:%.1f' % (popt[0], popt[1], popt[2])
+    ### Above ###
+    m_y_tI_above = y.loc[mtI] > x.loc[mtI].apply(modlogOHSF2017_t2)
+    m_y_tII_above = y.loc[mtII] > x.loc[mtII].apply(modlogOHSF2017_t2)
+    print elines.loc[m_y_tI_above.index[m_y_tI_above], ['log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    print elines.loc[m_y_tII_above.index[m_y_tII_above], ['log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    N_y_tI_above = m_y_tI_above.astype('int').sum()
+    N_y_tII_above = m_y_tII_above.astype('int').sum()
+    print '# Type-I AGN above SF2017 curve: %d (%.1f%%)' % (N_y_tI_above, 100.*N_y_tI_above/y[mtI].count())
+    print '# Type-II AGN above SF2017 curve: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
+    return ax
+
+
+def create_bins(interval, step):
+    bins = np.arange(interval[0]-step, interval[1]+step, step)
+    bins_center = (bins[:-1] + bins[1:])/2.
+    return bins, bins_center, len(bins_center)
+
+
+def plot_fig_histo_M_ZHMW(elines, x, y, ax, interval=None):
+    mtI = elines['AGN_FLAG'] == 1
+    mtII = elines['AGN_FLAG'] == 2
+    if interval is None:
+        interval = [8.7, 11.8, -0.7, 0.3]
+    x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.3)
+    y_mean, N_y_mean, _ = redf_xy_bins_interval(x.values, y.values, x_bins__r, interval)
+    ax.plot(x_bincenter__r, y_mean, 'k-')
+    ### above ###
+    x_AGNs_tI = x.loc[elines['AGN_FLAG'] == 1].values
+    y_AGNs_tI = y.loc[elines['AGN_FLAG'] == 1].values
+    N_y_tI_above = count_y_above_mean(x_AGNs_tI, y_AGNs_tI, y_mean, x_bins__r)
+    x_AGNs_tII = x.loc[elines['AGN_FLAG'] == 2].values
+    y_AGNs_tII = y.loc[elines['AGN_FLAG'] == 2].values
+    N_y_tII_above = count_y_above_mean(x_AGNs_tII, y_AGNs_tII, y_mean, x_bins__r)
+    print '# Type-I AGN above mean: %d (%.1f%%)' % (N_y_tI_above, 100.*N_y_tI_above/y[mtI].count())
+    print '# Type-II AGN above mean: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
+    return ax_sc
+
+
+def plot_fig_histo_M_t(elines, x, y, ax, interval=None):
+    WHa = elines['EW_Ha_ALL']
+    y_AGNs_mean = y.loc[elines['AGN_FLAG'] > 0].mean()
+    ax_sc.axhline(y_AGNs_mean, c='g', ls='--')
+    ax_sc.text(8.1, y_AGNs_mean+0.05, '%.2f Gyr' % (10**(y_AGNs_mean - 9)), color='g', fontsize=5)
+    y_AGNs_tI_mean = y.loc[elines['AGN_FLAG'] == 1].mean()
+    y_AGNs_tII_mean = y.loc[elines['AGN_FLAG'] == 2].mean()
+    m = ~(np.isnan(x) | np.isnan(y) | np.isnan(WHa))
+    x_SF = x.loc[m & (WHa > 14)]
+    y_SF = y.loc[m & (WHa > 14)]
+    y_SF_mean = y_SF.mean()
+    x_hDIG = x.loc[m & (WHa <= 3)]
+    y_hDIG = y.loc[m & (WHa <= 3)]
+    y_hDIG_mean = y.loc[m & (WHa <= 3)].mean()
+    print 'y_AGNs_mean: %.2f Gyr' % 10**(y_AGNs_mean - 9)
+    print 'y_AGNs_tI_mean: %.2f Gyr' % 10**(y_AGNs_tI_mean - 9)
+    print 'y_AGNs_tII_mean: %.2f Gyr' % 10**(y_AGNs_tII_mean - 9)
+    print 'y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9)
+    print 'y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9)
+    ### MSFS ###
+    ### SFG ###
+    SFRHa = elines['lSFR']
+    x_SF = x.loc[(WHa > 14)]
+    y_SF = y.loc[(WHa > 14)]
+    SFRHa_SF = SFRHa.loc[(WHa > 14)]
+    XS_SF, YS_SF, SFRHaS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values, SFRHa_SF.values)
+    if interval is None:
+        interval = [8.3, 11.8, 7.5, 10.5]
+    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
+    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
+    SFRHaS_SF_c__r, N_c__r, sel_c, SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, clip=2, interval=interval)
+    p = np.ma.polyfit(x_bins_center__r, SFRHaS_SF_c__r, 1)
+    print 10**(YS_SF[sel].mean()-9), 10**(YS_SF[sel_c].mean()-9)
+    mean_t_SF = YS_SF[sel_c].mean()
+    ax_sc.axhline(mean_t_SF, c='b', ls='--')
+    ax_sc.text(8.1, mean_t_SF+0.05, '%.2f Gyr' % (10**(mean_t_SF - 9)), color='b', fontsize=5)
+    ### RG ###
+    x_hDIG = x.loc[(WHa <= 3)]
+    y_hDIG = y.loc[(WHa <= 3)]
+    SFRHa_hDIG = SFRHa.loc[(WHa <= 3)]
+    XS_hDIG, YS_hDIG, SFRHaS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values, SFRHa_hDIG.values)
+    if interval is None:
+        interval = [8.3, 11.8, 7.5, 10.5]
+    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
+    # SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, interval=interval)
+    SFRHaS_hDIG_c__r, N_c__r, sel_c, SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, clip=2, interval=interval)
+    p = np.ma.polyfit(x_bins_center__r, SFRHaS_hDIG_c__r, 1)
+    print 10**(YS_hDIG[sel].mean()-9), 10**(YS_hDIG[sel_c].mean()-9)
+    mean_t_hDIG = YS_hDIG[sel_c].mean()
+    ax_sc.axhline(mean_t_hDIG, c='r', ls='--')
+    ax_sc.text(8.1, mean_t_hDIG+0.05, '%.2f Gyr' % (10**(mean_t_hDIG - 9)), color='r', fontsize=5)
+    return ax_sc
 
 
 if __name__ == '__main__':
@@ -824,77 +944,11 @@ if __name__ == '__main__':
             ax_sc.axhline(y=-11.8, c='k', ls='--')
             ax_sc.axhline(y=-10.8, c='k', ls='--')
         if k == 'fig_histo_MZR':
-            ### MZR ###
-            mXnotnan = ~np.isnan(x)
-            X = x.loc[mXnotnan].values
-            iS = np.argsort(X)
-            XS = X[iS]
-            elines['modlogOHSF2017_t2'] = modlogOHSF2017_t2(elines['log_Mass'])
-            YS = (elines['modlogOHSF2017_t2'].loc[mXnotnan].values)[iS]
-            mY = YS > 8.4
-            mX = XS < 11.5
-            ax_sc.plot(XS[mX & mY], YS[mX & mY], 'k-')
-            # ### best-fit ###
-            # mnotnan = ~(np.isnan(x) | np.isnan(y)) & (x < 11.5) & (x > 8.3)
-            # XFIT = x.loc[mnotnan].values
-            # iSFIT = np.argsort(XFIT)
-            # XFITS = XFIT[iSFIT]
-            # YFIT = y.loc[mnotnan].values
-            # YFITS = YFIT[iSFIT]
-            # popt, pcov = curve_fit(f=modlogOHSF2017, xdata=XFITS, ydata=YFITS, p0=[8.8, 0.015, 11.5], bounds=[[8.54, 0.005, 11.499], [9, 0.022, 11.501]])
-            # ax_sc.plot(XFITS, modlogOHSF2017(XFITS, *popt), 'k--')
-            # print 'a:%.2f b:%.4f c:%.1f' % (popt[0], popt[1], popt[2])
-            ### Above ###
-            m_y_tI_above = y.loc[mtI] > x.loc[mtI].apply(modlogOHSF2017_t2)
-            m_y_tII_above = y.loc[mtII] > x.loc[mtII].apply(modlogOHSF2017_t2)
-            print elines.loc[m_y_tI_above.index[m_y_tI_above], ['log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-            print elines.loc[m_y_tII_above.index[m_y_tII_above], ['log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-            N_y_tI_above = m_y_tI_above.astype('int').sum()
-            N_y_tII_above = m_y_tII_above.astype('int').sum()
-            print '# Type-I AGN above SF2017 curve: %d (%.1f%%)' % (N_y_tI_above, 100.*N_y_tI_above/y[mtI].count())
-            print '# Type-II AGN above SF2017 curve: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
+            ax_sc = plot_fig_histo_MZR(elines, x, y, ax_sc)
         if k == 'fig_histo_M_ZHMW':
-            x_bins = np.arange(9-0.3, 11.5+0.3, 0.3)
-            x_bincenter = (x_bins[:-1] + x_bins[1:]) / 2.0
-            nbins = len(x_bincenter)
-            interval = [8.7, 11.8, -0.7, 0.3]
-            y_mean, N_y_mean, _ = mean_xy_bins_interval(x.values, y.values, x_bins, interval)
-            ax_sc.plot(x_bincenter, y_mean, 'k-')
-            ### above ###
-            x_AGNs_tI = x.loc[elines['AGN_FLAG'] == 1].values
-            y_AGNs_tI = y.loc[elines['AGN_FLAG'] == 1].values
-            N_y_tI_above = count_y_above_mean(x_AGNs_tI, y_AGNs_tI, y_mean, x_bins)
-            x_AGNs_tII = x.loc[elines['AGN_FLAG'] == 2].values
-            y_AGNs_tII = y.loc[elines['AGN_FLAG'] == 2].values
-            N_y_tII_above = count_y_above_mean(x_AGNs_tII, y_AGNs_tII, y_mean, x_bins)
-            print '# Type-I AGN above mean: %d (%.1f%%)' % (N_y_tI_above, 100.*N_y_tI_above/y[mtI].count())
-            print '# Type-II AGN above mean: %d (%.1f%%)' % (N_y_tII_above, 100.*N_y_tII_above/y[mtII].count())
+            ax_sc = plot_fig_histo_M_ZHMW(elines, x, y, ax_sc)
         if k == 'fig_histo_M_tLW' or k == 'fig_histo_M_tMW':
-            WHa = elines['EW_Ha_ALL']
-            y_AGNs_mean = y.loc[elines['AGN_FLAG'] > 0].mean()
-            y_AGNs_tI_mean = y.loc[elines['AGN_FLAG'] == 1].mean()
-            y_AGNs_tII_mean = y.loc[elines['AGN_FLAG'] == 2].mean()
-            m = ~(np.isnan(x) | np.isnan(y) | np.isnan(WHa))
-            x_SF = x.loc[m & (WHa > 14)]
-            y_SF = y.loc[m & (WHa > 14)]
-            y_SF_mean = y_SF.mean()
-            x_hDIG = x.loc[m & (WHa <= 3)]
-            y_hDIG = y.loc[m & (WHa <= 3)]
-            y_hDIG_mean = y.loc[m & (WHa <= 3)].mean()
-            print 'y_AGNs_mean: %.2f Gyr' % 10**(y_AGNs_mean - 9)
-            print 'y_AGNs_tI_mean: %.2f Gyr' % 10**(y_AGNs_tI_mean - 9)
-            print 'y_AGNs_tII_mean: %.2f Gyr' % 10**(y_AGNs_tII_mean - 9)
-            print 'y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9)
-            print 'y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9)
-            ### MSFS ###
-            SFRHa = elines['lSFR']
-            x_SF = x.loc[(WHa > 14)]
-            y_SF = y.loc[(WHa > 14)]
-            SFRHa_SF = SFRHa.loc[(WHa > 14)]
-            XS_SF, YS_SF, SFRHaS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values, SFRHa_SF.values)
-            x_bins = np.arange(8, 11.5, 0.3)
-            p = np.ma.polyfit(XS_SF, SFRHaS_SF, 1)
-            print p
+            ax_sc = plot_fig_histo_M_t(elines, x, y, ax_sc)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print '################################'
