@@ -35,7 +35,7 @@ latex_text_width = latex_text_width_pt/latex_ppi
 golden_mean = 0.5 * (1. + 5**0.5)
 color_AGN_tI = 'k'
 color_AGN_tII = 'mediumslateblue'
-scatter_kwargs = dict(s=2, vmax=14, vmin=3, cmap='viridis_r', marker='o', edgecolor='none')
+scatter_kwargs = dict(s=1, vmax=14, vmin=3, cmap='viridis_r', marker='o', edgecolor='none', alpha=0.7)
 scatter_AGN_tII_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tII)
 scatter_AGN_tI_kwargs = dict(s=50, linewidth=0.1, marker='*', facecolor='none', edgecolor=color_AGN_tI)
 
@@ -205,7 +205,11 @@ def plot_setup(width, aspect, fignum=None, dpi=300, cmap=None):
     return plt.figure(fignum, figsize, dpi=dpi)
 
 
-def plot_colored_by_EW(elines, x, y, z, xlabel=None, ylabel=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, verbose=0, output_name=None, markAGNs=False, f=None, ax=None):
+def plot_colored_by_z(elines, x, y, z, xlabel=None, ylabel=None, z_label=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, verbose=0, output_name=None, markAGNs=False, f=None, ax=None, sc_kwargs=None):
+    if z_label is None:
+        z_label = r'${\rm W}_{{\rm H}\alpha}$'
+    if sc_kwargs is None:
+        sc_kwargs = scatter_kwargs
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
@@ -214,7 +218,7 @@ def plot_colored_by_EW(elines, x, y, z, xlabel=None, ylabel=None, extent=None, n
         N_rows, N_cols = 1, 1
         gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax = plt.subplot(gs[0])
-    ax.scatter(x, y, c=z, **scatter_kwargs)
+    sc = ax.scatter(x, y, c=z, **sc_kwargs)
     if markAGNs:
         ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
         ax.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
@@ -225,7 +229,7 @@ def plot_colored_by_EW(elines, x, y, z, xlabel=None, ylabel=None, extent=None, n
     cb_width = 0.05
     cb_ax = f.add_axes([right, bottom, cb_width, top-bottom])
     cb = plt.colorbar(sc, cax=cb_ax)
-    cb.set_label(r'${\rm W}_{{\rm H}\alpha}$', fontsize=args.fontsize+1)
+    cb.set_label(z_label, fontsize=args.fontsize+1)
     cb.locator = MaxNLocator(2)
     # cb_ax.minorticks_on()
     cb_ax.tick_params(which='both', direction='in')
@@ -745,29 +749,73 @@ if __name__ == '__main__':
     x = elines['log_Mass']
     xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
     extent = [8, 12.5, -4.5, 2.5]
-    n_bins_min_x = 2
+    n_bins_min_x = 5
     n_bins_maj_y = 4
     n_bins_min_y = 2
     prune_x = None
-    plot_colored_by_EW(elines=elines, x=x, y=elines['lSFR'], z=EW_Ha_cen, markAGNs=True,
-                       ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})$',
-                       xlabel=xlabel, extent=extent,
-                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                       verbose=args.verbose,
-                       output_name='%s/fig_SFMS.%s' % (args.figs_dir, args.img_suffix))
+    plot_colored_by_z(elines=elines, x=x, y=elines['lSFR'], z=EW_Ha_cen, markAGNs=True,
+                      ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})$',
+                      xlabel=xlabel, extent=extent,
+                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                      n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                      verbose=args.verbose,
+                      output_name='%s/fig_SFMS.%s' % (args.figs_dir, args.img_suffix))
     print '##############'
     print '## (NO CEN) ##'
     print '##############'
-    plot_colored_by_EW(elines=elines, x=x, y=elines['lSFR_NO_CEN'], z=EW_Ha_cen, markAGNs=True,
-                       ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$',
-                       xlabel=xlabel, extent=extent,
-                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                       verbose=args.verbose,
-                       output_name='%s/fig_SFMS_NC.%s' % (args.figs_dir, args.img_suffix))
+    plot_colored_by_z(elines=elines, x=x, y=elines['lSFR_NO_CEN'], z=EW_Ha_cen, markAGNs=True,
+                      ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$',
+                      xlabel=xlabel, extent=extent,
+                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                      n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                      verbose=args.verbose,
+                      output_name='%s/fig_SFMS_NC.%s' % (args.figs_dir, args.img_suffix))
     print '###########################'
     ################################
+
+    ###############################
+    ## SFR-Mgas colored by EW_Ha ##
+    ###############################
+    print '\n#############################'
+    print '## Mgas-SFR colored by EW_Ha ##'
+    print '###############################'
+    x = elines['log_Mass_gas_Av_gas_rad']
+    xlabel = r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$'
+    extent = [5, 11, -3, 2.5]
+    n_bins_maj_x = 3
+    n_bins_min_x = 4
+    n_bins_maj_y = 3
+    n_bins_min_y = 2
+    prune_x = None
+    plot_colored_by_z(elines=elines, x=x, y=elines['lSFR'], z=EW_Ha_cen, markAGNs=True,
+                      ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})$',
+                      xlabel=xlabel, extent=extent,
+                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                      n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                      verbose=args.verbose,
+                      output_name='%s/fig_Mgas_SFR.%s' % (args.figs_dir, args.img_suffix))
+    ###############################
+
+    #############################
+    ## M-Mgas colored by EW_Ha ##
+    #############################
+    print '\n#############################'
+    print '## M-Mgas colored by EW_Ha ##'
+    print '#############################'
+    n_bins_min_x = 5
+    n_bins_maj_y = 3
+    n_bins_min_y = 4
+    plot_colored_by_z(elines=elines, x=elines['log_Mass'], y=elines['log_Mass_gas_Av_gas_rad'], z=EW_Ha_cen, markAGNs=True,
+                      xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
+                      ylabel=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$',
+                      extent=[8, 12.5, 5, 11],
+                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                      n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                      verbose=args.verbose,
+                      output_name='%s/fig_M_Mgas.%s' % (args.figs_dir, args.img_suffix))
+    print '#############################'
+    #############################
+
 
     ##########################
     ## M-C colored by EW_Ha ##
@@ -775,16 +823,16 @@ if __name__ == '__main__':
     print '\n##########################'
     print '## M-C colored by EW_Ha ##'
     print '##########################'
-    n_bins_min_x = 2
+    n_bins_min_x = 5
     n_bins_maj_y = 6
     n_bins_min_y = 2
-    plot_colored_by_EW(elines=elines, x=elines['log_Mass'], y=elines['C'], z=EW_Ha_cen, markAGNs=True,
-                       xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                       ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
-                       extent=[8, 12.5, 0.5, 5.5],
-                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                       verbose=args.verbose,
+    plot_colored_by_z(elines=elines, x=elines['log_Mass'], y=elines['C'], z=EW_Ha_cen, markAGNs=True,
+                      xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
+                      ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
+                      extent=[8, 12.5, 0.5, 5.5],
+                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                      n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                      verbose=args.verbose,
                        output_name='%s/fig_M_C.%s' % (args.figs_dir, args.img_suffix))
     print '##########################'
     ##########################
@@ -795,7 +843,7 @@ if __name__ == '__main__':
     print '\n#############################'
     print '## sSFR-C colored by EW_Ha ##'
     print '#############################'
-    n_bins_min_x = 2
+    n_bins_min_x = 5
     n_bins_maj_y = 6
     n_bins_min_y = 2
     output_name = '%s/fig_sSFR_C.%s' % (args.figs_dir, args.img_suffix)
@@ -804,13 +852,13 @@ if __name__ == '__main__':
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_EW(elines=elines, f=f, ax=ax, x=elines['lSFR'] - elines['log_Mass'], y=elines['C'], z=EW_Ha_cen,
-                               xlabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
-                               ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
-                               extent=[-13.5, -8.5, 0.5, 5.5], markAGNs=True,
-                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                               n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                               verbose=args.verbose)
+    f, ax = plot_colored_by_z(elines=elines, f=f, ax=ax, x=elines['lSFR'] - elines['log_Mass'], y=elines['C'], z=EW_Ha_cen,
+                              xlabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
+                              ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
+                              extent=[-13.5, -8.5, 0.5, 5.5], markAGNs=True,
+                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                              n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                              verbose=args.verbose)
     ax.axvline(x=-11.8, c='k', ls='--')
     ax.axvline(x=-10.8, c='k', ls='--')
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
@@ -825,7 +873,7 @@ if __name__ == '__main__':
     print '\n#############################'
     print '## M-sSFR colored by EW_Ha ##'
     print '#############################'
-    n_bins_min_x = 2
+    n_bins_min_x = 5
     n_bins_maj_y = 5
     n_bins_min_y = 2
     output_name = '%s/fig_M_sSFR.%s' % (args.figs_dir, args.img_suffix)
@@ -834,13 +882,13 @@ if __name__ == '__main__':
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_EW(elines=elines, f=f, ax=ax, y=elines['lSFR'] - elines['log_Mass'], x=elines['log_Mass'], z=EW_Ha_cen,
-                               ylabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
-                               xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                               extent=[8, 12.5, -13.5, -8.5], markAGNs=True,
-                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                               n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                               verbose=args.verbose)
+    f, ax = plot_colored_by_z(elines=elines, f=f, ax=ax, y=elines['lSFR'] - elines['log_Mass'], x=elines['log_Mass'], z=EW_Ha_cen,
+                              ylabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
+                              xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
+                              extent=[8, 12.5, -13.5, -8.5], markAGNs=True,
+                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                              n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+                              verbose=args.verbose)
     ax.axhline(y=-11.8, c='k', ls='--')
     ax.axhline(y=-10.8, c='k', ls='--')
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
@@ -858,7 +906,6 @@ if __name__ == '__main__':
     # print np.log10(np.abs(elines.loc['2MASXJ01331766+1319567', 'EW_Ha_cen_mean']))
     m_redshift = (elines['redshift'] > 1e-6) & (elines['redshift'] < 0.2)
     EW_Ha_cen_zcut = elines.loc[m_redshift, 'EW_Ha_cen_mean'].apply(np.abs)
-    EW_color_zcut = EW_Ha_cen_zcut.apply(np.log10)
     plot_histo_xy_dict = {
         ################################
         ## CMD (NSA) colored by EW_Ha ##
@@ -868,7 +915,7 @@ if __name__ == '__main__':
         ##################################
         ## CMD (CUBES) colored by EW_Ha ##
         ##################################
-        'fig_histo_CMD_CUBES': [elines.loc[m_redshift, 'Mabs_i'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None, elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None, EW_color_zcut, [-24, -10, 0, 3.5]],
+        'fig_histo_CMD_CUBES': [elines.loc[m_redshift, 'Mabs_i'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None, elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None, EW_Ha_cen_zcut, [-24, -10, 0, 3.5]],
         ##################################
         ###########################
         ## SFMS colored by EW_Ha ##
@@ -909,16 +956,21 @@ if __name__ == '__main__':
         ## MZR colored by EW_Ha ##
         ##########################
         'fig_histo_MZR': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['OH_Re_fit_t2'], r'$12 + \log (O/H)$ t2 ', 2, 5, None, EW_Ha_cen, [8, 12.5, 8.3, 9.1]],
-        ###############################
+        ##########################
         ############################
         ## M-tLW colored by EW_Ha ##
         ############################
         'fig_histo_M_tLW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['Age_LW_Re_fit'], r'$\log({\rm age/yr})$ LW', 4, 5, None, EW_Ha_cen, [8, 12.5, 7.5, 10.5]],
-        ###############################
+        ############################
         ############################
         ## M-tMW colored by EW_Ha ##
         ############################
         'fig_histo_M_tMW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['Age_MW_Re_fit'], r'$\log({\rm age/yr})$ MW', 4, 5, None, EW_Ha_cen, [8, 12.5, 8.5, 10.5]],
+        ############################
+        ###############################
+        ## Mgas-SFR colored by EW_Ha ##
+        ###############################
+        'fig_histo_Mgas_SFR': [elines['log_Mass_gas_Av_gas_rad'], r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None, EW_Ha_cen, [5, 11, -4.5, 2.5]],
         ###############################
     }
 
