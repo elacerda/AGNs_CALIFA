@@ -22,6 +22,7 @@ mpl.rcParams['legend.numpoints'] = 1
 _transp_choice = False
 # morphology
 morph_name = ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'S0', 'S0a', 'Sa', 'Sab', 'Sb', 'Sbc', 'Sc', 'Scd', 'Sd', 'Sdm', 'I', 'BCD']
+morph_name_ticks = ['', 'E', 'S0', 'S0a', 'Sa', 'Sab', 'Sb', 'Sbc', 'Sc', 'Scd', 'Sd', 'Sdm', 'I', 'BCD', '']
 # morph_name = {'E0': 0, 'E1': 1, 'E2': 2, 'E3': 3, 'E4': 4, 'E5': 5, 'E6': 6,
 #               'E7': 7, 'S0': 8, 'S0a': 9, 'Sa': 10, 'Sab': 11, 'Sb': 12,
 #               'Sbc': 13, 'Sc': 14, 'Scd': 15, 'Sd': 16, 'Sdm': 17, 'I': 18,
@@ -205,7 +206,7 @@ def plot_setup(width, aspect, fignum=None, dpi=300, cmap=None):
     return plt.figure(fignum, figsize, dpi=dpi)
 
 
-def plot_colored_by_z(elines, x, y, z, xlabel=None, ylabel=None, z_label=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, verbose=0, output_name=None, markAGNs=False, f=None, ax=None, sc_kwargs=None):
+def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, output_name=None, markAGNs=False, f=None, ax=None, sc_kwargs=None):
     if z_label is None:
         z_label = r'${\rm W}_{{\rm H}\alpha}$'
     if sc_kwargs is None:
@@ -243,18 +244,18 @@ def plot_colored_by_z(elines, x, y, z, xlabel=None, ylabel=None, z_label=None, e
     ax.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
     tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
     ax.tick_params(**tick_params)
-    ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
-    if verbose > 0:
+    # ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
+    if args.verbose > 0:
         print '# x #'
         xlim = ax.get_xlim()
         x_low = x.loc[x < xlim[0]]
         x_upp = x.loc[x > xlim[1]]
         print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in x_low.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in x_upp.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '#####'
@@ -263,11 +264,11 @@ def plot_colored_by_z(elines, x, y, z, xlabel=None, ylabel=None, z_label=None, e
         y_low = y.loc[y < ylim[0]]
         y_upp = y.loc[y > ylim[1]]
         print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in y_low.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in y_upp.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '#####'
@@ -277,7 +278,7 @@ def plot_colored_by_z(elines, x, y, z, xlabel=None, ylabel=None, z_label=None, e
     return f, ax
 
 
-def plot_histo_xy_colored_by_EW(elines, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=0):
+def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None):
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     ax_Hx.hist(x, bins=15, range=xrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
@@ -288,8 +289,8 @@ def plot_histo_xy_colored_by_EW(elines, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=Non
     ax_Hx.xaxis.set_major_locator(MaxNLocator(n_bins_maj_x, prune=prune_x))
     ax_Hx.xaxis.set_minor_locator(AutoMinorLocator(n_bins_min_x))
     # ax_Hx.set_ylim(0, 1)
-    ax_Hx.yaxis.set_major_locator(MaxNLocator(2, prune='upper'))
-    ax_Hx.yaxis.set_minor_locator(AutoMinorLocator(5))
+    # ax_Hx.yaxis.set_major_locator(MaxNLocator(2, prune='upper'))
+    # ax_Hx.yaxis.set_minor_locator(AutoMinorLocator(5))
     tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=False, right=False, labelbottom=True, labeltop=False, labelleft=False, labelright=False)
     ax_Hx.tick_params(**tick_params)
     ####################################
@@ -301,8 +302,8 @@ def plot_histo_xy_colored_by_EW(elines, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=Non
     ax_Hy.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
     ax_Hy.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
     # ax_Hy.set_xlim(0, 1)
-    ax_Hy.xaxis.set_major_locator(MaxNLocator(2, prune='upper'))
-    ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(5))
+    # ax_Hy.xaxis.set_major_locator(MaxNLocator(2, prune='upper'))
+    # ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(5))
     tick_params = dict(axis='both', which='both', direction='in', bottom=False, top=False, left=True, right=False, labelbottom=False, labeltop=False, labelleft=True, labelright=False)
     ax_Hy.tick_params(**tick_params)
     ####################################
@@ -328,17 +329,17 @@ def plot_histo_xy_colored_by_EW(elines, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=Non
     cb_ax.tick_params(which='both', direction='in')
     cb.update_ticks()
     ####################################
-    if verbose > 0:
+    if args.verbose > 0:
         print '# x #'
         xlim = ax_sc.get_xlim()
         x_low = x.loc[x < xlim[0]]
         x_upp = x.loc[x > xlim[1]]
         print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in x_low.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in x_upp.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '#####'
@@ -347,18 +348,18 @@ def plot_histo_xy_colored_by_EW(elines, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=Non
         y_low = y.loc[y < ylim[0]]
         y_upp = y.loc[y > ylim[1]]
         print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in y_low.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in y_upp.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '#####'
     return ax_Hx, ax_Hy, ax_sc
 
 
-def plot_x_morph(elines, ax, verbose):
+def plot_x_morph(elines, args, ax):
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     x = elines['morph'].apply(morph_adjust)
@@ -369,33 +370,33 @@ def plot_x_morph(elines, ax, verbose):
     # ax.hist(x[mtII], hatch='//', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', rwidth=1, density=True)
     # ax.hist(x[mtI], hatch='////', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', rwidth=1, density=True)
     ax.set_xlabel(r'morphology')
-    ax.set_xlim(6.5, 19.5)
-    ticks = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    ax.set_xlim(5.5, 20.5)
+    ticks = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     ax.set_xticks(ticks)
-    ax.set_xticklabels([morph_name[tick] for tick in ticks], rotation=90)
+    ax.set_xticklabels([morph_name_ticks[tick] for tick in (np.array(ticks, dtype='int') - 6)], rotation=90)
     ax.yaxis.set_major_locator(MaxNLocator(2, prune='upper'))
     ax.yaxis.set_minor_locator(AutoMinorLocator(5))
     tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=False, left=False, right=False, labelbottom=True, labeltop=False, labelleft=False, labelright=False)
     ax.tick_params(**tick_params)
     ####################################
-    if verbose > 0:
+    if args.verbose > 0:
         print '# x #'
         xlim = ax.get_xlim()
         x_low = x.loc[x < xlim[0]]
         x_upp = x.loc[x > xlim[1]]
         print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in x_low.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines_wmorph.loc[i, 'AGN_FLAG'])
         print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in x_upp.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines_wmorph.loc[i, 'AGN_FLAG'])
         print '#####'
     return ax
 
 
-def plot_morph_y_colored_by_EW(elines, y, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=0):
+def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None):
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     EW_color = elines['EW_Ha_cen_mean'].apply(np.abs)
@@ -442,17 +443,17 @@ def plot_morph_y_colored_by_EW(elines, y, ax_Hx, ax_Hy, ax_sc, ylabel=None, yran
     cb_ax.tick_params(which='both', direction='in')
     cb.update_ticks()
     ####################################
-    if verbose > 0:
+    if args.verbose > 0:
         print '# y #'
         ylim = ax_sc.get_ylim()
         y_low = y.loc[y < ylim[0]]
         y_upp = y.loc[y > ylim[1]]
         print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in y_low.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
-        if verbose > 1:
+        if args.verbose > 1:
             for i in y_upp.index:
                 print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
         print '#####'
@@ -523,8 +524,8 @@ def plot_fig_histo_M_ZHMW(elines, x, y, ax, interval=None):
 def plot_fig_histo_M_t(elines, x, y, ax, interval=None):
     WHa = elines['EW_Ha_ALL']
     y_AGNs_mean = y.loc[elines['AGN_FLAG'] > 0].mean()
-    ax_sc.axhline(y_AGNs_mean, c='g', ls='--')
-    ax_sc.text(8.1, y_AGNs_mean+0.05, '%.2f Gyr' % (10**(y_AGNs_mean - 9)), color='g', fontsize=5)
+    ax_sc.axhline(y_AGNs_mean, xmin=0.5/(12.-8.), c='g', ls='--')
+    ax_sc.text(8.1, y_AGNs_mean, '%.2f Gyr' % (10**(y_AGNs_mean - 9)), color='g', fontsize=4, va='center')
     y_AGNs_tI_mean = y.loc[elines['AGN_FLAG'] == 1].mean()
     y_AGNs_tII_mean = y.loc[elines['AGN_FLAG'] == 2].mean()
     m = ~(np.isnan(x) | np.isnan(y) | np.isnan(WHa))
@@ -551,11 +552,11 @@ def plot_fig_histo_M_t(elines, x, y, ax, interval=None):
     x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
     # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
     SFRHaS_SF_c__r, N_c__r, sel_c, SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, clip=2, interval=interval)
-    p = np.ma.polyfit(x_bins_center__r, SFRHaS_SF_c__r, 1)
-    print 10**(YS_SF[sel].mean()-9), 10**(YS_SF[sel_c].mean()-9)
+    # p = np.ma.polyfit(x_bins_center__r, SFRHaS_SF_c__r, 1)
+    # print 10**(YS_SF[sel].mean()-9), 10**(YS_SF[sel_c].mean()-9)
     mean_t_SF = YS_SF[sel_c].mean()
-    ax_sc.axhline(mean_t_SF, c='b', ls='--')
-    ax_sc.text(8.1, mean_t_SF+0.05, '%.2f Gyr' % (10**(mean_t_SF - 9)), color='b', fontsize=5)
+    ax_sc.axhline(mean_t_SF, xmin=0.5/(12.-8.), c='b', ls='--')
+    ax_sc.text(8.1, mean_t_SF, '%.2f Gyr' % (10**(mean_t_SF - 9)), color='b', fontsize=4, va='center')
     ### RG ###
     x_hDIG = x.loc[(WHa <= 3)]
     y_hDIG = y.loc[(WHa <= 3)]
@@ -566,11 +567,11 @@ def plot_fig_histo_M_t(elines, x, y, ax, interval=None):
     x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
     # SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, interval=interval)
     SFRHaS_hDIG_c__r, N_c__r, sel_c, SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, clip=2, interval=interval)
-    p = np.ma.polyfit(x_bins_center__r, SFRHaS_hDIG_c__r, 1)
-    print 10**(YS_hDIG[sel].mean()-9), 10**(YS_hDIG[sel_c].mean()-9)
+    # p = np.ma.polyfit(x_bins_center__r, SFRHaS_hDIG_c__r, 1)
+    # print 10**(YS_hDIG[sel].mean()-9), 10**(YS_hDIG[sel_c].mean()-9)
     mean_t_hDIG = YS_hDIG[sel_c].mean()
-    ax_sc.axhline(mean_t_hDIG, c='r', ls='--')
-    ax_sc.text(8.1, mean_t_hDIG+0.05, '%.2f Gyr' % (10**(mean_t_hDIG - 9)), color='r', fontsize=5)
+    ax_sc.axhline(mean_t_hDIG, xmin=0.5/(12.-8.), c='r', ls='--')
+    ax_sc.text(8.1, mean_t_hDIG, '%.2f Gyr' % (10**(mean_t_hDIG - 9)), color='r', fontsize=4, va='center')
     return ax_sc
 
 
@@ -601,7 +602,7 @@ if __name__ == '__main__':
     sel_pAGB = pickled['sel_pAGB']
     sel_SF_EW = pickled['sel_SF_EW']
     ###############################################################
-    log_NII_Ha_cen = elines['log_NII_Ha_cen_fit']
+    log_NII_Ha_cen = elines['log_NII_Ha_cen']
     elog_NII_Ha_cen = elines['log_NII_Ha_cen_stddev']
     log_SII_Ha_cen = elines['log_SII_Ha_cen_mean']
     elog_SII_Ha_cen = elines['log_SII_Ha_cen_stddev']
@@ -753,22 +754,20 @@ if __name__ == '__main__':
     n_bins_maj_y = 4
     n_bins_min_y = 2
     prune_x = None
-    plot_colored_by_z(elines=elines, x=x, y=elines['lSFR'], z=EW_Ha_cen, markAGNs=True,
+    plot_colored_by_z(elines=elines, args=args, x=x, y=elines['lSFR'], z=EW_Ha_cen, markAGNs=True,
                       ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})$',
                       xlabel=xlabel, extent=extent,
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                      verbose=args.verbose,
                       output_name='%s/fig_SFMS.%s' % (args.figs_dir, args.img_suffix))
     print '##############'
     print '## (NO CEN) ##'
     print '##############'
-    plot_colored_by_z(elines=elines, x=x, y=elines['lSFR_NO_CEN'], z=EW_Ha_cen, markAGNs=True,
+    plot_colored_by_z(elines=elines, args=args, x=x, y=elines['lSFR_NO_CEN'], z=EW_Ha_cen, markAGNs=True,
                       ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$',
                       xlabel=xlabel, extent=extent,
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                      verbose=args.verbose,
                       output_name='%s/fig_SFMS_NC.%s' % (args.figs_dir, args.img_suffix))
     print '###########################'
     ################################
@@ -787,12 +786,11 @@ if __name__ == '__main__':
     n_bins_maj_y = 3
     n_bins_min_y = 2
     prune_x = None
-    plot_colored_by_z(elines=elines, x=x, y=elines['lSFR'], z=EW_Ha_cen, markAGNs=True,
+    plot_colored_by_z(elines=elines, args=args, x=x, y=elines['lSFR'], z=EW_Ha_cen, markAGNs=True,
                       ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})$',
                       xlabel=xlabel, extent=extent,
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                      verbose=args.verbose,
                       output_name='%s/fig_Mgas_SFR.%s' % (args.figs_dir, args.img_suffix))
     ###############################
 
@@ -805,17 +803,15 @@ if __name__ == '__main__':
     n_bins_min_x = 5
     n_bins_maj_y = 3
     n_bins_min_y = 4
-    plot_colored_by_z(elines=elines, x=elines['log_Mass'], y=elines['log_Mass_gas_Av_gas_rad'], z=EW_Ha_cen, markAGNs=True,
+    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass'], y=elines['log_Mass_gas_Av_gas_rad'], z=EW_Ha_cen, markAGNs=True,
                       xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
                       ylabel=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$',
                       extent=[8, 12.5, 5, 11],
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                      verbose=args.verbose,
                       output_name='%s/fig_M_Mgas.%s' % (args.figs_dir, args.img_suffix))
     print '#############################'
     #############################
-
 
     ##########################
     ## M-C colored by EW_Ha ##
@@ -826,14 +822,13 @@ if __name__ == '__main__':
     n_bins_min_x = 5
     n_bins_maj_y = 6
     n_bins_min_y = 2
-    plot_colored_by_z(elines=elines, x=elines['log_Mass'], y=elines['C'], z=EW_Ha_cen, markAGNs=True,
+    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass'], y=elines['C'], z=EW_Ha_cen, markAGNs=True,
                       xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
                       ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
                       extent=[8, 12.5, 0.5, 5.5],
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                      verbose=args.verbose,
-                       output_name='%s/fig_M_C.%s' % (args.figs_dir, args.img_suffix))
+                      output_name='%s/fig_M_C.%s' % (args.figs_dir, args.img_suffix))
     print '##########################'
     ##########################
 
@@ -852,20 +847,18 @@ if __name__ == '__main__':
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, f=f, ax=ax, x=elines['lSFR'] - elines['log_Mass'], y=elines['C'], z=EW_Ha_cen,
+    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=elines['lSFR'] - elines['log_Mass'], y=elines['C'], z=EW_Ha_cen,
                               xlabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
                               ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
                               extent=[-13.5, -8.5, 0.5, 5.5], markAGNs=True,
                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                              verbose=args.verbose)
+                              n_bins_min_x=n_bins_min_x, prune_x=prune_x)
     ax.axvline(x=-11.8, c='k', ls='--')
     ax.axvline(x=-10.8, c='k', ls='--')
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print '#############################'
     ##########################
-
 
     #############################
     ## M-sSFR colored by EW_Ha ##
@@ -882,13 +875,12 @@ if __name__ == '__main__':
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, f=f, ax=ax, y=elines['lSFR'] - elines['log_Mass'], x=elines['log_Mass'], z=EW_Ha_cen,
+    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, y=elines['lSFR'] - elines['log_Mass'], x=elines['log_Mass'], z=EW_Ha_cen,
                               ylabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
                               xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
                               extent=[8, 12.5, -13.5, -8.5], markAGNs=True,
                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                              verbose=args.verbose)
+                              n_bins_min_x=n_bins_min_x, prune_x=prune_x)
     ax.axhline(y=-11.8, c='k', ls='--')
     ax.axhline(y=-10.8, c='k', ls='--')
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
@@ -910,67 +902,127 @@ if __name__ == '__main__':
         ################################
         ## CMD (NSA) colored by EW_Ha ##
         ################################
-        'fig_histo_CMD_NSA': [elines['Mabs_R'], r'${\rm M}_{\rm R}$ (mag)', 5, 2, None, elines['B_R'], r'${\rm B-R}$ (mag)', 3, 5, None, EW_Ha_cen, [-24, -10, 0, 1.5]],
+        'fig_histo_CMD_NSA': [
+            elines['Mabs_R'], r'${\rm M}_{\rm R}$ (mag)', 5, 2, None,
+            elines['B_R'], r'${\rm B-R}$ (mag)', 3, 5, None,
+            EW_Ha_cen, [-24, -10, 0, 1.5]],
         ################################
         ##################################
         ## CMD (CUBES) colored by EW_Ha ##
         ##################################
-        'fig_histo_CMD_CUBES': [elines.loc[m_redshift, 'Mabs_i'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None, elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None, EW_Ha_cen_zcut, [-24, -10, 0, 3.5]],
+        'fig_histo_CMD_CUBES': [
+            elines.loc[m_redshift, 'Mabs_i'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None,
+            elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
+            EW_Ha_cen_zcut, [-24, -10, 0, 3.5]
+        ],
         ##################################
+        #########################################
+        ## CMD (CUBES) NO CEN colored by EW_Ha ##
+        #########################################
+        # 'fig_histo_CMD_CUBES_NO_CEN': [
+        #     elines.loc[m_redshift, 'Mabs_i_NC'], r'${\rm M}_{\rm i}$ (mag) (NO CEN)', 5, 2, None,
+        #     elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
+        #     EW_Ha_cen_zcut, [-24, -10, 0, 3.5]
+        # ],
+        #########################################
         ###########################
         ## SFMS colored by EW_Ha ##
         ###########################
-        'fig_histo_SFMS': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None, EW_Ha_cen, [8, 12.5, -4.5, 2.5]],
+        'fig_histo_SFMS': [
+            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['lSFR'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None,
+            EW_Ha_cen, [8, 12, -4.5, 2.5]
+        ],
         ###########################
         ####################################
         ## SFMS colored by EW_Ha (NO CEN) ##
         ####################################
-        'fig_histo_SFMS_NC': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None, EW_Ha_cen, [8, 12.5, -4.5, 2.5]],
+        'fig_histo_SFMS_NC': [
+            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None,
+            EW_Ha_cen, [8, 12, -4.5, 2.5]
+        ],
         ####################################
         ##########################
         ## M-C colored by EW_Ha ##
         ##########################
-        'fig_histo_M_C': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None, EW_Ha_cen, [8, 12.5, 0.5, 5.5]],
+        'fig_histo_M_C': [
+            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None,
+            EW_Ha_cen, [8, 12, 0.5, 5.5]
+        ],
         ##########################
         #############################
         ## sSFR-C colored by EW_Ha ##
         #############################
-        'fig_histo_sSFR_C': [elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None, elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None, EW_Ha_cen, [-13.5, -8.5, 0.5, 5.5]],
+        'fig_histo_sSFR_C': [
+            elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
+            elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None,
+            EW_Ha_cen, [-13.5, -8.5, 0.5, 5.5]
+        ],
         #############################
         #############################
         ## M-sSFR colored by EW_Ha ##
         #############################
-        'fig_histo_M_sSFR': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None, EW_Ha_cen, [8, 12.5, -13.5, -8.5]],
+        'fig_histo_M_sSFR': [
+            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
+            EW_Ha_cen, [8, 12, -13.5, -8.5]
+        ],
         #############################
         ###############################
         ## M-ZHLWRe colored by EW_Ha ##
         ###############################
-        'fig_histo_M_ZHLW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None, EW_Ha_cen, [8, 12.5, -0.7, 0.3]],
+        'fig_histo_M_ZHLW': [
+            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None,
+            EW_Ha_cen, [8, 12, -0.7, 0.3]
+        ],
         ###############################
         ###############################
         ## M-ZHMWRe colored by EW_Ha ##
         ###############################
-        'fig_histo_M_ZHMW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['ZH_MW_Re_fit'], r'[Z/H] LW', 3, 2, None, EW_Ha_cen, [8, 12.5, -0.7, 0.3]],
+        'fig_histo_M_ZHMW': [
+            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['ZH_MW_Re_fit'], r'[Z/H] LW', 3, 2, None,
+            EW_Ha_cen, [8, 12, -0.7, 0.3]
+        ],
         ###############################
         ##########################
         ## MZR colored by EW_Ha ##
         ##########################
-        'fig_histo_MZR': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['OH_Re_fit_t2'], r'$12 + \log (O/H)$ t2 ', 2, 5, None, EW_Ha_cen, [8, 12.5, 8.3, 9.1]],
+        'fig_histo_MZR': [
+            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['OH_Re_fit_t2'], r'$12 + \log (O/H)$ t2 ', 2, 5, None,
+            EW_Ha_cen, [8, 12, 8.3, 9.1]
+        ],
         ##########################
         ############################
         ## M-tLW colored by EW_Ha ##
         ############################
-        'fig_histo_M_tLW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['Age_LW_Re_fit'], r'$\log({\rm age/yr})$ LW', 4, 5, None, EW_Ha_cen, [8, 12.5, 7.5, 10.5]],
+        'fig_histo_M_tLW': [
+            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['Age_LW_Re_fit'], r'$\log({\rm age/yr})$ LW', 4, 5, None,
+            EW_Ha_cen, [8, 12, 7.5, 10.5]
+        ],
         ############################
         ############################
         ## M-tMW colored by EW_Ha ##
         ############################
-        'fig_histo_M_tMW': [elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 5, 2, None, elines['Age_MW_Re_fit'], r'$\log({\rm age/yr})$ MW', 4, 5, None, EW_Ha_cen, [8, 12.5, 8.5, 10.5]],
+        'fig_histo_M_tMW': [
+            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['Age_MW_Re_fit'], r'$\log({\rm age/yr})$ MW', 3, 5, None,
+            EW_Ha_cen, [8, 12, 8.8, 10.2]
+        ],
         ############################
         ###############################
         ## Mgas-SFR colored by EW_Ha ##
         ###############################
-        'fig_histo_Mgas_SFR': [elines['log_Mass_gas_Av_gas_rad'], r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', 5, 2, None, elines['lSFR'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None, EW_Ha_cen, [5, 11, -4.5, 2.5]],
+        'fig_histo_Mgas_SFR': [
+            elines['log_Mass_gas_Av_gas_rad'], r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', 5, 2, None,
+            elines['lSFR'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None,
+            EW_Ha_cen, [5, 11, -4.5, 2.5]
+        ],
         ###############################
     }
 
@@ -988,7 +1040,7 @@ if __name__ == '__main__':
         ax_Hx = plt.subplot(gs[-1, 1:])
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
-        plot_histo_xy_colored_by_EW(elines=elines, x=x, y=y, z=z, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, xlabel=xlabel, xrange=extent[0:2], n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, ylabel=ylabel, yrange=extent[2:4], n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=prune_y, verbose=args.verbose)
+        plot_histo_xy_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, xlabel=xlabel, xrange=extent[0:2], n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, ylabel=ylabel, yrange=extent[2:4], n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=prune_y)
         if k == 'fig_histo_sSFR_C':
             ax_sc.axvline(x=-11.8, c='k', ls='--')
             ax_sc.axvline(x=-10.8, c='k', ls='--')
@@ -1001,6 +1053,8 @@ if __name__ == '__main__':
             ax_sc = plot_fig_histo_M_ZHMW(elines, x, y, ax_sc)
         if k == 'fig_histo_M_tLW' or k == 'fig_histo_M_tMW':
             ax_sc = plot_fig_histo_M_t(elines, x, y, ax_sc)
+        if k == 'fig_histo_M_Mgas':
+            ax_sc = plot_fig_histo_M_Mgas(elines, x, y, ax_sc)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print '################################'
@@ -1023,9 +1077,9 @@ if __name__ == '__main__':
     print '## Morph colored by EW_Ha ##'
     print '############################'
     plots_dict = {
-        'fig_Morph_M': ['log_Mass', [8, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
+        'fig_Morph_M': ['log_Mass', [7.5, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 5],
         'fig_Morph_C': ['C', [0.5, 5.5], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2],
-        'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^{-2})$', 4, 2],
+        'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^2)$ cen', 4, 2],
         'fig_Morph_vsigma': ['rat_vel_sigma', [0, 1], r'${\rm v}/\sigma ({\rm R} < {\rm Re})$', 2, 2],
         'fig_Morph_Re': ['Re_kpc', [0, 25], r'${\rm Re}/{\rm kpc}$', 6, 2]
     }
@@ -1041,8 +1095,8 @@ if __name__ == '__main__':
         ax_Hx = plt.subplot(gs[-1, 1:])
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
-        ax_Hx = plot_x_morph(elines=elines_wmorph, ax=ax_Hx, verbose=args.verbose)
-        plot_morph_y_colored_by_EW(elines=elines_wmorph, y=y, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, ylabel=ylabel, yrange=yrange, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, verbose=args.verbose)
+        ax_Hx = plot_x_morph(elines=elines_wmorph, args=args, ax=ax_Hx)
+        plot_morph_y_colored_by_EW(elines=elines_wmorph, args=args, y=y, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, ylabel=ylabel, yrange=yrange, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None)
         # gs.tight_layout(f)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
