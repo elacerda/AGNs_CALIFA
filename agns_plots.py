@@ -245,7 +245,11 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=N
     tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
     ax.tick_params(**tick_params)
     # ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
+<<<<<<< HEAD
+    if verbose > 0:
+=======
     if args.verbose > 0:
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
         print '# x #'
         xlim = ax.get_xlim()
         x_low = x.loc[x < xlim[0]]
@@ -278,7 +282,11 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=N
     return f, ax
 
 
+<<<<<<< HEAD
+def plot_histo_xy_colored_by_z(elines, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, verbose=0):
+=======
 def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None):
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     ax_Hx.hist(x, bins=15, range=xrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
@@ -460,7 +468,7 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     return ax_Hx, ax_Hy, ax_sc
 
 
-def plot_fig_histo_MZR(elines, x, y, ax):
+def plot_fig_histo_MZR(elines, args, x, y, ax):
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     ### MZR ###
@@ -501,11 +509,11 @@ def create_bins(interval, step):
     return bins, bins_center, len(bins_center)
 
 
-def plot_fig_histo_M_ZHMW(elines, x, y, ax, interval=None):
+def plot_fig_histo_M_ZHMW(elines, args, x, y, ax, interval=None):
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     if interval is None:
-        interval = [8.7, 11.8, -0.7, 0.3]
+        interval = [9, 11.5, -0.9, 0.3]
     x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.3)
     y_mean, N_y_mean, _ = redf_xy_bins_interval(x.values, y.values, x_bins__r, interval)
     ax.plot(x_bincenter__r, y_mean, 'k-')
@@ -521,11 +529,17 @@ def plot_fig_histo_M_ZHMW(elines, x, y, ax, interval=None):
     return ax_sc
 
 
-def plot_fig_histo_M_t(elines, x, y, ax, interval=None):
+def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     WHa = elines['EW_Ha_ALL']
     y_AGNs_mean = y.loc[elines['AGN_FLAG'] > 0].mean()
+<<<<<<< HEAD
+    # ax_sc.axhline(y_AGNs_mean, xmin=0.9/(12.-8.), c='g', ls='--')
+    ax_sc.axhline(y_AGNs_mean, c='g', ls='--')
+    ax_sc.text(0.05, 0.85, '%.2f Gyr' % (10**(y_AGNs_mean - 9)), color='g', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+=======
     ax_sc.axhline(y_AGNs_mean, xmin=0.5/(12.-8.), c='g', ls='--')
     ax_sc.text(8.1, y_AGNs_mean, '%.2f Gyr' % (10**(y_AGNs_mean - 9)), color='g', fontsize=4, va='center')
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
     y_AGNs_tI_mean = y.loc[elines['AGN_FLAG'] == 1].mean()
     y_AGNs_tII_mean = y.loc[elines['AGN_FLAG'] == 2].mean()
     m = ~(np.isnan(x) | np.isnan(y) | np.isnan(WHa))
@@ -555,8 +569,14 @@ def plot_fig_histo_M_t(elines, x, y, ax, interval=None):
     # p = np.ma.polyfit(x_bins_center__r, SFRHaS_SF_c__r, 1)
     # print 10**(YS_SF[sel].mean()-9), 10**(YS_SF[sel_c].mean()-9)
     mean_t_SF = YS_SF[sel_c].mean()
+<<<<<<< HEAD
+    # ax_sc.axhline(mean_t_SF, xmin=0.9/(12.-8.), c='b', ls='--')
+    ax_sc.axhline(mean_t_SF, c='b', ls='--')
+    ax_sc.text(0.05, 0.77, '%.2f Gyr' % (10**(mean_t_SF - 9)), color='b', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+=======
     ax_sc.axhline(mean_t_SF, xmin=0.5/(12.-8.), c='b', ls='--')
     ax_sc.text(8.1, mean_t_SF, '%.2f Gyr' % (10**(mean_t_SF - 9)), color='b', fontsize=4, va='center')
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
     ### RG ###
     x_hDIG = x.loc[(WHa <= 3)]
     y_hDIG = y.loc[(WHa <= 3)]
@@ -570,8 +590,14 @@ def plot_fig_histo_M_t(elines, x, y, ax, interval=None):
     # p = np.ma.polyfit(x_bins_center__r, SFRHaS_hDIG_c__r, 1)
     # print 10**(YS_hDIG[sel].mean()-9), 10**(YS_hDIG[sel_c].mean()-9)
     mean_t_hDIG = YS_hDIG[sel_c].mean()
+<<<<<<< HEAD
+    # ax_sc.axhline(mean_t_hDIG, xmin=0.9/(12.-8.), c='r', ls='--')
+    ax_sc.axhline(mean_t_hDIG, c='r', ls='--')
+    ax_sc.text(0.05, 0.93, '%.2f Gyr' % (10**(mean_t_hDIG - 9)), color='r', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+=======
     ax_sc.axhline(mean_t_hDIG, xmin=0.5/(12.-8.), c='r', ls='--')
     ax_sc.text(8.1, mean_t_hDIG, '%.2f Gyr' % (10**(mean_t_hDIG - 9)), color='r', fontsize=4, va='center')
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
     return ax_sc
 
 
@@ -773,9 +799,9 @@ if __name__ == '__main__':
     ################################
 
     ###############################
-    ## SFR-Mgas colored by EW_Ha ##
+    ## Mgas-SFR colored by EW_Ha ##
     ###############################
-    print '\n#############################'
+    print '\n###############################'
     print '## Mgas-SFR colored by EW_Ha ##'
     print '###############################'
     x = elines['log_Mass_gas_Av_gas_rad']
@@ -828,6 +854,10 @@ if __name__ == '__main__':
                       extent=[8, 12.5, 0.5, 5.5],
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
+<<<<<<< HEAD
+                      verbose=args.verbose,
+=======
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
                       output_name='%s/fig_M_C.%s' % (args.figs_dir, args.img_suffix))
     print '##########################'
     ##########################
@@ -975,8 +1005,13 @@ if __name__ == '__main__':
         ###############################
         'fig_histo_M_ZHLW': [
             elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+<<<<<<< HEAD
+            elines['ZH_LW_Re_fit'] - elines['alpha_ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None,
+            EW_Ha_cen, [8, 12, -0.9, 0.3]
+=======
             elines['ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None,
             EW_Ha_cen, [8, 12, -0.7, 0.3]
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
         ],
         ###############################
         ###############################
@@ -984,8 +1019,13 @@ if __name__ == '__main__':
         ###############################
         'fig_histo_M_ZHMW': [
             elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+<<<<<<< HEAD
+            elines['ZH_MW_Re_fit'] - elines['alpha_ZH_MW_Re_fit'], r'[Z/H] MW', 3, 4, None,
+            EW_Ha_cen, [8, 12, -0.9, 0.3]
+=======
             elines['ZH_MW_Re_fit'], r'[Z/H] LW', 3, 2, None,
             EW_Ha_cen, [8, 12, -0.7, 0.3]
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
         ],
         ###############################
         ##########################
@@ -993,7 +1033,11 @@ if __name__ == '__main__':
         ##########################
         'fig_histo_MZR': [
             elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+<<<<<<< HEAD
+            elines['OH_Re_fit_t2'], r'$12 + \log (O/H)$ t2 ', 2, 4, None,
+=======
             elines['OH_Re_fit_t2'], r'$12 + \log (O/H)$ t2 ', 2, 5, None,
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
             EW_Ha_cen, [8, 12, 8.3, 9.1]
         ],
         ##########################
@@ -1002,7 +1046,11 @@ if __name__ == '__main__':
         ############################
         'fig_histo_M_tLW': [
             elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+<<<<<<< HEAD
+            elines['Age_LW_Re_fit'], r'$\log({\rm age/yr})$ LW', 3, 5, None,
+=======
             elines['Age_LW_Re_fit'], r'$\log({\rm age/yr})$ LW', 4, 5, None,
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
             EW_Ha_cen, [8, 12, 7.5, 10.5]
         ],
         ############################
@@ -1040,7 +1088,11 @@ if __name__ == '__main__':
         ax_Hx = plt.subplot(gs[-1, 1:])
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
+<<<<<<< HEAD
+        plot_histo_xy_colored_by_z(elines=elines, x=x, y=y, z=z, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, xlabel=xlabel, xrange=extent[0:2], n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, ylabel=ylabel, yrange=extent[2:4], n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=prune_y, verbose=args.verbose)
+=======
         plot_histo_xy_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, xlabel=xlabel, xrange=extent[0:2], n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, ylabel=ylabel, yrange=extent[2:4], n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=prune_y)
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
         if k == 'fig_histo_sSFR_C':
             ax_sc.axvline(x=-11.8, c='k', ls='--')
             ax_sc.axvline(x=-10.8, c='k', ls='--')
@@ -1048,13 +1100,19 @@ if __name__ == '__main__':
             ax_sc.axhline(y=-11.8, c='k', ls='--')
             ax_sc.axhline(y=-10.8, c='k', ls='--')
         if k == 'fig_histo_MZR':
-            ax_sc = plot_fig_histo_MZR(elines, x, y, ax_sc)
+            ax_sc = plot_fig_histo_MZR(elines, args, x, y, ax_sc)
         if k == 'fig_histo_M_ZHMW':
-            ax_sc = plot_fig_histo_M_ZHMW(elines, x, y, ax_sc)
+            ax_sc = plot_fig_histo_M_ZHMW(elines, args, x, y, ax_sc)
         if k == 'fig_histo_M_tLW' or k == 'fig_histo_M_tMW':
+<<<<<<< HEAD
+            ax_sc = plot_fig_histo_M_t(elines, args, x, y, ax_sc)
+        if k == 'fig_histo_M_Mgas':
+            ax_sc = plot_fig_histo_M_Mgas(elines, args, x, y, ax_sc)
+=======
             ax_sc = plot_fig_histo_M_t(elines, x, y, ax_sc)
         if k == 'fig_histo_M_Mgas':
             ax_sc = plot_fig_histo_M_Mgas(elines, x, y, ax_sc)
+>>>>>>> ec8104c137a94a731f00e3b0ca2b973fca7399d1
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print '################################'
