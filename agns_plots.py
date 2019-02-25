@@ -44,7 +44,8 @@ marker_AGN_tIII = 'o'
 marker_AGN_tIV = 'o'
 alpha_AGN_tIII = 1
 alpha_AGN_tIV = 1
-scatter_kwargs = dict(s=1, vmax=2.5, vmin=-1, cmap='viridis_r', marker='o', edgecolor='none', alpha=1)
+scatter_kwargs = dict(s=1, cmap='viridis_r', marker='o', edgecolor='none', alpha=1)
+scatter_kwargs_EWmaxmin = dict(s=1, vmax=2.5, vmin=-1, cmap='viridis_r', marker='o', edgecolor='none', alpha=1)
 scatter_AGN_tIV_kwargs = dict(s=30, alpha=alpha_AGN_tIV, linewidth=0.5, marker=marker_AGN_tIV, facecolor='none', edgecolor=color_AGN_tIV)
 scatter_AGN_tIII_kwargs = dict(s=30, alpha=alpha_AGN_tIII, linewidth=0.5, marker=marker_AGN_tIII, facecolor='none', edgecolor=color_AGN_tIII)
 scatter_AGN_tII_kwargs = dict(s=30, linewidth=0.5, marker=marker_AGN_tII, facecolor='none', edgecolor=color_AGN_tII)
@@ -216,11 +217,86 @@ def plot_setup(width, aspect, fignum=None, dpi=300, cmap=None):
     return plt.figure(fignum, figsize, dpi=dpi)
 
 
+def plot_WHAN(args, N2Ha, WHa, z=None, f=None, ax=None, extent=None, output_name=None, cmap='viridis', mask=None, N=False, z_label=r'R [HLR]', vmax=None, vmin=None, dcontour=True):
+    from pytu.plots import plot_text_ax
+    from pytu.functions import ma_mask_xyz
+
+    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    if f is None:
+        f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+        N_rows, N_cols = 1, 1
+        gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+        ax = plt.subplot(gs[0])
+    if mask is None:
+        mask = np.zeros_like(N2Ha, dtype=np.bool_)
+    if extent is None:
+        extent = [-1.6, 0.8, -1, 2.5]
+    if z is None:
+        bins = [30, 30]
+        xm, ym = ma_mask_xyz(N2Ha, np.ma.log10(WHa), mask=mask)
+        if dcontour:
+            density_contour(xm.compressed(), ym.compressed(), bins[0], bins[1], ax, range=[extent[0:2], extent[2:4]], colors=['b', 'y', 'r'])
+        sc = ax.scatter(xm, ym, **scatter_kwargs)
+    else:
+        xm, ym, z = ma_mask_xyz(N2Ha, np.ma.log10(WHa), z, mask=mask)
+        #   print xm, ym, z
+        sc = ax.scatter(xm, ym, c=z, cmap=cmap, vmin=vmin, vmax=vmax, marker='o', s=1, edgecolor='none')
+        cb_width = 0.05
+        cb_ax = f.add_axes([right, bottom, cb_width, top-bottom])
+        cb = plt.colorbar(sc, cax=cb_ax)
+        cb.set_label(z_label, fontsize=args.fontsize+1)
+        cb.locator = MaxNLocator(4)
+        # cb_ax.minorticks_on()
+        cb_ax.tick_params(which='both', direction='in')
+        cb.update_ticks()
+    xlabel = r'$\log\ ({\rm [NII]}/{\rm H\alpha})$'
+    ylabel = r'$\log {\rm EW}({\rm H\alpha})$'
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    if not N:
+        N = xm.count()
+    c = ''
+    if (xm.compressed() < extent[0]).any():
+        c += 'x-'
+    if (xm.compressed() > extent[1]).any():
+        c += 'x+'
+    if (ym.compressed() < extent[2]).any():
+        c += 'y-'
+    if (ym.compressed() > extent[3]).any():
+        c += 'y+'
+    ax.set_xlim(extent[0:2])
+    ax.set_ylim(extent[2:4])
+    ax.xaxis.set_major_locator(MaxNLocator(3, prune='both'))
+    ax.yaxis.set_major_locator(MaxNLocator(4))
+    ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+    plot_text_ax(ax, '%d %s' % (N, c), 0.02, 0.98, args.fontsize, 'top', 'left', 'k')
+    ax.plot((-0.4, -0.4), (np.log10(3), 3), 'k-')
+    ax.plot((-0.4, extent[1]), np.ma.log10([6, 6]), 'k-')
+    ax.axhline(y=np.log10(3), c='k')
+    p = [np.log10(0.5/5.0), np.log10(0.5)]
+    xini = (np.log10(3.) - p[1]) / p[0]
+    ax.plot((xini, 0.), np.polyval(p, [xini, 0.]), 'k:')
+    ax.plot((0, extent[1]), np.log10([0.5, 0.5]), 'k:')
+    ax.text(-1.4, 0.75, 'SF', fontsize=args.fontsize)
+    ax.text(0.5, 2.25, 'sAGN', fontsize=args.fontsize)
+    ax.text(0.5, 0.55, 'wAGN', fontsize=args.fontsize)
+    ax.text(0.25, 0.0, 'RG', fontsize=args.fontsize)
+    ax.text(-0.8, 0, 'PG', fontsize=args.fontsize)
+    tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
+    ax.tick_params(**tick_params)
+    if output_name is not None:
+        f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+        plt.close(f)
+    else:
+        return f, ax
+
+
 def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, output_name=None, markAGNs=False, f=None, ax=None, sc_kwargs=None):
     if z_label is None:
         z_label = r'${\rm W}_{{\rm H}\alpha}$'
     if sc_kwargs is None:
-        sc_kwargs = scatter_kwargs
+        sc_kwargs = scatter_kwargs_EWmaxmin
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     mtIII = elines['AGN_FLAG'] == 3
@@ -326,7 +402,7 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     ax_Hy.tick_params(**tick_params)
     ax_Hy_t.tick_params(**tick_params)
     ####################################
-    sc = ax_sc.scatter(x, y, c=z, **scatter_kwargs)
+    sc = ax_sc.scatter(x, y, c=z, **scatter_kwargs_EWmaxmin)
     ax_sc.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax_sc.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
@@ -422,7 +498,7 @@ def plot_x_morph(elines, args, ax):
 
 def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None):
     EW_color = elines['EW_Ha_cen_mean'].apply(np.abs)
-    scatter_kwargs = dict(c=EW_color.apply(np.log10), s=2, vmax=2.5, vmin=-1, cmap='viridis_r', marker='o', edgecolor='none')
+    scatter_kwargs_EWmaxmin = dict(c=EW_color.apply(np.log10), s=2, vmax=2.5, vmin=-1, cmap='viridis_r', marker='o', edgecolor='none')
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     mtIII = elines['AGN_FLAG'] == 3
@@ -453,7 +529,7 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     ax_Hy.tick_params(**tick_params)
     ax_Hy_t.tick_params(**tick_params)
     ####################################
-    sc = ax_sc.scatter(morph, y, **scatter_kwargs)
+    sc = ax_sc.scatter(morph, y, **scatter_kwargs_EWmaxmin)
     ax_sc.scatter(morph[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(morph[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax_sc.scatter(morph[mtI], y[mtI], **scatter_AGN_tI_kwargs)
@@ -503,7 +579,7 @@ def plot_fig_histo_MZR(elines, args, x, y, ax):
     X = x.loc[mXnotnan].values
     iS = np.argsort(X)
     XS = X[iS]
-    elines['modlogOHSF2017_t2'] = modlogOHSF2017_t2(elines['log_Mass'])
+    elines['modlogOHSF2017_t2'] = modlogOHSF2017_t2(elines['log_Mass_no_corr'])
     YS = (elines['modlogOHSF2017_t2'].loc[mXnotnan].values)[iS]
     mY = YS > 8.4
     mX = XS < 11.5
@@ -522,9 +598,9 @@ def plot_fig_histo_MZR(elines, args, x, y, ax):
     m_y_tI_above = y.loc[mtI] > x.loc[mtI].apply(modlogOHSF2017_t2)
     m_y_tII_above = y.loc[mtII] > x.loc[mtII].apply(modlogOHSF2017_t2)
     m_y_tIII_above = y.loc[mtIII] > x.loc[mtIII].apply(modlogOHSF2017_t2)
-    print elines.loc[m_y_tI_above.index[m_y_tI_above], ['log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-    print elines.loc[m_y_tII_above.index[m_y_tII_above], ['log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-    print elines.loc[m_y_tIII_above.index[m_y_tIII_above], ['log_Mass', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    print elines.loc[m_y_tI_above.index[m_y_tI_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    print elines.loc[m_y_tII_above.index[m_y_tII_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    print elines.loc[m_y_tIII_above.index[m_y_tIII_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
     N_y_tIII = y[mtIII].count()
@@ -686,8 +762,8 @@ if __name__ == '__main__':
     legend_elements = [
         Line2D([0], [0], marker=marker_AGN_tI, markeredgecolor=color_AGN_tI, label='Type-I (%d)' % N_AGN_tI, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
         Line2D([0], [0], marker=marker_AGN_tII, markeredgecolor=color_AGN_tII, label='Type-II (%d)' % N_AGN_tII, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
-        Line2D([0], [0], marker=marker_AGN_tIII, alpha=alpha_AGN_tIII, markeredgecolor=color_AGN_tIII, label=r'by 2 (%d)' % N_AGN_tIII, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
-        Line2D([0], [0], marker=marker_AGN_tIV, alpha=alpha_AGN_tIV, markeredgecolor=color_AGN_tIV, label=r'by 1 (%d)' % N_AGN_tIV, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
+        Line2D([0], [0], marker=marker_AGN_tIII, alpha=alpha_AGN_tIII, markeredgecolor=color_AGN_tIII, label=r'by [NII]/H$\alpha$ and other (+%d)' % N_AGN_tIII, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
+        Line2D([0], [0], marker=marker_AGN_tIV, alpha=alpha_AGN_tIV, markeredgecolor=color_AGN_tIV, label=r'by [NII]/H$\alpha$ (+%d)' % N_AGN_tIV, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
     ]
 
     ##########################
@@ -713,7 +789,7 @@ if __name__ == '__main__':
     ax = ax0
     x = log_NII_Ha_cen
     extent = [-1.6, 0.8, -1.2, 1.5]
-    sc = ax.scatter(x, y, c=EW_Ha_cen.apply(np.log10), **scatter_kwargs)
+    sc = ax.scatter(x, y, c=EW_Ha_cen.apply(np.log10), **scatter_kwargs_EWmaxmin)
     ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
     ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
     ax.scatter(x.loc[mtII], y.loc[mtII], **scatter_AGN_tII_kwargs)
@@ -723,7 +799,7 @@ if __name__ == '__main__':
     ax.plot(L.x['K03'], L.y['K03'], 'k-')
     ax.set_xlabel(r'$\log\ ({\rm [NII]}/{\rm H\alpha})$', fontsize=fs+4)
     plot_text_ax(ax, 'SF', 0.1, 0.05, fs+2, 'bottom', 'left', 'k')
-    plot_text_ax(ax, 'AGN/LINER', 0.95, 0.95, fs+2, 'top', 'right', 'k')
+    plot_text_ax(ax, 'AGN/LINER', 0.95, 0.87, fs+2, 'top', 'right', 'k')
     tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
     ax.set_xlim(extent[0:2])
     ax.set_ylim(extent[2:4])
@@ -743,7 +819,7 @@ if __name__ == '__main__':
     ax = ax1
     x = log_SII_Ha_cen
     extent = [-1.6, 0.8, -1.2, 1.5]
-    sc = ax.scatter(x, y, c=EW_Ha_cen.apply(np.log10), **scatter_kwargs)
+    sc = ax.scatter(x, y, c=EW_Ha_cen.apply(np.log10), **scatter_kwargs_EWmaxmin)
     ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
     ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
     ax.scatter(x.loc[mtII], y.loc[mtII], **scatter_AGN_tII_kwargs)
@@ -773,7 +849,7 @@ if __name__ == '__main__':
     ax = ax2
     x = log_OI_Ha_cen
     extent = [-3, 0.8, -1.2, 1.5]
-    sc = ax.scatter(x, y, c=EW_Ha_cen.apply(np.log10), **scatter_kwargs)
+    sc = ax.scatter(x, y, c=EW_Ha_cen.apply(np.log10), **scatter_kwargs_EWmaxmin)
     ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
     ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
     ax.scatter(x.loc[mtII], y.loc[mtII], **scatter_AGN_tII_kwargs)
@@ -807,13 +883,44 @@ if __name__ == '__main__':
     print '##########################'
     ##########################
 
+    ##################################
+    ## WHAN colored by [OIII]/Hbeta ##
+    ##################################
+    print '\n##################################'
+    print '## WHAN colored by [OIII]/Hbeta ##'
+    print '##################################'
+    x = log_NII_Ha_cen
+    y = EW_Ha_cen
+    z = log_OIII_Hb_cen
+    extent = [-1.6, 0.8, -1, 2.5]
+    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+    N_rows, N_cols = 1, 1
+    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+    ax = plt.subplot(gs[0])
+    f, ax = plot_WHAN(args, x.values, y.values, f=f, ax=ax, extent=extent,
+                      z=z.values, z_label=r'$\log\ ({\rm [OIII]}/{\rm H\beta})$',
+                      cmap='viridis_r', mask=None,
+                      vmax=1, vmin=-1)
+    y = EW_Ha_cen.apply(np.log10)
+    ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
+    ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
+    ax.scatter(x.loc[mtII], y.loc[mtII], **scatter_AGN_tII_kwargs)
+    ax.scatter(x.loc[mtI], y.loc[mtI], **scatter_AGN_tI_kwargs)
+    output_name='%s/fig_WHAN.%s' % (args.figs_dir, args.img_suffix)
+    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
+    print '##################################'
+    ##################################
+
+
     ###########################
     ## SFMS colored by EW_Ha ##
     ###########################
     print '\n###########################'
     print '## SFMS colored by EW_Ha ##'
     print '###########################'
-    x = elines['log_Mass']
+    x = elines['log_Mass_no_corr']
     xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
     extent = [8, 12.5, -4.5, 2.5]
     n_bins_min_x = 5
@@ -869,7 +976,7 @@ if __name__ == '__main__':
     n_bins_min_x = 5
     n_bins_maj_y = 6
     n_bins_min_y = 5
-    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass'], y=elines['log_Mass_gas_Av_gas_rad'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
+    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass_no_corr'], y=elines['log_Mass_gas_Av_gas_rad'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
                       xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
                       ylabel=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$',
                       extent=[8, 12.5, 5, 11],
@@ -888,7 +995,7 @@ if __name__ == '__main__':
     n_bins_min_x = 5
     n_bins_maj_y = 6
     n_bins_min_y = 2
-    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass'], y=elines['C'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
+    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass_no_corr'], y=elines['C'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
                       xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
                       ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
                       extent=[8, 12.5, 0.5, 5.5],
@@ -913,7 +1020,7 @@ if __name__ == '__main__':
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=elines['lSFR'] - elines['log_Mass'], y=elines['C'], z=EW_Ha_cen.apply(np.log10),
+    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=elines['lSFR'] - elines['log_Mass_no_corr'], y=elines['C'], z=EW_Ha_cen.apply(np.log10),
                               xlabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
                               ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
                               extent=[-13.5, -8.5, 0.5, 5.5], markAGNs=True,
@@ -941,7 +1048,7 @@ if __name__ == '__main__':
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, y=elines['lSFR'] - elines['log_Mass'], x=elines['log_Mass'], z=EW_Ha_cen.apply(np.log10),
+    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, y=elines['lSFR'] - elines['log_Mass_no_corr'], x=elines['log_Mass_no_corr'], z=EW_Ha_cen.apply(np.log10),
                               ylabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
                               xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
                               extent=[8, 12.5, -13.5, -8.5], markAGNs=True,
@@ -995,7 +1102,7 @@ if __name__ == '__main__':
         ## SFMS colored by EW_Ha ##
         ###########################
         'fig_histo_SFMS': [
-            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['lSFR'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
         ],
@@ -1004,7 +1111,7 @@ if __name__ == '__main__':
         ## SFMS colored by EW_Ha (NO CEN) ##
         ####################################
         'fig_histo_SFMS_NC': [
-            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
         ],
@@ -1013,7 +1120,7 @@ if __name__ == '__main__':
         ## M-C colored by EW_Ha ##
         ##########################
         'fig_histo_M_C': [
-            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, 0.5, 5.5]
         ],
@@ -1022,7 +1129,7 @@ if __name__ == '__main__':
         ## sSFR-C colored by EW_Ha ##
         #############################
         'fig_histo_sSFR_C': [
-            elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
+            elines['lSFR'] - elines['log_Mass_no_corr'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
             elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None,
             EW_Ha_cen.apply(np.log10), [-13.5, -8.5, 0.5, 5.5]
         ],
@@ -1031,8 +1138,8 @@ if __name__ == '__main__':
         ## M-sSFR colored by EW_Ha ##
         #############################
         'fig_histo_M_sSFR': [
-            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['lSFR'] - elines['log_Mass'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
+            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['lSFR'] - elines['log_Mass_no_corr'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -13.5, -8.5]
         ],
         #############################
@@ -1040,7 +1147,7 @@ if __name__ == '__main__':
         ## M-ZHLWRe colored by EW_Ha ##
         ###############################
         'fig_histo_M_ZHLW': [
-            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -0.7, 0.3]
             # elines['ZH_LW_Re_fit'] - elines['alpha_ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None,
@@ -1051,7 +1158,7 @@ if __name__ == '__main__':
         ## M-ZHMWRe colored by EW_Ha ##
         ###############################
         'fig_histo_M_ZHMW': [
-            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             # elines['ZH_MW_Re_fit'] - elines['alpha_ZH_MW_Re_fit'], r'[Z/H] MW', 3, 4, None,
             # EW_Ha_cen.apply(np.log10), [8, 12, -0.9, 0.3]
             elines['ZH_MW_Re_fit'], r'[Z/H] LW', 3, 8, None,
@@ -1062,7 +1169,7 @@ if __name__ == '__main__':
         ## MZR colored by EW_Ha ##
         ##########################
         'fig_histo_MZR': [
-            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['OH_Re_fit_t2'], r'$12 + \log (O/H)$ t2 ', 2, 8, None,
             EW_Ha_cen.apply(np.log10), [8, 12, 8.3, 9.1]
         ],
@@ -1071,7 +1178,7 @@ if __name__ == '__main__':
         ## M-tLW colored by EW_Ha ##
         ############################
         'fig_histo_M_tLW': [
-            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['Age_LW_Re_fit'], r'$\log({\rm age/yr})$ LW', 4, 5, None,
             EW_Ha_cen.apply(np.log10), [8, 12, 7.5, 10.5]
         ],
@@ -1080,7 +1187,7 @@ if __name__ == '__main__':
         ## M-tMW colored by EW_Ha ##
         ############################
         'fig_histo_M_tMW': [
-            elines['log_Mass'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['Age_MW_Re_fit'], r'$\log({\rm age/yr})$ MW', 3, 5, None,
             EW_Ha_cen.apply(np.log10), [8, 12, 8.8, 10.2]
         ],
@@ -1147,7 +1254,7 @@ if __name__ == '__main__':
     print '## Morph colored by EW_Ha ##'
     print '############################'
     plots_dict = {
-        'fig_Morph_M': ['log_Mass', [7.5, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
+        'fig_Morph_M': ['log_Mass_no_corr', [7.5, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
         'fig_Morph_C': ['C', [0.5, 5.5], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2],
         'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^2)$ cen', 4, 2],
         'fig_Morph_vsigma': ['rat_vel_sigma', [0, 1], r'${\rm v}/\sigma ({\rm R} < {\rm Re})$', 2, 5],
