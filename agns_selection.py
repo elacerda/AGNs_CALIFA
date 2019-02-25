@@ -38,6 +38,9 @@ fnames_long = {
 def fBPT(x, a, b, c):
     return a + (b/(x + c))
 
+def linval(x, a, b):
+    return np.polyval([a, b], x)
+
 
 def parser_args(default_args_file='args/default_selection.args'):
     """
@@ -51,7 +54,7 @@ def parser_args(default_args_file='args/default_selection.args'):
         'input': 'dataframes.pkl',
         'output': 'elines_clean.pkl',
         'broad_fit_rules': False,
-        'sigma_clip': True,
+        'no_sigma_clip': False,
         'print_color': False,
         'csv_dir': 'csv',
         'bug': 0.8,
@@ -67,7 +70,7 @@ def parser_args(default_args_file='args/default_selection.args'):
     parser.add_argument('--output', '-O', metavar='FILE', type=str, default=default_args['output'])
     parser.add_argument('--broad_fit_rules', '-B', action='store_true', default=default_args['broad_fit_rules'])
     parser.add_argument('--print_color', action='store_true', default=default_args['print_color'])
-    parser.add_argument('--sigma_clip', action='store_false', default=default_args['sigma_clip'])
+    parser.add_argument('--no_sigma_clip', action='store_true', default=default_args['no_sigma_clip'])
     parser.add_argument('--csv_dir', metavar='DIR', type=str, default=default_args['csv_dir'])
     parser.add_argument('--output_agn_candidates', metavar='FILE', type=str, default=default_args['output_agn_candidates'])
     parser.add_argument('--verbose', '-v', action='count')
@@ -154,7 +157,9 @@ if __name__ == '__main__':
     consts_K01_OI_Ha = L.consts['K01_OI_Ha']
     consts_K03 = L.consts['K03']
     consts_S06 = L.consts['S06']
-    if args.sigma_clip:
+    consts_K06_SII_Ha = L.consts['K06_SII_Ha']
+    consts_K06_OI_Ha = L.consts['K06_OI_Ha']
+    if args.no_sigma_clip is False:
         consts_K01 = L.sigma_clip_consts['K01']
         consts_K01_SII_Ha = L.sigma_clip_consts['K01_SII_Ha']
         ###############################################################
@@ -171,11 +176,13 @@ if __name__ == '__main__':
     ###############################################################
     # AGN
     y_mod_K01_SII = log_SII_Ha_cen.apply(fBPT, args=consts_K01_SII_Ha)
+    y_mod_K06_SII = log_SII_Ha_cen.apply(linval, args=consts_K06_SII_Ha)
     ###############################################################
     ###############################################################
     # [OIII] vs [NII] + [OIII] vs [OI]
     ###############################################################
     y_mod_K01_OI = log_OI_Ha_cen.apply(fBPT, args=consts_K01_OI_Ha)
+    y_mod_K06_OI = log_OI_Ha_cen.apply(linval, args=consts_K06_OI_Ha)
     ###############################################################
     ###############################################################
     # SELECTIONS
@@ -187,17 +194,19 @@ if __name__ == '__main__':
     sel_OIHa = ~(log_OI_Ha_cen.apply(np.isnan))
     sel_EW = ~(EW_Ha_cen.apply(np.isnan))
     sel_AGNLINER_NIIHa_OIIIHb = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01)
-    sel_SF_NIIHa_OIIIHb_K01 = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen <= y_mod_K01)
-    sel_SF_NIIHa_OIIIHb_K03 = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen <= y_mod_K03)
-    sel_SF_NIIHa_OIIIHb_S06 = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen <= y_mod_S06)
     sel_AGN_SIIHa_OIIIHb_K01 = sel_SIIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01_SII)
-    sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01
     sel_AGN_OIHa_OIIIHb_K01 = sel_OIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01_OI)
+    sel_AGN_SIIHa_OIIIHb_K01_K06 = sel_SIIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01_SII) & (log_OIII_Hb_cen > y_mod_K06_SII)
+    sel_AGN_OIHa_OIIIHb_K01_K06 = sel_OIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01_OI) & (log_OIII_Hb_cen > y_mod_K06_OI)
+    sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01
     sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01 & sel_AGN_OIHa_OIIIHb_K01
     sel_AGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug))
     sel_SAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug))
     sel_VSAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug))
+    sel_SF_NIIHa_OIIIHb_K01 = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen <= y_mod_K01)
+    sel_SF_NIIHa_OIIIHb_K03 = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen <= y_mod_K03)
+    sel_SF_NIIHa_OIIIHb_S06 = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen <= y_mod_S06)
     sel_pAGB = sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen <= args.EW_hDIG)
     sel_SF_EW = sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen > args.EW_SF*args.bug)
     ###############################################################################
@@ -254,6 +263,7 @@ if __name__ == '__main__':
     # plus EW(Ha)
     N_AGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
     N_SAGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    # elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)), 'TYPE'] = 7
     N_VSAGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     # SF
     m = sel_SF_NIIHa_OIIIHb_K01
@@ -320,16 +330,20 @@ if __name__ == '__main__':
     m = sel_SF_EW
     N_SF_EW = (m).values.astype('int').sum()
     ###############################################################
+    m = (EW_Ha_cen > args.EW_strong) & (sel_AGNLINER_NIIHa_OIIIHb | sel_AGN_SIIHa_OIIIHb_K01 | sel_AGN_OIHa_OIIIHb_K01)
+    elines.loc[m, 'AGN_FLAG'] = 4
+    m = (EW_Ha_cen > args.EW_strong) & ((sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01) | (sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01) | (sel_AGN_SIIHa_OIIIHb_K01 & sel_AGN_OIHa_OIIIHb_K01))
+    elines.loc[m, 'AGN_FLAG'] = 3
     m = (elines['TYPE'] == 2) | (elines['TYPE'] == 3)
     elines.loc[m, 'AGN_FLAG'] = 2
     # m = ((elines['SN_broad'] > 8) & ((elines['TYPE'] == 2) | (elines['TYPE'] == 3))) | (elines['broad_by_eye'] == True)
+    m = (elines['SN_broad'] > args.min_SN_broad) & (elines['AGN_FLAG'] == 2) | (elines['broad_by_eye'] == True)
     if args.broad_fit_rules is True:
         m = (elines['SN_broad'] > args.min_SN_broad)
-    else:
-        m = (elines['SN_broad'] > args.min_SN_broad) & (elines['AGN_FLAG'] == 2) | (elines['broad_by_eye'] == True)
     elines.loc[m, 'AGN_FLAG'] = 1
     N_AGN_tI = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 1].count()
     N_AGN_tII = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 2].count()
+    N_AGNLINER_N2Ha = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 3].count()
     columns_to_csv = [
         'AGN_FLAG', 'SN_broad',
         'RA', 'DEC', 'log_NII_Ha_cen', 'log_NII_Ha_cen_stddev',
@@ -354,7 +368,7 @@ if __name__ == '__main__':
     print '#AC# N.AGNs candidates by [NII]/Ha and [SII]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_Ha, color.B, color.E, N_AGN_NII_SII_Ha_EW, color.B, color.E, N_SAGN_NII_SII_Ha_EW, color.B, color.E, N_VSAGN_NII_SII_Ha_EW)
     print '#AC# N.AGNs candidates by [NII]/Ha and [OI]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_OI_Ha, color.B, color.E, N_AGN_NII_OI_Ha_EW, color.B, color.E, N_SAGN_NII_OI_Ha_EW, color.B, color.E, N_VSAGN_NII_OI_Ha_EW)
     print '#AC# N.AGNs candidates by [NII]/Ha, [SII]/Ha and [OI]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_OI_Ha, color.B, color.E, N_AGN, color.B, color.E, N_SAGN, color.B, color.E, N_VSAGN)
-    print '#AC# N.AGNs %sType-II%s: %d - %sType-I%s: %d' % (color.B, color.E, N_AGN_tII, color.B, color.E, N_AGN_tI)
+    print '#AC# N.AGNs %sAGN/LINER%s: %d - %sType-II%s: %d - %sType-I%s: %d' % (color.B, color.E, N_AGNLINER_N2Ha, color.B, color.E, N_AGN_tII, color.B, color.E, N_AGN_tI)
     print '#AC# N.pAGB: %d (%sabove K01%s: %d - %sabove K03%s: %d - %sabove S06%s: %d)' % (N_pAGB, color.B, color.E, N_pAGB_aboveK01, color.B, color.E, N_pAGB_aboveK03, color.B, color.E, N_pAGB_aboveK03)
     print '#AC# N_SF %sEW%s: %d' % (color.B, color.E, N_SF_EW)
     print '#AC# N.SF %sK01%s: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (color.B, color.E, N_SF_K01, color.B, color.E, N_SF_K01_EW, color.B, color.E, N_SSF_K01, color.B, color.E, N_VSSF_K01)

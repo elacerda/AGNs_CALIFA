@@ -44,7 +44,8 @@ fname3 = 'get_CALIFA_cen_broad.pandas.csv'
 fname4 = 'get_mag_cubes_v2.2.pandas.csv'
 fname5 = 'get_RA_DEC.pandas.csv'
 fname6 = 'get_proc_elines_CALIFA.clean.pandas.csv'
-fname6 = 'NII_Ha_fit.csv'
+fname7 = 'NII_Ha_fit.csv'
+#fname8 = 'get_mag_cubes_v2.2.NO_CEN.pandas.csv'
 fnames_short = {
     'CALIFA_3_joint_classnum.pandas.csv': '3_joint',
     'CALIFA_basic_joint.pandas.csv': 'basic_joint',
@@ -53,6 +54,7 @@ fnames_short = {
     'get_RA_DEC.pandas.csv': 'RA_DEC',
     'get_proc_elines_CALIFA.clean.pandas.csv': 'elines',
     'NII_Ha_fit.csv': 'broad_fit',
+    # 'get_mag_cubes_v2.2.NO_CEN.pandas.csv': 'mag_cubes_v2.2.NO_CEN',
 }
 fnames_long = {
     '3_joint': 'CALIFA_3_joint_classnum.pandas.csv',
@@ -62,6 +64,7 @@ fnames_long = {
     'RA_DEC': 'get_RA_DEC.pandas.csv',
     'elines': 'get_proc_elines_CALIFA.clean.pandas.csv',
     'broad_fit': 'NII_Ha_fit.csv',
+    # 'mag_cubes_v2.2.NO_CEN': 'get_mag_cubes_v2.2.NO_CEN.pandas.csv',
 }
 # Read CSV files
 df = {}
@@ -108,6 +111,18 @@ df['elines']['u'] = df['mag_cubes_v2.2']['u_band_mag']
 df['elines']['g'] = df['mag_cubes_v2.2']['g_band_mag']
 df['elines']['r'] = df['mag_cubes_v2.2']['r_band_mag']
 df['elines']['i'] = df['mag_cubes_v2.2']['i_band_mag']
+# df['elines']['Mabs_i_NC'] = df['mag_cubes_v2.2.NO_CEN']['i_band_abs_mag']
+# df['elines']['e_Mabs_i_NC'] = df['mag_cubes_v2.2.NO_CEN']['i_band_abs_mag_error']
+# df['elines']['Mabs_R_NC'] = df['mag_cubes_v2.2.NO_CEN']['R_band_abs_mag']
+# df['elines']['e_Mabs_R_NC'] = df['mag_cubes_v2.2.NO_CEN']['R_band_abs_mag_error']
+# df['elines']['B_V_NC'] = df['mag_cubes_v2.2.NO_CEN']['B_V']
+# df['elines']['e_B_V_NC'] = df['mag_cubes_v2.2.NO_CEN']['error_B_V']
+# df['elines']['B_R_NC'] = df['mag_cubes_v2.2.NO_CEN']['B_R']
+# df['elines']['e_B_R_NC'] = df['mag_cubes_v2.2.NO_CEN']['error_B_R']
+# df['elines']['u_NC'] = df['mag_cubes_v2.2.NO_CEN']['u_band_mag']
+# df['elines']['g_NC'] = df['mag_cubes_v2.2.NO_CEN']['g_band_mag']
+# df['elines']['r_NC'] = df['mag_cubes_v2.2.NO_CEN']['r_band_mag']
+# df['elines']['i_NC'] = df['mag_cubes_v2.2.NO_CEN']['i_band_mag']
 df['elines']['redshift'] = df['mag_cubes_v2.2']['redshift']
 df['elines']['morph'] = df['3_joint']['hubtyp']
 df['elines']['RA'] = df['basic_joint']['ra']

@@ -14,7 +14,8 @@ echo -e "\n"
 echo "##########################"
 echo "## Generating selection ##"
 echo "##########################"
-./agns_selection.py -I ${DATADIR}/dataframes.pkl -O ${DATADIR}/elines.pkl
+./agns_selection.py -I ${DATADIR}/dataframes.pkl -O ${DATADIR}/elines.pkl 
+#--no_sigma_clip
 echo "#########"
 echo "## END ##"
 echo "#########"

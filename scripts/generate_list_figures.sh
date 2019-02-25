@@ -1,5 +1,6 @@
 #!/bin/bash
 FIGS_DIR=${HOME}/dev/astro/AGNs_CALIFA/figs
+PUBDIR=${HOME}/public_html/AGNs_CALIFA/
 ALLFIGS=$FIGS_DIR/allfigs.pdf
 FIGS=()
 if [ -f "$ALLFIGS" ]
@@ -19,3 +20,4 @@ then
 else
   pdftk $FIGS cat output $ALLFIGS
 fi
+cp -r ${FIGS_DIR} ${PUBDIR}
