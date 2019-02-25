@@ -284,6 +284,15 @@ if __name__ == '__main__':
     N_SSF_S06 = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
     N_VSSF_S06 = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     ###############################################################
+    # [OIII] vs [SII]
+    ###############################################################
+    m = sel_AGN_SIIHa_OIIIHb_K01
+    N_AGN_SII_Ha = m.values.astype('int').sum()
+    # plus EW(Ha)
+    N_AGN_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+    N_SAGN_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    N_VSAGN_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    ###############################################################
     # [OIII] vs [NII] + [OIII] vs [SII]
     ###############################################################
     m = sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01
@@ -292,6 +301,15 @@ if __name__ == '__main__':
     N_AGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
     N_SAGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
     N_VSAGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    ###############################################################
+    # [OIII] vs [OI]
+    ###############################################################
+    m = sel_AGN_OIHa_OIIIHb_K01
+    N_AGN_OI_Ha = m.values.astype('int').sum()
+    # plus EW(Ha)
+    N_AGN_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+    N_SAGN_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    N_VSAGN_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     ###############################################################
     # [OIII] vs [NII] + [OIII] vs [OI]
     ###############################################################
@@ -330,11 +348,11 @@ if __name__ == '__main__':
     m = sel_SF_EW
     N_SF_EW = (m).values.astype('int').sum()
     ###############################################################
-    # m = (EW_Ha_cen > args.EW_strong) & (sel_AGNLINER_NIIHa_OIIIHb | sel_AGN_SIIHa_OIIIHb_K01 | sel_AGN_OIHa_OIIIHb_K01)
-    m = (EW_Ha_cen > args.EW_strong) & sel_AGNLINER_NIIHa_OIIIHb
+    # m = (EW_Ha_cen > args.EW_strong*args.bug) & (sel_AGNLINER_NIIHa_OIIIHb | sel_AGN_SIIHa_OIIIHb_K01 | sel_AGN_OIHa_OIIIHb_K01)
+    m = (EW_Ha_cen > args.EW_hDIG*args.bug) & sel_AGNLINER_NIIHa_OIIIHb
     elines.loc[m, 'AGN_FLAG'] = 4
-    # m = (EW_Ha_cen > args.EW_strong) & ((sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01) | (sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01) | (sel_AGN_SIIHa_OIIIHb_K01 & sel_AGN_OIHa_OIIIHb_K01))
-    m = (EW_Ha_cen > args.EW_strong) & ((sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01) | (sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01))
+    # m = (EW_Ha_cen > args.EW_strong*args.bug) & ((sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01) | (sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01) | (sel_AGN_SIIHa_OIIIHb_K01 & sel_AGN_OIHa_OIIIHb_K01))
+    m = (EW_Ha_cen > args.EW_hDIG*args.bug) & ((sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01) | (sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01))
     elines.loc[m, 'AGN_FLAG'] = 3
     m = (elines['TYPE'] == 2) | (elines['TYPE'] == 3)
     elines.loc[m, 'AGN_FLAG'] = 2
@@ -368,7 +386,9 @@ if __name__ == '__main__':
     print '#AC# \t%sSF%s: EW > %d A' % (color.B, color.E, args.EW_SF)
     print '#AC##################'
     print '#AC# N.AGNs/LINERs candidates by [NII]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_Ha, color.B, color.E, N_AGN_NII_Ha_EW, color.B, color.E, N_SAGN_NII_Ha_EW, color.B, color.E, N_VSAGN_NII_Ha_EW)
+    print '#AC# N.AGNs candidates by [SII]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_SII_Ha, color.B, color.E, N_AGN_SII_Ha_EW, color.B, color.E, N_SAGN_SII_Ha_EW, color.B, color.E, N_VSAGN_SII_Ha_EW)
     print '#AC# N.AGNs candidates by [NII]/Ha and [SII]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_Ha, color.B, color.E, N_AGN_NII_SII_Ha_EW, color.B, color.E, N_SAGN_NII_SII_Ha_EW, color.B, color.E, N_VSAGN_NII_SII_Ha_EW)
+    print '#AC# N.AGNs candidates by [OI]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_OI_Ha, color.B, color.E, N_AGN_OI_Ha_EW, color.B, color.E, N_SAGN_OI_Ha_EW, color.B, color.E, N_VSAGN_OI_Ha_EW)
     print '#AC# N.AGNs candidates by [NII]/Ha and [OI]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_OI_Ha, color.B, color.E, N_AGN_NII_OI_Ha_EW, color.B, color.E, N_SAGN_NII_OI_Ha_EW, color.B, color.E, N_VSAGN_NII_OI_Ha_EW)
     print '#AC# N.AGNs candidates by [NII]/Ha, [SII]/Ha and [OI]/Ha: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_OI_Ha, color.B, color.E, N_AGN, color.B, color.E, N_SAGN, color.B, color.E, N_VSAGN)
     print '#AC# N.AGNs %sAGN/LINER%s: %d - %sAGN N2Ha+%s: %d - %sType-II%s: %d - %sType-I%s: %d' % (color.B, color.E, N_AGNLINER_N2Ha, color.B, color.E, N_AGN_tIII, color.B, color.E, N_AGN_tII, color.B, color.E, N_AGN_tI)

@@ -37,11 +37,11 @@ golden_mean = 0.5 * (1. + 5**0.5)
 color_AGN_tI = 'k'
 color_AGN_tII = 'blue'
 color_AGN_tIII = 'red'
-color_AGN_tIV = 'salmon'
+color_AGN_tIV = 'red'
 marker_AGN_tI = '*'
 marker_AGN_tII = '*'
 marker_AGN_tIII = 'o'
-marker_AGN_tIV = 'o'
+marker_AGN_tIV = 'X'
 alpha_AGN_tIII = 1
 alpha_AGN_tIV = 1
 scatter_kwargs = dict(s=1, cmap='viridis_r', marker='o', edgecolor='none', alpha=1)
@@ -117,7 +117,8 @@ def modlogOHSF2017_t2(x):
     return modlogOHSF2017(x, a, b, c)
 
 
-def count_y_above_mean(x, y, y_mean, x_bins):
+def count_y_above_mean(x, y, y_mean, x_bins, interval=None):
+    x, y = xyz_clean_sort_interval(x, y, interval=interval)
     idx = np.digitize(x, x_bins)
     above = 0
     for i in np.unique(idx):
@@ -299,7 +300,7 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=N
         sc_kwargs = scatter_kwargs_EWmaxmin
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
-    mtIII = elines['AGN_FLAG'] == 3
+    # mtIII = elines['AGN_FLAG'] == 3
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     if f is None:
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
@@ -308,7 +309,7 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=N
         ax = plt.subplot(gs[0])
     sc = ax.scatter(x, y, c=z, **sc_kwargs)
     if markAGNs:
-        ax.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
+        # ax.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
         ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
         ax.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
     if xlabel is not None:
@@ -369,12 +370,12 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=N
 def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None):
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
-    mtIII = elines['AGN_FLAG'] == 3
+    # mtIII = elines['AGN_FLAG'] == 3
     ax_Hx_t = ax_Hx.twinx()
     ax_Hx_t.hist(x, bins=15, range=xrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
     ax_Hx.hist(x[mtI], bins=15, range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
     ax_Hx.hist(x[mtII], bins=15, hatch='//////', range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
-    ax_Hx.hist(x[mtIII], bins=15, range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tIII, align='mid', density=True)
+    # ax_Hx.hist(x[mtIII], bins=15, range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tIII, align='mid', density=True)
     ax_Hx.set_xlabel(xlabel)
     ax_Hx.set_xlim(xrange)
     ax_Hx.xaxis.set_major_locator(MaxNLocator(n_bins_maj_x, prune=prune_x))
@@ -390,7 +391,7 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     ax_Hy_t.hist(y, orientation='horizontal', bins=15, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
     ax_Hy.hist(y[mtI], orientation='horizontal', bins=15, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
     ax_Hy.hist(y[mtII], orientation='horizontal', bins=15, hatch='//////', range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
-    ax_Hy.hist(y[mtIII], orientation='horizontal', bins=15, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tIII, align='mid', density=True)
+    # ax_Hy.hist(y[mtIII], orientation='horizontal', bins=15, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tIII, align='mid', density=True)
     ax_Hy.set_ylabel(ylabel)
     ax_Hy.set_ylim(yrange)
     ax_Hy.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
@@ -403,7 +404,7 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     ax_Hy_t.tick_params(**tick_params)
     ####################################
     sc = ax_sc.scatter(x, y, c=z, **scatter_kwargs_EWmaxmin)
-    ax_sc.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
+    # ax_sc.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax_sc.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
     ax_sc.set_xlim(ax_Hx.get_xlim())
@@ -458,13 +459,13 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
 def plot_x_morph(elines, args, ax):
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
-    mtIII = elines['AGN_FLAG'] == 3
+    # mtIII = elines['AGN_FLAG'] == 3
     x = elines['morph'].apply(morph_adjust)
     ax_t = ax.twinx()
     ax_t.twinx().hist(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
     ax.hist(x[mtI], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
     ax.hist(x[mtII], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], hatch='//////', histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
-    ax.hist(x[mtIII], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', linewidth=1, edgecolor=color_AGN_tIII, align='mid', density=True)
+    # ax.hist(x[mtIII], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', linewidth=1, edgecolor=color_AGN_tIII, align='mid', density=True)
     # ax.hist(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True)
     # ax.hist(x[mtII], hatch='//', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tII, align='mid', rwidth=1, density=True)
     # ax.hist(x[mtI], hatch='////', bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=False, facecolor='none', linewidth=1, edgecolor=color_AGN_tI, align='mid', rwidth=1, density=True)
@@ -501,24 +502,24 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     scatter_kwargs_EWmaxmin = dict(c=EW_color.apply(np.log10), s=2, vmax=2.5, vmin=-1, cmap='viridis_r', marker='o', edgecolor='none')
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
-    mtIII = elines['AGN_FLAG'] == 3
+    # mtIII = elines['AGN_FLAG'] == 3
     morph = elines['morph'].apply(morph_adjust)
     m = np.linspace(7, 19, 13).astype('int')
     y_mean = np.array([y.loc[morph == mt].mean() for mt in m])
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
-    N_y_tIII = y[mtIII].count()
+    # N_y_tIII = y[mtIII].count()
     N_y_tI_above = np.array([np.array(y.loc[mtI & (morph == mt)] > y.loc[mtI & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
     N_y_tII_above = np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[mtII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
-    N_y_tIII_above = np.array([np.array(y.loc[mtIII & (morph == mt)] > y.loc[mtIII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+    # N_y_tIII_above = np.array([np.array(y.loc[mtIII & (morph == mt)] > y.loc[mtIII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
     ax_Hy_t = ax_Hy.twiny()
     ax_Hy_t.hist(y, orientation='horizontal', bins=15, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
     ax_Hy.hist(y[mtI], orientation='horizontal', bins=15, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
     ax_Hy.hist(y[mtII], orientation='horizontal', bins=15, hatch='//////', range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
-    ax_Hy.hist(y[mtIII], orientation='horizontal', bins=15, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tIII, align='mid', density=True)
+    # ax_Hy.hist(y[mtIII], orientation='horizontal', bins=15, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tIII, align='mid', density=True)
     print '# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI)
     print '# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII)
-    print '# 2 crit. AGN type-II above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII)
+    # print '# 2 crit. AGN type-II above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII)
     ax_Hy.set_ylabel(ylabel)
     ax_Hy.xaxis.set_major_locator(MaxNLocator(2, prune='upper'))
     ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(5))
@@ -530,7 +531,7 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     ax_Hy_t.tick_params(**tick_params)
     ####################################
     sc = ax_sc.scatter(morph, y, **scatter_kwargs_EWmaxmin)
-    ax_sc.scatter(morph[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
+    # ax_sc.scatter(morph[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(morph[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax_sc.scatter(morph[mtI], y[mtI], **scatter_AGN_tI_kwargs)
     ax_sc.plot(m, y_mean, 'k--')
@@ -573,7 +574,7 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
 def plot_fig_histo_MZR(elines, args, x, y, ax):
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
-    mtIII = elines['AGN_FLAG'] == 3
+    # mtIII = elines['AGN_FLAG'] == 3
     ### MZR ###
     mXnotnan = ~np.isnan(x)
     X = x.loc[mXnotnan].values
@@ -597,19 +598,19 @@ def plot_fig_histo_MZR(elines, args, x, y, ax):
     ### Above ###
     m_y_tI_above = y.loc[mtI] > x.loc[mtI].apply(modlogOHSF2017_t2)
     m_y_tII_above = y.loc[mtII] > x.loc[mtII].apply(modlogOHSF2017_t2)
-    m_y_tIII_above = y.loc[mtIII] > x.loc[mtIII].apply(modlogOHSF2017_t2)
+    # m_y_tIII_above = y.loc[mtIII] > x.loc[mtIII].apply(modlogOHSF2017_t2)
     print elines.loc[m_y_tI_above.index[m_y_tI_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
     print elines.loc[m_y_tII_above.index[m_y_tII_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-    print elines.loc[m_y_tIII_above.index[m_y_tIII_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    # print elines.loc[m_y_tIII_above.index[m_y_tIII_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
-    N_y_tIII = y[mtIII].count()
+    # N_y_tIII = y[mtIII].count()
     N_y_tI_above = m_y_tI_above.astype('int').sum()
     N_y_tII_above = m_y_tII_above.astype('int').sum()
-    N_y_tIII_above = m_y_tIII_above.astype('int').sum()
+    # N_y_tIII_above = m_y_tIII_above.astype('int').sum()
     print '# B.F. Type-I AGN above SF2017 curve: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI)
     print '# B.F. Type-II AGN above SF2017 curve: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII)
-    print '# 2 crit. AGN above SF2017 curve: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII)
+    # print '# 2 crit. AGN above SF2017 curve: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII)
     return ax
 
 
@@ -622,22 +623,22 @@ def create_bins(interval, step):
 def plot_fig_histo_M_ZHMW(elines, args, x, y, ax, interval=None):
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
-    mtIII = elines['AGN_FLAG'] == 3
+    # mtIII = elines['AGN_FLAG'] == 3
     if interval is None:
-        interval = [9, 11.5, -0.9, 0.3]
+        interval = [7.7, 11.5, -0.9, 0.3]
     x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.3)
     y_mean, N_y_mean, _ = redf_xy_bins_interval(x.values, y.values, x_bins__r, interval)
     ax.plot(x_bincenter__r, y_mean, 'k-')
     ### above ###
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
-    N_y_tIII = y[mtIII].count()
-    N_y_tI_above = count_y_above_mean(x.loc[mtI].values, y.loc[mtI].values, y_mean, x_bins__r)
-    N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r)
-    N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r)
+    # N_y_tIII = y[mtIII].count()
+    N_y_tI_above = count_y_above_mean(x.loc[mtI].values, y.loc[mtI].values, y_mean, x_bins__r, interval=interval)
+    N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r, interval=interval)
+    # N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r, interval=interval)
     print '# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI)
     print '# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII)
-    print '# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII)
+    # print '# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII)
     return ax_sc
 
 
@@ -645,23 +646,25 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     WHa = elines['EW_Ha_ALL']
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
-    mtIII = elines['AGN_FLAG'] == 3
+    # mtIII = elines['AGN_FLAG'] == 3
     hDIG = WHa <= 3
     SFc = WHa > 14
     y_AGNs_mean = y.loc[elines['AGN_FLAG'] > 0].mean()
+    y_BF_AGNs_mean = y.loc[(elines['AGN_FLAG'] > 0) & (elines['AGN_FLAG'] < 3)].mean()
     # ax_sc.axhline(y_AGNs_mean, xmin=0.9/(12.-8.), c='g', ls='--')
     ax_sc.axhline(y_AGNs_mean, c='g', ls='--')
     ax_sc.text(0.05, 0.85, '%.2f Gyr' % (10**(y_AGNs_mean - 9)), color='g', fontsize=args.fontsize, va='center', transform=ax.transAxes)
     y_AGNs_tI_mean = y.loc[mtI].mean()
     y_AGNs_tII_mean = y.loc[mtII].mean()
-    y_AGNs_tIII_mean = y.loc[mtIII].mean()
+    # y_AGNs_tIII_mean = y.loc[mtIII].mean()
     m = ~(np.isnan(x) | np.isnan(y) | np.isnan(WHa))
     y_SF_mean = y.loc[m & SFc].mean()
     y_hDIG_mean = y.loc[m & hDIG].mean()
     print 'y_AGNs_mean: %.2f Gyr' % 10**(y_AGNs_mean - 9)
+    print 'y_BF_AGNs_mean: %.2f Gyr' % 10**(y_BF_AGNs_mean - 9)
     print 'y_AGNs_tI_mean: %.2f Gyr' % 10**(y_AGNs_tI_mean - 9)
     print 'y_AGNs_tII_mean: %.2f Gyr' % 10**(y_AGNs_tII_mean - 9)
-    print 'y_AGNs_tIII_mean: %.2f Gyr' % 10**(y_AGNs_tIII_mean - 9)
+    # print 'y_AGNs_tIII_mean: %.2f Gyr' % 10**(y_AGNs_tIII_mean - 9)
     print 'y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9)
     print 'y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9)
     ### MSFS ###
@@ -1092,11 +1095,11 @@ if __name__ == '__main__':
         #########################################
         ## CMD (CUBES) NO CEN colored by EW_Ha ##
         #########################################
-        # 'fig_histo_CMD_CUBES_NO_CEN': [
-        #     elines.loc[m_redshift, 'Mabs_i_NC'], r'${\rm M}_{\rm i}$ (mag) (NO CEN)', 5, 2, None,
-        #     elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
-        #     EW_Ha_cen_zcut, [-24, -10, 0, 3.5]
-        # ],
+        'fig_histo_CMD_CUBES_NC': [
+            elines.loc[m_redshift, 'Mabs_i_NC'], r'${\rm M}_{\rm i}$ (mag) (NO CEN)', 5, 2, None,
+            elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
+            EW_Ha_cen_zcut, [-24, -10, 0, 3.5]
+        ],
         #########################################
         ###########################
         ## SFMS colored by EW_Ha ##
