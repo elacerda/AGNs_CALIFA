@@ -1,4 +1,7 @@
 #!/bin/bash
+BUG=0.8
+#EW_AGN=1.875
+EW_AGN=3
 DATADIR=data
 if [ ! -d "${DATADIR}" ]
 then
@@ -14,7 +17,7 @@ echo -e "\n"
 echo "##########################"
 echo "## Generating selection ##"
 echo "##########################"
-./agns_selection.py -I ${DATADIR}/dataframes.pkl -O ${DATADIR}/elines.pkl 
+./agns_selection.py -I ${DATADIR}/dataframes.pkl -O ${DATADIR}/elines.pkl --bug=${BUG} --EW_AGN=${EW_AGN}
 #--no_sigma_clip
 echo "#########"
 echo "## END ##"
