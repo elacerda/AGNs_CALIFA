@@ -197,16 +197,23 @@ if __name__ == '__main__':
     sel_OIIIHb = ~(log_OIII_Hb_cen.apply(np.isnan))
     sel_SIIHa = ~(log_SII_Ha_cen.apply(np.isnan))
     sel_OIHa = ~(log_OI_Ha_cen.apply(np.isnan))
+    sel_MS = sel_NIIHa & sel_OIIIHb & sel_SIIHa & sel_OIHa
     sel_EW = ~(EW_Ha_cen.apply(np.isnan))
+    # K01
     sel_below_K01 = L.belowlinebpt('K01', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
     sel_below_K01_SII = L.belowlinebpt('K01_SII_Ha', log_SII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
-    sel_below_K06_SII = L.belowlinebpt('K06_SII_Ha', log_SII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
     sel_below_K01_OI = L.belowlinebpt('K01_OI_Ha', log_OI_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
-    sel_below_K06_OI = L.belowlinebpt('K06_OI_Ha', log_OI_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
+    # K03
     sel_below_K03 = L.belowlinebpt('K03', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
+    # S06
     sel_below_S06 = L.belowlinebpt('S06', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
+    # K06
+    sel_below_CF10 = L.belowlinebpt('CF10', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
+    sel_below_K06_SII = L.belowlinebpt('K06_SII_Ha', log_SII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
+    sel_below_K06_OI = L.belowlinebpt('K06_OI_Ha', log_OI_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
 
     sel_AGNLINER_NIIHa_OIIIHb = sel_NIIHa & sel_OIIIHb & ~sel_below_K01
+    sel_AGN_NIIHa_OIIIHb_K01_CF10 = sel_NIIHa & sel_OIIIHb & ~sel_below_CF10 & ~sel_below_K01
     sel_AGN_SIIHa_OIIIHb_K01 = sel_SIIHa & sel_OIIIHb & ~sel_below_K01_SII
     sel_AGN_OIHa_OIIIHb_K01 = sel_OIHa & sel_OIIIHb & ~sel_below_K01_OI
     sel_AGN_SIIHa_OIIIHb_K01_K06 = sel_SIIHa & sel_OIIIHb & ~sel_below_K01_SII & ~sel_below_K06_SII
@@ -214,30 +221,34 @@ if __name__ == '__main__':
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01
     sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01 & sel_AGN_OIHa_OIIIHb_K01
-
-    # sel_AGNLINER_NIIHa_OIIIHb = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01)
-    # sel_AGN_SIIHa_OIIIHb_K01 = sel_SIIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01_SII)
-    # sel_AGN_OIHa_OIIIHb_K01 = sel_OIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01_OI)
-    # sel_AGN_SIIHa_OIIIHb_K01_K06 = sel_SIIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01_SII) & (log_OIII_Hb_cen > y_mod_K06_SII)
-    # sel_AGN_OIHa_OIIIHb_K01_K06 = sel_OIHa & sel_OIIIHb & (log_OIII_Hb_cen > y_mod_K01_OI) & (log_OIII_Hb_cen > y_mod_K06_OI)
-    # sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01
-    # sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01
-    # sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01 & sel_AGN_OIHa_OIIIHb_K01
-
     sel_AGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug))
     sel_SAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug))
     sel_VSAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug))
-
     sel_SF_NIIHa_OIIIHb_K01 = sel_NIIHa & sel_OIIIHb & sel_below_K01
     sel_SF_NIIHa_OIIIHb_K03 = sel_NIIHa & sel_OIIIHb & L.belowlinebpt('K03', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
     sel_SF_NIIHa_OIIIHb_S06 = sel_NIIHa & sel_OIIIHb & L.belowlinebpt('S06', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
-
-    # sel_SF_NIIHa_OIIIHb_K01 = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen <= y_mod_K01)
-    # sel_SF_NIIHa_OIIIHb_K03 = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen <= y_mod_K03)
-    # sel_SF_NIIHa_OIIIHb_S06 = sel_NIIHa & sel_OIIIHb & (log_OIII_Hb_cen <= y_mod_S06)
-
-    sel_pAGB = sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen <= args.EW_hDIG)
+    sel_pAGB = sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen <= args.EW_hDIG*args.bug)
     sel_SF_EW = sel_NIIHa & sel_OIIIHb & sel_EW & (EW_Ha_cen > args.EW_SF*args.bug)
+
+    # MAIN SAMPLE SELECTIONS (EXCLUDING POINTS WITHOUT SII AND OI)
+    sel_AGNLINER_NIIHa_OIIIHb_MS = sel_MS & ~sel_below_K01
+    sel_AGN_NIIHa_OIIIHb_K01_CF10_MS = sel_MS & ~sel_below_CF10 & ~sel_below_K01
+    sel_AGN_SIIHa_OIIIHb_K01_MS = sel_MS & ~sel_below_K01_SII
+    sel_AGN_OIHa_OIIIHb_K01_MS = sel_MS & ~sel_below_K01_OI
+    sel_AGN_SIIHa_OIIIHb_K01_K06_MS = sel_MS & ~sel_below_K01_SII & ~sel_below_K06_SII
+    sel_AGN_OIHa_OIIIHb_K01_K06_MS = sel_MS & ~sel_below_K01_OI & ~sel_below_K06_OI
+    sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_MS = sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_SIIHa_OIIIHb_K01_MS
+    sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01_MS = sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_OIHa_OIIIHb_K01_MS
+    sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS = sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_SIIHa_OIIIHb_K01_MS & sel_AGN_OIHa_OIIIHb_K01_MS
+    sel_AGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug))
+    sel_SAGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug))
+    sel_VSAGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug))
+    sel_SF_NIIHa_OIIIHb_K01_MS = sel_MS & sel_below_K01
+    sel_SF_NIIHa_OIIIHb_K03_MS = sel_MS & L.belowlinebpt('K03', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
+    sel_SF_NIIHa_OIIIHb_S06_MS = sel_MS & L.belowlinebpt('S06', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
+    sel_pAGB_MS = sel_MS & sel_EW & (EW_Ha_cen <= args.EW_hDIG*args.bug)
+    sel_SF_EW_MS = sel_MS & sel_EW & (EW_Ha_cen > args.EW_SF*args.bug)
+
     ###############################################################################
     # END SETTING VALUES ##########################################################
     ###############################################################################
@@ -290,6 +301,7 @@ if __name__ == '__main__':
     ###############################################################
     # AGN/LINER
     ###############################################################
+    # m = sel_AGNLINER_NIIHa_OIIIHb_MS
     m = sel_AGNLINER_NIIHa_OIIIHb
     N_AGN_NII_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
@@ -298,11 +310,13 @@ if __name__ == '__main__':
     # elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)), 'TYPE'] = 7
     N_VSAGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     # SF
+    # m = sel_SF_NIIHa_OIIIHb_K01_MS
     m = sel_SF_NIIHa_OIIIHb_K01
     N_SF_K01 = m.values.astype('int').sum()
     N_SF_K01_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
     N_SSF_K01 = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
     N_VSSF_K01 = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    # m = sel_SF_NIIHa_OIIIHb_K03_MS
     m = sel_SF_NIIHa_OIIIHb_K03
     N_SF_K03 = m.values.astype('int').sum()
     N_SF_K03_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
@@ -310,6 +324,7 @@ if __name__ == '__main__':
     N_SSF_K03 = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
     elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)), 'TYPE'] = 1
     N_VSSF_K03 = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    # m = sel_SF_NIIHa_OIIIHb_S06_MS
     m = sel_SF_NIIHa_OIIIHb_S06
     N_SF_S06 = m.values.astype('int').sum()
     N_SF_S06_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
@@ -318,6 +333,7 @@ if __name__ == '__main__':
     ###############################################################
     # [OIII] vs [SII]
     ###############################################################
+    # m = sel_AGN_SIIHa_OIIIHb_K01_MS
     m = sel_AGN_SIIHa_OIIIHb_K01
     N_AGN_SII_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
@@ -327,6 +343,7 @@ if __name__ == '__main__':
     ###############################################################
     # [OIII] vs [NII] + [OIII] vs [SII]
     ###############################################################
+    # m = sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_MS
     m = sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01
     N_AGN_NII_SII_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
@@ -336,6 +353,7 @@ if __name__ == '__main__':
     ###############################################################
     # [OIII] vs [OI]
     ###############################################################
+    # m = sel_AGN_OIHa_OIIIHb_K01_MS
     m = sel_AGN_OIHa_OIIIHb_K01
     N_AGN_OI_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
@@ -345,6 +363,7 @@ if __name__ == '__main__':
     ###############################################################
     # [OIII] vs [NII] + [OIII] vs [OI]
     ###############################################################
+    # m = sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01_MS
     m = sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01
     N_AGN_NII_OI_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
@@ -355,6 +374,7 @@ if __name__ == '__main__':
     # [OIII] vs [NII] + [OIII] vs [SII] + [OIII] vs [OI]
     ###############################################################
     ###############################################################
+    # m = sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS
     m = sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01
     N_AGN_NII_SII_OI_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
@@ -366,7 +386,8 @@ if __name__ == '__main__':
     ###############################################################
     ###############################################################
     # pAGB
-    ###############################################################
+    ##############################################################
+    # m = sel_pAGB_MS
     m = sel_pAGB
     N_pAGB = m.values.astype('int').sum()
     elines.loc[m, 'TYPE'] = 4
@@ -379,6 +400,7 @@ if __name__ == '__main__':
     ###############################################################
     # SF
     ###############################################################
+    # m = sel_SF_EW_MS
     m = sel_SF_EW
     N_SF_EW = m.values.astype('int').sum()
     N_SF_EW_above_K01 = (m & ~sel_below_K01).values.astype('int').sum()
@@ -388,9 +410,11 @@ if __name__ == '__main__':
     N_SF_EW_above_K01_OI = (m & sel_OIHa & ~sel_below_K01).values.astype('int').sum()
     ###############################################################
     # m = (EW_Ha_cen > args.EW_strong*args.bug) & (sel_AGNLINER_NIIHa_OIIIHb | sel_AGN_SIIHa_OIIIHb_K01 | sel_AGN_OIHa_OIIIHb_K01)
+    # m = (EW_Ha_cen > args.EW_AGN*args.bug) & sel_AGNLINER_NIIHa_OIIIHb_MS
     m = (EW_Ha_cen > args.EW_AGN*args.bug) & sel_AGNLINER_NIIHa_OIIIHb
     elines.loc[m, 'AGN_FLAG'] = 4
     # m = (EW_Ha_cen > args.EW_strong*args.bug) & ((sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01) | (sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01) | (sel_AGN_SIIHa_OIIIHb_K01 & sel_AGN_OIHa_OIIIHb_K01))
+    # m = (EW_Ha_cen > args.EW_AGN*args.bug) & ((sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_SIIHa_OIIIHb_K01_MS) | (sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_OIHa_OIIIHb_K01_MS))
     m = (EW_Ha_cen > args.EW_AGN*args.bug) & ((sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01) | (sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01))
     elines.loc[m, 'AGN_FLAG'] = 3
     m = ((elines['TYPE'] == 2) | (elines['TYPE'] == 3))
@@ -471,21 +495,51 @@ if __name__ == '__main__':
             'sel_OIIIHb': sel_OIIIHb,
             'sel_SIIHa': sel_SIIHa,
             'sel_OIHa': sel_OIHa,
+            'sel_MS': sel_MS,
             'sel_EW': sel_EW,
+            'sel_below_K01': sel_below_K01,
+            'sel_below_K01_SII': sel_below_K01_SII,
+            'sel_below_K01_OI': sel_below_K01_OI,
+            'sel_below_K03': sel_below_K03,
+            'sel_below_S06': sel_below_S06,
+            'sel_below_CF10': sel_below_CF10,
+            'sel_below_K06_SII': sel_below_K06_SII,
+            'sel_below_K06_OI': sel_below_K06_OI,
             'sel_AGNLINER_NIIHa_OIIIHb': sel_AGNLINER_NIIHa_OIIIHb,
-            'sel_SF_NIIHa_OIIIHb_K01': sel_SF_NIIHa_OIIIHb_K01,
-            'sel_SF_NIIHa_OIIIHb_K03': sel_SF_NIIHa_OIIIHb_K03,
-            'sel_SF_NIIHa_OIIIHb_S06': sel_SF_NIIHa_OIIIHb_S06,
+            'sel_AGN_NIIHa_OIIIHb_K01_CF10': sel_AGN_NIIHa_OIIIHb_K01_CF10,
             'sel_AGN_SIIHa_OIIIHb_K01': sel_AGN_SIIHa_OIIIHb_K01,
-            'sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01': sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01,
             'sel_AGN_OIHa_OIIIHb_K01': sel_AGN_OIHa_OIIIHb_K01,
+            'sel_AGN_SIIHa_OIIIHb_K01_K06': sel_AGN_SIIHa_OIIIHb_K01_K06,
+            'sel_AGN_OIHa_OIIIHb_K01_K06': sel_AGN_OIHa_OIIIHb_K01_K06,
+            'sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01': sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01,
             'sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01': sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01,
             'sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01': sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01,
             'sel_AGN_candidates': sel_AGN_candidates,
             'sel_SAGN_candidates': sel_SAGN_candidates,
             'sel_VSAGN_candidates': sel_VSAGN_candidates,
+            'sel_SF_NIIHa_OIIIHb_K01': sel_SF_NIIHa_OIIIHb_K01,
+            'sel_SF_NIIHa_OIIIHb_K03': sel_SF_NIIHa_OIIIHb_K03,
+            'sel_SF_NIIHa_OIIIHb_S06': sel_SF_NIIHa_OIIIHb_S06,
             'sel_pAGB': sel_pAGB,
             'sel_SF_EW': sel_SF_EW,
+            'sel_AGNLINER_NIIHa_OIIIHb_MS': sel_AGNLINER_NIIHa_OIIIHb_MS,
+            'sel_AGN_NIIHa_OIIIHb_K01_CF10_MS': sel_AGN_NIIHa_OIIIHb_K01_CF10_MS,
+            'sel_AGN_SIIHa_OIIIHb_K01_MS': sel_AGN_SIIHa_OIIIHb_K01_MS,
+            'sel_AGN_OIHa_OIIIHb_K01_MS': sel_AGN_OIHa_OIIIHb_K01_MS,
+            'sel_AGN_SIIHa_OIIIHb_K01_K06_MS': sel_AGN_SIIHa_OIIIHb_K01_K06_MS,
+            'sel_AGN_OIHa_OIIIHb_K01_K06_MS': sel_AGN_OIHa_OIIIHb_K01_K06_MS,
+            'sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_MS': sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_MS,
+            'sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01_MS': sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01_MS,
+            'sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS': sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS,
+            'sel_AGN_candidates_MS': sel_AGN_candidates_MS,
+            'sel_SAGN_candidates_MS': sel_SAGN_candidates_MS,
+            'sel_VSAGN_candidates_MS': sel_VSAGN_candidates_MS,
+            'sel_SF_NIIHa_OIIIHb_K01_MS': sel_SF_NIIHa_OIIIHb_K01_MS,
+            'sel_SF_NIIHa_OIIIHb_K03_MS': sel_SF_NIIHa_OIIIHb_K03_MS,
+            'sel_SF_NIIHa_OIIIHb_S06_MS': sel_SF_NIIHa_OIIIHb_S06_MS,
+            'sel_pAGB_MS': sel_pAGB_MS,
+            'sel_SF_EW_MS': sel_SF_EW_MS,
         }
+
         with open(args.output, 'wb') as f:
             pickle.dump(to_save, f, protocol=pickle.HIGHEST_PROTOCOL)
