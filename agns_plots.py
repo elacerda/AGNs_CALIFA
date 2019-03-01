@@ -921,7 +921,7 @@ if __name__ == '__main__':
     x = log_NII_Ha_cen
     y = EW_Ha_cen
     z = log_OIII_Hb_cen
-    extent = [-1.6, 0.8, -1, 2.5]
+    extent = [-2, 1.5, -1, 3]
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
     N_rows, N_cols = 1, 1
@@ -936,6 +936,35 @@ if __name__ == '__main__':
     ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
     ax.scatter(x.loc[mtII], y.loc[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(x.loc[mtI], y.loc[mtI], **scatter_AGN_tI_kwargs)
+    ####################################
+    if args.verbose > 0:
+        print '# x #'
+        xlim = ax.get_xlim()
+        x_low = x.loc[x < xlim[0]]
+        x_upp = x.loc[x > xlim[1]]
+        print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
+        if args.verbose > 1:
+            for i in x_low.index:
+                print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
+        print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
+        if args.verbose > 1:
+            for i in x_upp.index:
+                print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
+        print '#####'
+        print '# y #'
+        ylim = ax.get_ylim()
+        y_low = y.loc[y < ylim[0]]
+        y_upp = y.loc[y > ylim[1]]
+        print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
+        if args.verbose > 1:
+            for i in y_low.index:
+                print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
+        print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
+        if args.verbose > 1:
+            for i in y_upp.index:
+                print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
+        print '#####'
+    ####################################
     output_name='%s/fig_WHAN.%s' % (args.figs_dir, args.img_suffix)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
@@ -951,7 +980,7 @@ if __name__ == '__main__':
     print '###########################'
     x = elines['log_Mass_no_corr']
     xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
-    extent = [8, 12.5, -4.5, 2.5]
+    extent = [7.5, 12, -4.5, 2.5]
     n_bins_min_x = 5
     n_bins_maj_y = 4
     n_bins_min_y = 2
