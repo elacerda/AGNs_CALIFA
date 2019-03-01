@@ -65,12 +65,7 @@ def parser_args(default_args_file='args/default_plots.args'):
         'sigma_clip': True,
         'broad_fit_rules': False,
         'figs_dir': 'figs',
-        'bug': 0.8,
         'img_suffix': 'pdf',
-        'EW_SF': 14,
-        'EW_hDIG': 3,
-        'EW_strong': 6,
-        'EW_verystrong': 10,
         'dpi': 300,
         'fontsize': 6,
     }
@@ -80,11 +75,6 @@ def parser_args(default_args_file='args/default_plots.args'):
     parser.add_argument('--figs_dir', '-D', metavar='DIR', type=str, default=default_args['figs_dir'])
     parser.add_argument('--verbose', '-v', action='count')
     parser.add_argument('--img_suffix', '-i', metavar='IMG_SUFFIX', type=str, default=default_args['img_suffix'])
-    parser.add_argument('--EW_SF', metavar='FLOAT', type=float, default=default_args['EW_SF'])
-    parser.add_argument('--EW_hDIG', metavar='FLOAT', type=float, default=default_args['EW_hDIG'])
-    parser.add_argument('--EW_strong', metavar='FLOAT', type=float, default=default_args['EW_strong'])
-    parser.add_argument('--EW_verystrong', metavar='FLOAT', type=float, default=default_args['EW_verystrong'])
-    parser.add_argument('--bug', metavar='FLOAT', type=float, default=default_args['bug'])
     parser.add_argument('--dpi', metavar='INT', type=int, default=default_args['dpi'])
     parser.add_argument('--fontsize', metavar='INT', type=int, default=default_args['fontsize'])
     args_list = sys.argv[1:]
@@ -712,6 +702,12 @@ if __name__ == '__main__':
 
     elines = pickled['df']
     ###############################################################
+    bug = pickled['bug']
+    EW_SF = pickled['EW_SF']
+    EW_AGN = pickled['EW_AGN']
+    EW_hDIG = pickled['EW_hDIG']
+    EW_strong = pickled['EW_strong']
+    EW_verystrong = pickled['EW_verystrong']
     sel_NIIHa = pickled['sel_NIIHa']
     sel_OIIIHb = pickled['sel_OIIIHb']
     sel_SIIHa = pickled['sel_SIIHa']
