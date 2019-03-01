@@ -20,6 +20,6 @@ do
 		fi
 
 		./agns_selection.py -I ${DATAPATH}/dataframes.pkl --EW_AGN=$A --bug=$b -O ${OUTPUTFILE} &> $LOGSEL
-		./agns_plots.py -I ${OUTPUTFILE} --figs_dir=${OUTPUTFIGSDIR} &> $LOGPLOT
+		./agns_plots.py -I ${OUTPUTFILE} --figs_dir=${OUTPUTFIGSDIR} -vv &> $LOGPLOT
 	done
 done
