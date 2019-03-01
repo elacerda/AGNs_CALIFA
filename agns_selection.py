@@ -437,11 +437,11 @@ if __name__ == '__main__':
     print '#AC# %sN.NO GAS%s (without %sF_Ha_cen%s) = %d' % (color.B, color.E, color.B, color.E, N_NO_GAS)
     print '#AC##################'
     print '#AC# %sEW cuts%s:' % (color.B, color.E)
-    print '#AC# \t%snot-pAGB%s (%sN%s): EW > %d * %.2f A' % (color.B, color.E, color.B, color.E, args.EW_hDIG, args.bug)
-    print '#AC# \t%sAGN%s (%sA%s): EW > %d * %.2f A' % (color.B, color.E, color.B, color.E, args.EW_AGN, args.bug)
-    print '#AC# \t%sStrong%s (%sS%s): EW > %d * %.2f A' % (color.B, color.E, color.B, color.E, args.EW_strong, args.bug)
-    print '#AC# \t%sVery strong%s (%sVS%s): EW > %d * %.2f A' % (color.B, color.E, color.B, color.E, args.EW_verystrong, args.bug)
-    print '#AC# \t%sSF%s: EW > %d A' % (color.B, color.E, args.EW_SF)
+    print '#AC# \t%snot-pAGB%s (%sN%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_hDIG, args.bug, args.EW_hDIG*args.bug)
+    print '#AC# \t%sAGN%s (%sA%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_AGN, args.bug, args.EW_AGN*args.bug)
+    print '#AC# \t%sStrong%s (%sS%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_strong, args.bug, args.EW_strong*args.bug)
+    print '#AC# \t%sVery strong%s (%sVS%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_verystrong, args.bug, args.EW_verystrong*args.bug)
+    print '#AC# \t%sSF%s: EW > %.2f * %.2f = %.2f A' % (color.B, color.E, args.EW_SF, args.bug, args.EW_SF*args.bug)
     print '#AC##################'
     print '#AC# N.AGNs/LINERs candidates by [NII]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_Ha, color.B, color.E, N_AGN_NII_Ha_EW, color.B, color.E, N_SAGN_NII_Ha_EW, color.B, color.E, N_VSAGN_NII_Ha_EW)
     print '#AC# N.AGNs candidates by [SII]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_SII_Ha, color.B, color.E, N_AGN_SII_Ha_EW, color.B, color.E, N_SAGN_SII_Ha_EW, color.B, color.E, N_VSAGN_SII_Ha_EW)
@@ -491,6 +491,12 @@ if __name__ == '__main__':
 
         to_save = {
             'df': elines,
+            'bug': args.bug,
+            'EW_SF': args.EW_SF,
+            'EW_AGN': args.EW_AGN,
+            'EW_hDIG': args.EW_hDIG,
+            'EW_strong': args.EW_strong,
+            'EW_verystrong': args.EW_verystrong,
             'sel_NIIHa': sel_NIIHa,
             'sel_OIIIHb': sel_OIIIHb,
             'sel_SIIHa': sel_SIIHa,
