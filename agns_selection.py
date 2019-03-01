@@ -221,7 +221,7 @@ if __name__ == '__main__':
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01
     sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01 & sel_AGN_OIHa_OIIIHb_K01
-    sel_AGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug))
+    sel_AGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug))
     sel_SAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug))
     sel_VSAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug))
     sel_SF_NIIHa_OIIIHb_K01 = sel_NIIHa & sel_OIIIHb & sel_below_K01
@@ -240,7 +240,7 @@ if __name__ == '__main__':
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_MS = sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_SIIHa_OIIIHb_K01_MS
     sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01_MS = sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_OIHa_OIIIHb_K01_MS
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS = sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_SIIHa_OIIIHb_K01_MS & sel_AGN_OIHa_OIIIHb_K01_MS
-    sel_AGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug))
+    sel_AGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug))
     sel_SAGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug))
     sel_VSAGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug))
     sel_SF_NIIHa_OIIIHb_K01_MS = sel_MS & sel_below_K01
@@ -378,11 +378,14 @@ if __name__ == '__main__':
     m = sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01
     N_AGN_NII_SII_OI_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    N_AGN = (m & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
-    elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug)), 'TYPE'] = 2
-    N_SAGN = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
-    elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)), 'TYPE'] = 3
-    N_VSAGN = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    sel_AGN = (m & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug))
+    N_AGN = sel_AGN.values.astype('int').sum()
+    elines.loc[sel_AGN, 'TYPE'] = 2
+    sel_SAGN = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug))
+    N_SAGN = sel_SAGN.values.astype('int').sum()
+    elines.loc[sel_SAGN, 'TYPE'] = 3
+    sel_VSAGN = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug))
+    N_VSAGN = sel_VSAGN.values.astype('int').sum()
     ###############################################################
     ###############################################################
     # pAGB
