@@ -803,6 +803,10 @@ if __name__ == '__main__':
     N_AGN_tIII = mtIII.astype('int').sum()
     mtIV = elines['AGN_FLAG'] == 4
     N_AGN_tIV = mtIV.astype('int').sum()
+    mBFAGN = mtI | mtII
+    N_BFAGN = mBFAGN.astype('int').sum()
+    mALLAGN = elines['AGN_FLAG'] > 0
+    N_ALLAGN = mALLAGN.astype('int').sum()
 
     legend_elements = [
         Line2D([0], [0], marker=marker_AGN_tI, markeredgecolor=color_AGN_tI, label='Type-I (%d)' % N_AGN_tI, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
@@ -1026,24 +1030,32 @@ if __name__ == '__main__':
     # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
     YS_SF_c__r, N_c__r, sel_c, YS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, YS_SF, x_bins__r, clip=2, interval=interval)
     xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
-    p = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print p
-    ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='k', label='SFG')
-    ax.text(x_bins_center__r[0], np.polyval(p, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
+    p_SFc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
+    print p_SFc
+    ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
+    ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
     # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', label='SFG')
     ### RG ###
-    x_SF = x.loc[hDIG]
-    y_SF = y.loc[hDIG]
-    XS_SF, YS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values)
+    x_hDIG = x.loc[hDIG]
+    y_hDIG = y.loc[hDIG]
+    XS_hDIG, YS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values)
     x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
     # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_SF_c__r, N_c__r, sel_c, YS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, YS_SF, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
-    p = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print p
-    ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='k', ls='--', label='RG')
-    ax.text(x_bins_center__r[0], np.polyval(p, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
+    YS_hDIG_c__r, N_c__r, sel_c, YS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, YS_hDIG, x_bins__r, clip=2, interval=interval)
+    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_c__r)
+    p_hDIG = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
+    print p_hDIG
+    ax.plot(interval[0:2], np.polyval(p_hDIG, interval[0:2]), c='k', ls='--', label='RG')
+    ax.text(x_bins_center__r[0], np.polyval(p_hDIG, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
     # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', ls='--', label='SFG')
+    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
+    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
+    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
+    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
+    print '# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI)
+    print '# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII)
+    print '# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN)
+    print '# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN)
     ###########################
     output_name = '%s/fig_SFMS.%s' % (args.figs_dir, args.img_suffix)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
@@ -1083,24 +1095,34 @@ if __name__ == '__main__':
     # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
     YS_SF_c__r, N_c__r, sel_c, YS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, YS_SF, x_bins__r, clip=2, interval=interval)
     xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
-    p = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='k', label='SFG')
+    p_SFc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
+    ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
+    ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
     # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', label='SFG')
     ### RG ###
-    x_SF = x.loc[hDIG]
-    y_SF = y.loc[hDIG]
-    XS_SF, YS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values)
+    x_hDIG = x.loc[hDIG]
+    y_hDIG = y.loc[hDIG]
+    XS_hDIG, YS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values)
     x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_SF_c__r, N_c__r, sel_c, YS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, YS_SF, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
-    p = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='k', ls='--', label='RG')
-    # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', ls='--', label='SFG')
+    # SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, interval=interval)
+    YS_hDIG_c__r, N_c__r, sel_c, YS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, YS_hDIG, x_bins__r, clip=2, interval=interval)
+    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_c__r)
+    p_hDIG = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
+    ax.plot(interval[0:2], np.polyval(p_hDIG, interval[0:2]), c='k', ls='--', label='RG')
+    ax.text(x_bins_center__r[0], np.polyval(p_hDIG, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
+    # ax.plot(x_bins_center__r, YS_hDIG_c__r, c='k', ls='--', label='RG')
     ###########################
     output_name = '%s/fig_SFMS_NC.%s' % (args.figs_dir, args.img_suffix)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
+    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
+    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
+    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
+    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
+    print '# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI)
+    print '# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII)
+    print '# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN)
+    print '# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN)
     print '###########################'
     ################################
 
@@ -1185,8 +1207,18 @@ if __name__ == '__main__':
                               extent=[-13.5, -8.5, 0.5, 5.5], markAGNs=True,
                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                               n_bins_min_x=n_bins_min_x, prune_x=prune_x)
+    N_GV = ((y <= -10.8) & (y > -11.8)).astype('int').sum()
+    N_AGN_tI_GV = ((x[mtI] <= -10.8) & (x[mtI] > -11.8)).astype('int').sum()
+    N_AGN_tII_GV = ((x[mtII] <= -10.8) & (x[mtII] > -11.8)).astype('int').sum()
+    N_BFAGN_GV = ((x[mBFAGN] <= -10.8) & (x[mBFAGN] > -11.8)).astype('int').sum()
+    N_ALLAGN_GV = ((x[mALLAGN] <= -10.8) & (x[mALLAGN] > -11.8)).astype('int').sum()
+    print '# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI)
+    print '# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII)
+    print '# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN)
+    print '# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN)
     ax.axvline(x=-11.8, c='k', ls='--')
     ax.axvline(x=-10.8, c='k', ls='--')
+
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print '#############################'
@@ -1215,6 +1247,15 @@ if __name__ == '__main__':
                               n_bins_min_x=n_bins_min_x, prune_x=prune_x)
     ax.axhline(y=-11.8, c='k', ls='--')
     ax.axhline(y=-10.8, c='k', ls='--')
+    N_GV = ((y <= -10.8) & (y > -11.8)).astype('int').sum()
+    N_AGN_tI_GV = ((y[mtI] <= -10.8) & (y[mtI] > -11.8)).astype('int').sum()
+    N_AGN_tII_GV = ((y[mtII] <= -10.8) & (y[mtII] > -11.8)).astype('int').sum()
+    N_BFAGN_GV = ((y[mBFAGN] <= -10.8) & (y[mBFAGN] > -11.8)).astype('int').sum()
+    N_ALLAGN_GV = ((y[mALLAGN] <= -10.8) & (y[mALLAGN] > -11.8)).astype('int').sum()
+    print '# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI)
+    print '# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII)
+    print '# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN)
+    print '# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print '#############################'
