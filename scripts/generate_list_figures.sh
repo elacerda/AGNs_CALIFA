@@ -1,5 +1,9 @@
 #!/bin/bash
-FIGS_DIR=${HOME}/dev/astro/AGNs_CALIFA/figs
+FIGS_DIR=$1
+if [ ! -d "$FIGS_DIR" ]
+then
+    FIGS_DIR=${HOME}/dev/astro/AGNs_CALIFA/figs
+fi
 PUBDIR=${HOME}/public_html/AGNs_CALIFA/
 ALLFIGS=$FIGS_DIR/allfigs.pdf
 FIGS=()
