@@ -402,8 +402,8 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     ax_Hy.tick_params(**tick_params)
     ax_Hy_t.tick_params(**tick_params)
     ####################################
-    print len(x), len(y), len(mtAGN)
-    xm, ym = ma_mask_xyz(x[mtAGN], y[mtAGN])
+    # print len(x), len(y), len(mtAGN)
+    xm, ym = ma_mask_xyz(x, y, mask=~mtAGN)
     sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=10, alpha=0.4)
     sc = ax_sc.scatter(x, y, c=z, **scatter_kwargs_EWmaxmin)
     # ax_sc.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)

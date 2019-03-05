@@ -125,6 +125,17 @@ if __name__ == '__main__':
     with open(args.input, 'rb') as f:
         df = pickle.load(f)
 
+    df['elines'].loc['Arp70', 'morph'] = 18
+    df['elines'].loc['IC1481', 'morph'] = 12
+    df['elines'].loc['NGC6789', 'morph'] = 19
+    df['elines'].loc['SN2014aa', 'morph'] = 12
+    df['elines'].loc['UGC03789', 'morph'] = 11
+    # df['elines'].loc['UGC01859', 'morph'] = dE
+    df['elines'].loc['UGC8856A', 'morph'] = 18
+    # df['elines'].loc['NGC6251', 'morph'] = E Sy2
+    df['elines'].loc['NGC6264', 'morph'] = 12
+    df['elines'].loc['NGC7469', 'morph'] = 10
+
     # REMOVE SOME GALS FROM AGN STUDY
     with open('%s/remove_gals_AGNpaper.csv' % args.csv_dir, 'r') as f:
         DBNames_to_drop = []
