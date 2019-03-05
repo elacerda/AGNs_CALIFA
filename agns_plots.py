@@ -588,7 +588,7 @@ def plot_fig_histo_MZR(elines, args, x, y, ax):
     X = x.loc[mXnotnan].values
     iS = np.argsort(X)
     XS = X[iS]
-    elines['modlogOHSF2017_t2'] = modlogOHSF2017_t2(elines['log_Mass_no_corr'])
+    elines['modlogOHSF2017_t2'] = modlogOHSF2017_t2(elines['log_Mass_corr'])
     YS = (elines['modlogOHSF2017_t2'].loc[mXnotnan].values)[iS]
     mY = YS > 8.4
     mX = XS < 11.5
@@ -608,10 +608,10 @@ def plot_fig_histo_MZR(elines, args, x, y, ax):
     m_y_tII_above = y.loc[mtII] > x.loc[mtII].apply(modlogOHSF2017_t2)
     # m_y_tIII_above = y.loc[mtIII] > x.loc[mtIII].apply(modlogOHSF2017_t2)
     m_y_tAGN_above = y.loc[mtAGN] > x.loc[mtAGN].apply(modlogOHSF2017_t2)
-    print elines.loc[m_y_tI_above.index[m_y_tI_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-    print elines.loc[m_y_tII_above.index[m_y_tII_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-    # print elines.loc[m_y_tIII_above.index[m_y_tIII_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-    print elines.loc[m_y_tAGN_above.index[m_y_tAGN_above], ['log_Mass_no_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    print elines.loc[m_y_tI_above.index[m_y_tI_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    print elines.loc[m_y_tII_above.index[m_y_tII_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    # print elines.loc[m_y_tIII_above.index[m_y_tIII_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    print elines.loc[m_y_tAGN_above.index[m_y_tAGN_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
     # N_y_tIII = y[mtIII].count()
@@ -1013,7 +1013,7 @@ if __name__ == '__main__':
     print '\n###########################'
     print '## SFMS colored by EW_Ha ##'
     print '###########################'
-    x = elines['log_Mass_no_corr']
+    x = elines['log_Mass_corr']
     y = elines['lSFR']
     z = EW_Ha_cen.apply(np.log10)
     xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
@@ -1176,7 +1176,7 @@ if __name__ == '__main__':
     n_bins_min_x = 5
     n_bins_maj_y = 6
     n_bins_min_y = 5
-    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass_no_corr'], y=elines['log_Mass_gas_Av_gas_rad'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
+    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass_corr'], y=elines['log_Mass_gas_Av_gas_rad'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
                       xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
                       ylabel=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$',
                       extent=[8, 12.5, 5, 11],
@@ -1195,7 +1195,7 @@ if __name__ == '__main__':
     n_bins_min_x = 5
     n_bins_maj_y = 6
     n_bins_min_y = 2
-    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass_no_corr'], y=elines['C'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
+    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass_corr'], y=elines['C'], z=EW_Ha_cen.apply(np.log10), markAGNs=True,
                       xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
                       ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
                       extent=[8, 12.5, 0.5, 5.5],
@@ -1211,7 +1211,7 @@ if __name__ == '__main__':
     print '\n#############################'
     print '## sSFR-C colored by EW_Ha ##'
     print '#############################'
-    x = elines['lSFR'] - elines['log_Mass_no_corr']
+    x = elines['lSFR'] - elines['log_Mass_corr']
     y = elines['C']
     z = EW_Ha_cen.apply(np.log10)
     n_bins_min_x = 5
@@ -1252,8 +1252,8 @@ if __name__ == '__main__':
     print '\n#############################'
     print '## M-sSFR colored by EW_Ha ##'
     print '#############################'
-    x = elines['log_Mass_no_corr']
-    y = elines['lSFR'] - elines['log_Mass_no_corr']
+    x = elines['log_Mass_corr']
+    y = elines['lSFR'] - elines['log_Mass_corr']
     z = EW_Ha_cen.apply(np.log10)
     n_bins_min_x = 5
     n_bins_maj_y = 5
@@ -1326,11 +1326,31 @@ if __name__ == '__main__':
             m_redshift
         ],
         #########################################
+        ##################################
+        ## sSFR vs u-i colored by EW_Ha ##
+        ##################################
+        'fig_histo_sSFR_ui': [
+            elines.loc[m_redshift, 'lSFR'] - elines.loc[m_redshift, 'log_Mass_corr'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
+            elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 3.5],
+            m_redshift
+        ],
+        ##################################
+        ##################################
+        ## sSFR vs u-r colored by EW_Ha ##
+        ##################################
+        'fig_histo_sSFR_ur': [
+            elines.loc[m_redshift, 'lSFR'] - elines.loc[m_redshift, 'log_Mass_corr'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
+            elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'r'], r'${\rm u}-{\rm r}$ (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 3.5],
+            m_redshift
+        ],
+        ##################################
         ###########################
         ## SFMS colored by EW_Ha ##
         ###########################
         'fig_histo_SFMS': [
-            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['lSFR'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
         ],
@@ -1339,7 +1359,7 @@ if __name__ == '__main__':
         ## SFMS colored by EW_Ha (NO CEN) ##
         ####################################
         'fig_histo_SFMS_NC': [
-            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
         ],
@@ -1348,7 +1368,7 @@ if __name__ == '__main__':
         ## M-C colored by EW_Ha ##
         ##########################
         'fig_histo_M_C': [
-            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, 0.5, 5.5]
         ],
@@ -1357,7 +1377,7 @@ if __name__ == '__main__':
         ## sSFR-C colored by EW_Ha ##
         #############################
         'fig_histo_sSFR_C': [
-            elines['lSFR'] - elines['log_Mass_no_corr'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
+            elines['lSFR'] - elines['log_Mass_corr'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
             elines['C'], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2, None,
             EW_Ha_cen.apply(np.log10), [-13.5, -8.5, 0.5, 5.5]
         ],
@@ -1366,8 +1386,8 @@ if __name__ == '__main__':
         ## M-sSFR colored by EW_Ha ##
         #############################
         'fig_histo_M_sSFR': [
-            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['lSFR'] - elines['log_Mass_no_corr'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['lSFR'] - elines['log_Mass_corr'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -13.5, -8.5]
         ],
         #############################
@@ -1375,7 +1395,7 @@ if __name__ == '__main__':
         ## M-ZHLWRe colored by EW_Ha ##
         ###############################
         'fig_histo_M_ZHLW': [
-            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -0.7, 0.3]
             # elines['ZH_LW_Re_fit'] - elines['alpha_ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None,
@@ -1386,7 +1406,7 @@ if __name__ == '__main__':
         ## M-ZHMWRe colored by EW_Ha ##
         ###############################
         'fig_histo_M_ZHMW': [
-            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             # elines['ZH_MW_Re_fit'] - elines['alpha_ZH_MW_Re_fit'], r'[Z/H] MW', 3, 4, None,
             # EW_Ha_cen.apply(np.log10), [8, 12, -0.9, 0.3]
             elines['ZH_MW_Re_fit'], r'[Z/H] LW', 3, 8, None,
@@ -1397,7 +1417,7 @@ if __name__ == '__main__':
         ## MZR colored by EW_Ha ##
         ##########################
         'fig_histo_MZR': [
-            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['OH_Re_fit_t2'], r'$12 + \log (O/H)$ t2 ', 2, 8, None,
             EW_Ha_cen.apply(np.log10), [8, 12, 8.3, 9.1]
         ],
@@ -1406,7 +1426,7 @@ if __name__ == '__main__':
         ## M-tLW colored by EW_Ha ##
         ############################
         'fig_histo_M_tLW': [
-            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['Age_LW_Re_fit'], r'$\log({\rm age/yr})$ LW', 4, 5, None,
             EW_Ha_cen.apply(np.log10), [8, 12, 7.5, 10.5]
         ],
@@ -1415,7 +1435,7 @@ if __name__ == '__main__':
         ## M-tMW colored by EW_Ha ##
         ############################
         'fig_histo_M_tMW': [
-            elines['log_Mass_no_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
             elines['Age_MW_Re_fit'], r'$\log({\rm age/yr})$ MW', 3, 5, None,
             EW_Ha_cen.apply(np.log10), [8, 12, 8.8, 10.2]
         ],
@@ -1502,7 +1522,7 @@ if __name__ == '__main__':
     print '## Morph colored by EW_Ha ##'
     print '############################'
     plots_dict = {
-        'fig_Morph_M': ['log_Mass_no_corr', [7.5, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
+        'fig_Morph_M': ['log_Mass_corr', [7.5, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
         'fig_Morph_C': ['C', [0.5, 5.5], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2],
         'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^2)$ cen', 4, 2],
         'fig_Morph_vsigma': ['rat_vel_sigma', [0, 1], r'${\rm v}/\sigma ({\rm R} < {\rm Re})$', 2, 5],
