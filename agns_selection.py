@@ -130,7 +130,7 @@ if __name__ == '__main__':
         DBNames_to_drop = []
         for l in f.readlines():
             if l[0] != '#':
-                DBName = l.strip()
+                DBName = l.split(',')[0].strip()
                 if DBName in df['elines'].index:
                     DBNames_to_drop.append(DBName)
                     print '%s%s%s: removing galaxy from analisys' % (color.B, DBName, color.E)

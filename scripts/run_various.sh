@@ -1,7 +1,7 @@
 #!/bin/bash
 BUG=(0.8 1)
-#EWAGN=(3 6 10 14)
-EWAGN=(1.5)
+EWAGN=(3 6 10 14)
+#EWAGN=(1.5)
 FIGSPATH=${HOME}/dev/astro/AGNs_CALIFA/figs
 LOGSPATH=${HOME}/dev/astro/AGNs_CALIFA/logs
 DATAPATH=${HOME}/dev/astro/AGNs_CALIFA/data

@@ -6,6 +6,7 @@ import itertools
 import numpy as np
 import matplotlib as mpl
 from pytu.lines import Lines
+import seaborn as sns
 from pytu.plots import plot_text_ax
 from matplotlib.lines import Line2D
 from pytu.functions import debug_var
@@ -300,6 +301,9 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=N
         gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax = plt.subplot(gs[0])
     sc = ax.scatter(x, y, c=z, **sc_kwargs)
+    mALLAGN = (elines['AGN_FLAG'] > 0)
+    xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
+    sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=10, alpha=0.4)
     if markAGNs:
         # ax.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
         ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
@@ -359,11 +363,13 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=N
     return f, ax
 
 
-def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None):
-    mtI = elines['AGN_FLAG'] == 1
-    mtII = elines['AGN_FLAG'] == 2
+def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, aux_mask=None):
+    if aux_mask is not None:
+        elines = elines.loc[aux_mask]
+    mtI = (elines['AGN_FLAG'] == 1)
+    mtII = (elines['AGN_FLAG'] == 2)
     # mtIII = elines['AGN_FLAG'] == 3
-    mtAGN = elines['AGN_FLAG'] > 0
+    mtAGN = (elines['AGN_FLAG'] > 0)
     ax_Hx_t = ax_Hx.twinx()
     ax_Hx_t.hist(x, bins=15, range=xrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
     ax_Hx.hist(x[mtI], bins=15, range=xrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
@@ -396,6 +402,9 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     ax_Hy.tick_params(**tick_params)
     ax_Hy_t.tick_params(**tick_params)
     ####################################
+    print len(x), len(y), len(mtAGN)
+    xm, ym = ma_mask_xyz(x[mtAGN], y[mtAGN])
+    sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=10, alpha=0.4)
     sc = ax_sc.scatter(x, y, c=z, **scatter_kwargs_EWmaxmin)
     # ax_sc.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
@@ -526,6 +535,9 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     ax_Hy_t.tick_params(**tick_params)
     ####################################
     sc = ax_sc.scatter(morph, y, **scatter_kwargs_EWmaxmin)
+    mALLAGN = (elines['AGN_FLAG'] > 0)
+    xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
+    sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=10, alpha=0.4)
     # ax_sc.scatter(morph[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(morph[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax_sc.scatter(morph[mtI], y[mtI], **scatter_AGN_tI_kwargs)
@@ -952,8 +964,11 @@ if __name__ == '__main__':
                       cmap='viridis_r', mask=None,
                       vmax=1, vmin=-1)
     y = EW_Ha_cen.apply(np.log10)
-    ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
-    ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
+    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
+    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=10, alpha=0.4)
+    # sns.kdeplot(x.loc[mtI], y.loc[mtI], ax=plt.gca(), color='red', n_levels=10, alpha=0.4)
+    # ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
+    # ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
     ax.scatter(x.loc[mtII], y.loc[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(x.loc[mtI], y.loc[mtI], **scatter_AGN_tI_kwargs)
     ####################################
@@ -1018,6 +1033,8 @@ if __name__ == '__main__':
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                       f=f, ax=ax)
+    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
+    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=10, alpha=0.4)
     WHa = EW_Ha_cen
     hDIG = sel_EW & (WHa <= 3)
     SFc = sel_EW & (WHa > 14)
@@ -1084,6 +1101,8 @@ if __name__ == '__main__':
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                       f=f, ax=ax)
+    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
+    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=10, alpha=0.4)
     WHa = EW_Ha_cen
     hDIG = sel_EW & (WHa <= 3)
     SFc = sel_EW & (WHa > 14)
@@ -1192,6 +1211,9 @@ if __name__ == '__main__':
     print '\n#############################'
     print '## sSFR-C colored by EW_Ha ##'
     print '#############################'
+    x = elines['lSFR'] - elines['log_Mass_no_corr']
+    y = elines['C']
+    z = EW_Ha_cen.apply(np.log10)
     n_bins_min_x = 5
     n_bins_maj_y = 6
     n_bins_min_y = 2
@@ -1201,13 +1223,13 @@ if __name__ == '__main__':
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=elines['lSFR'] - elines['log_Mass_no_corr'], y=elines['C'], z=EW_Ha_cen.apply(np.log10),
+    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
                               xlabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
                               ylabel=r'$\log ({\rm R}90/{\rm R}50)$',
                               extent=[-13.5, -8.5, 0.5, 5.5], markAGNs=True,
                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                               n_bins_min_x=n_bins_min_x, prune_x=prune_x)
-    N_GV = ((y <= -10.8) & (y > -11.8)).astype('int').sum()
+    N_GV = ((x <= -10.8) & (x > -11.8)).astype('int').sum()
     N_AGN_tI_GV = ((x[mtI] <= -10.8) & (x[mtI] > -11.8)).astype('int').sum()
     N_AGN_tII_GV = ((x[mtII] <= -10.8) & (x[mtII] > -11.8)).astype('int').sum()
     N_BFAGN_GV = ((x[mBFAGN] <= -10.8) & (x[mBFAGN] > -11.8)).astype('int').sum()
@@ -1230,6 +1252,9 @@ if __name__ == '__main__':
     print '\n#############################'
     print '## M-sSFR colored by EW_Ha ##'
     print '#############################'
+    x = elines['log_Mass_no_corr']
+    y = elines['lSFR'] - elines['log_Mass_no_corr']
+    z = EW_Ha_cen.apply(np.log10)
     n_bins_min_x = 5
     n_bins_maj_y = 5
     n_bins_min_y = 2
@@ -1239,7 +1264,7 @@ if __name__ == '__main__':
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, y=elines['lSFR'] - elines['log_Mass_no_corr'], x=elines['log_Mass_no_corr'], z=EW_Ha_cen.apply(np.log10),
+    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
                               ylabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
                               xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
                               extent=[8, 12.5, -13.5, -8.5], markAGNs=True,
@@ -1278,7 +1303,8 @@ if __name__ == '__main__':
         'fig_histo_CMD_NSA': [
             elines['Mabs_R'], r'${\rm M}_{\rm R}$ (mag)', 5, 2, None,
             elines['B_R'], r'${\rm B-R}$ (mag)', 3, 5, None,
-            EW_Ha_cen.apply(np.log10), [-24, -10, 0, 1.5]],
+            EW_Ha_cen.apply(np.log10), [-24, -10, 0, 1.5]
+        ],
         ################################
         ##################################
         ## CMD (CUBES) colored by EW_Ha ##
@@ -1286,7 +1312,8 @@ if __name__ == '__main__':
         'fig_histo_CMD_CUBES': [
             elines.loc[m_redshift, 'Mabs_i'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None,
             elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -10, 0, 3.5]
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -10, 0, 3.5],
+            m_redshift
         ],
         ##################################
         #########################################
@@ -1295,7 +1322,8 @@ if __name__ == '__main__':
         'fig_histo_CMD_CUBES_NC': [
             elines.loc[m_redshift, 'Mabs_i_NC'], r'${\rm M}_{\rm i}$ (mag) (NO CEN)', 5, 2, None,
             elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
-            EW_Ha_cen_zcut, [-24, -10, 0, 3.5]
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -10, 0, 3.5],
+            m_redshift
         ],
         #########################################
         ###########################
@@ -1408,8 +1436,11 @@ if __name__ == '__main__':
         print '# %s' % k
         x, xlabel, n_bins_maj_x, n_bins_min_x, prune_x = v[0:5]
         y, ylabel, n_bins_maj_y, n_bins_min_y, prune_y = v[5:10]
-        extent = v[-1]
-        z = v[-2]
+        z = v[10]
+        extent = v[11]
+        aux_mask = None
+        if len(v) == 13:
+            aux_mask = v[12]
         output_name = '%s/%s.%s' % (args.figs_dir, k, args.img_suffix)
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
@@ -1417,7 +1448,11 @@ if __name__ == '__main__':
         ax_Hx = plt.subplot(gs[-1, 1:])
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
-        plot_histo_xy_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, xlabel=xlabel, xrange=extent[0:2], n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, ylabel=ylabel, yrange=extent[2:4], n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=prune_y)
+        # if k == 'fig_histo_CMD_CUBES' or k == 'fig_histo_CMD_CUBES_NC':
+        #     aux_mask = m_redshift
+        # else:
+        #     aux_mask = None
+        plot_histo_xy_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, xlabel=xlabel, xrange=extent[0:2], n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, ylabel=ylabel, yrange=extent[2:4], n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=prune_y, aux_mask=aux_mask)
         if k == 'fig_histo_sSFR_C':
             ax_sc.axvline(x=-11.8, c='k', ls='--')
             ax_sc.axvline(x=-10.8, c='k', ls='--')
