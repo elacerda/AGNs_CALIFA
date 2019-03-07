@@ -29,6 +29,9 @@ morph_name_ticks = ['', 'E', 'S0', 'S0a', 'Sa', 'Sab', 'Sb', 'Sbc', 'Sc', 'Scd',
 #               'E7': 7, 'S0': 8, 'S0a': 9, 'Sa': 10, 'Sab': 11, 'Sb': 12,
 #               'Sbc': 13, 'Sc': 14, 'Scd': 15, 'Sd': 16, 'Sdm': 17, 'I': 18,
 #               'BCD': 19}
+# morph_name = {'E': 7, 'S0': 8, 'S0a': 9, 'Sa': 10, 'Sab': 11, 'Sb': 12,
+#               'Sbc': 13, 'Sc': 14, 'Scd': 15, 'Sd': 16, 'Sdm': 17, 'I': 18,
+#               'BCD': 19}
 # morph_name = ['E0','E1','E2','E3','E4','E5','E6','E7','S0','S0a','Sa','Sab','Sb', 'Sbc','Sc','Scd','Sd','Sdm','I','BCD']
 latex_ppi = 72.0
 latex_column_width_pt = 240.0
@@ -303,7 +306,7 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=N
     sc = ax.scatter(x, y, c=z, **sc_kwargs)
     mALLAGN = (elines['AGN_FLAG'] > 0)
     xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=10, alpha=0.4)
+    sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=4, alpha=0.4)
     if markAGNs:
         # ax.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
         ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
@@ -404,7 +407,7 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     ####################################
     # print len(x), len(y), len(mtAGN)
     xm, ym = ma_mask_xyz(x, y, mask=~mtAGN)
-    sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=10, alpha=0.4)
+    sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=4, alpha=0.4)
     sc = ax_sc.scatter(x, y, c=z, **scatter_kwargs_EWmaxmin)
     # ax_sc.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
@@ -465,7 +468,7 @@ def plot_x_morph(elines, args, ax):
     mtAGN = elines['AGN_FLAG'] > 0
     x = elines['morph'].apply(morph_adjust)
     ax_t = ax.twinx()
-    ax_t.twinx().hist(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
+    ax_t.hist(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
     ax.hist(x[mtI], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
     ax.hist(x[mtII], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], hatch='//////', histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
     ax.hist(x[mtAGN], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5], histtype='step', linewidth=1, edgecolor=color_AGN_tIII, align='mid', density=True)
@@ -537,7 +540,7 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     sc = ax_sc.scatter(morph, y, **scatter_kwargs_EWmaxmin)
     mALLAGN = (elines['AGN_FLAG'] > 0)
     xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=10, alpha=0.4)
+    sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=4, alpha=0.4)
     # ax_sc.scatter(morph[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(morph[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax_sc.scatter(morph[mtI], y[mtI], **scatter_AGN_tI_kwargs)
@@ -965,8 +968,8 @@ if __name__ == '__main__':
                       vmax=1, vmin=-1)
     y = EW_Ha_cen.apply(np.log10)
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=10, alpha=0.4)
-    # sns.kdeplot(x.loc[mtI], y.loc[mtI], ax=plt.gca(), color='red', n_levels=10, alpha=0.4)
+    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=4, alpha=0.4)
+    # sns.kdeplot(x.loc[mtI], y.loc[mtI], ax=plt.gca(), color='red', n_levels=4, alpha=0.4)
     # ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
     # ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
     ax.scatter(x.loc[mtII], y.loc[mtII], **scatter_AGN_tII_kwargs)
@@ -1034,7 +1037,7 @@ if __name__ == '__main__':
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                       f=f, ax=ax)
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=10, alpha=0.4)
+    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=4, alpha=0.4)
     WHa = EW_Ha_cen
     hDIG = sel_EW & (WHa <= 3)
     SFc = sel_EW & (WHa > 14)
@@ -1102,7 +1105,7 @@ if __name__ == '__main__':
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                       f=f, ax=ax)
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=10, alpha=0.4)
+    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=4, alpha=0.4)
     WHa = EW_Ha_cen
     hDIG = sel_EW & (WHa <= 3)
     SFc = sel_EW & (WHa > 14)
@@ -1303,7 +1306,7 @@ if __name__ == '__main__':
         'fig_histo_CMD_NSA': [
             elines['Mabs_R'], r'${\rm M}_{\rm R}$ (mag)', 5, 2, None,
             elines['B_R'], r'${\rm B-R}$ (mag)', 3, 5, None,
-            EW_Ha_cen.apply(np.log10), [-24, -10, 0, 1.5]
+            EW_Ha_cen.apply(np.log10), [-24, -15, 0, 1.5]
         ],
         ################################
         ##################################
@@ -1312,7 +1315,7 @@ if __name__ == '__main__':
         'fig_histo_CMD_CUBES': [
             elines.loc[m_redshift, 'Mabs_i'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None,
             elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -10, 0, 3.5],
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
             m_redshift
         ],
         ##################################
@@ -1322,7 +1325,7 @@ if __name__ == '__main__':
         'fig_histo_CMD_CUBES_NC': [
             elines.loc[m_redshift, 'Mabs_i_NC'], r'${\rm M}_{\rm i}$ (mag) (NO CEN)', 5, 2, None,
             elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -10, 0, 3.5],
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
             m_redshift
         ],
         #########################################
