@@ -1,7 +1,4 @@
 #!/bin/bash
-BUG=0.8
-#EW_AGN=1.875
-EW_AGN=3
 DATADIR=data
 if [ ! -d "${DATADIR}" ]
 then
@@ -12,14 +9,20 @@ fi
 echo "#######################"
 echo "## Generating tables ##"
 echo "#######################"
-./agns_tables.py -O ${DATADIR}/dataframes.pkl --csv_dir=csv
+OUTPUT_TABLES="${DATADIR}/tables.pkl"
+./agns_tables.py -O ${OUTPUT_TABLES} --csv_dir=csv
 echo -e "\n"
 echo "##########################"
 echo "## Generating selection ##"
 echo "##########################"
-./agns_selection.py -I ${DATADIR}/dataframes.pkl -O ${DATADIR}/elines.pkl --bug=${BUG} --EW_AGN=${EW_AGN}
+#BUG=0.8
+BUG=1
+#EW_AGN=1.875
+EW_AGN=3
+OUTPUT_FILE="${DATADIR}/elines_EWAGN${EW_AGN}_BUG${BUG}.pkl"
+./agns_selection.py -I ${OUTPUT_TABLES} -O ${OUTPUT_FILE} --bug=${BUG} --EW_AGN=${EW_AGN}
 #--no_sigma_clip
 echo "#########"
 echo "## END ##"
 echo "#########"
-echo "$0: To generate plots run ./agns_plots.py -I ${DATADIR}/elines.pkl "
+echo "$0: To generate plots run ./agns_plots.py -I ${OUTPUT_FILE} -vv"

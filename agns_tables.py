@@ -8,6 +8,9 @@ from pytu.functions import debug_var
 from pytu.objects import readFileArgumentParser
 
 
+morph_name = ['E0', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'S0', 'S0a', 'Sa', 'Sab', 'Sb', 'Sbc', 'Sc', 'Scd', 'Sd', 'Sdm', 'Sm', 'I']
+
+
 def parser_args(default_args_file='args/default_tables.args'):
     """
     Parse the command line args.
@@ -46,6 +49,7 @@ fname5 = 'get_RA_DEC.pandas.csv'
 fname6 = 'get_proc_elines_CALIFA.clean.pandas.csv'
 fname7 = 'NII_Ha_fit.csv'
 fname8 = 'get_mag_cubes_v2.2.NO_CEN.pandas.csv'
+fname8 = 'bitsakis_t12.csv'
 fnames_short = {
     'CALIFA_3_joint_classnum.pandas.csv': '3_joint',
     'CALIFA_basic_joint.pandas.csv': 'basic_joint',
@@ -55,6 +59,7 @@ fnames_short = {
     'get_proc_elines_CALIFA.clean.pandas.csv': 'elines',
     'NII_Ha_fit.csv': 'broad_fit',
     'get_mag_cubes_v2.2.NO_CEN.pandas.csv': 'mag_cubes_v2.2.NO_CEN',
+    'bitsakis_t12.csv': 'bitsakis_t12',
 }
 fnames_long = {
     '3_joint': 'CALIFA_3_joint_classnum.pandas.csv',
@@ -65,6 +70,7 @@ fnames_long = {
     'elines': 'get_proc_elines_CALIFA.clean.pandas.csv',
     'broad_fit': 'NII_Ha_fit.csv',
     'mag_cubes_v2.2.NO_CEN': 'get_mag_cubes_v2.2.NO_CEN.pandas.csv',
+    'bitsakis_t12': 'bitsakis_t12.csv',
 }
 # Read CSV files
 df = {}
@@ -97,6 +103,9 @@ with open('%s/list_Broad_by_eye.pandas.csv' % args.csv_dir, 'r') as f:
                 print '%s: not in %s' % (DBName, fnames_long['elines'])
 
 # Populating dataframe elines joining different data from other dataframes
+for c in df['bitsakis_t12'].columns[1:]:
+    df['elines'][c] = df['bitsakis_t12'][c]
+df['elines']['CALIFAID_2'] = df['basic_joint']['CALIFAID']
 df['elines']['C'] = df['mag_cubes_v2.2']['C']
 df['elines']['e_C'] = df['mag_cubes_v2.2']['error_C']
 df['elines']['Mabs_i'] = df['mag_cubes_v2.2']['i_band_abs_mag']
@@ -156,6 +165,12 @@ df['elines']['log_NII_Ha_cen'] = np.where(a.apply(np.isnan), b, a)
 # f = np.log10(df['elines']['F_Ha_cen']) - np.log10(df['elines']['Ha_narrow'])  # -16 +16
 # df['elines']['log_SII_Ha_cen_fit'] = df['elines']['log_SII_Ha_cen_mean'] + f
 # df['elines']['log_OI_Ha_cen_fit'] = df['elines']['log_OI_Ha_cen']  + f
+
+# Create Morphology visual names array
+for i in df['elines'].index:
+    if df['elines'].loc[i, 'morph'] >= 0:
+        df['elines'].loc[i, 'Morph'] = morph_name[df['elines'].loc[i, 'morph'].astype('int')]
+df['elines']['Morph'] = df['elines']['Morph'].fillna('')
 
 with open(args.output, 'wb') as f:
     pickle.dump(df, f, protocol=pickle.HIGHEST_PROTOCOL)
