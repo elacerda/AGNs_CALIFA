@@ -1305,7 +1305,7 @@ if __name__ == '__main__':
         'fig_histo_CMD_NSA': [
             elines['Mabs_R'], r'${\rm M}_{\rm R}$ (mag)', 5, 2, None,
             elines['B_R'], r'${\rm B-R}$ (mag)', 3, 5, None,
-            EW_Ha_cen.apply(np.log10), [-24, -10, 0, 1.5]
+            EW_Ha_cen.apply(np.log10), [-24, -15, 0, 1.5]
         ],
         ################################
         ##################################
@@ -1314,7 +1314,7 @@ if __name__ == '__main__':
         'fig_histo_CMD_CUBES': [
             elines.loc[m_redshift, 'Mabs_i'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None,
             elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -10, 0, 3.5],
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
             m_redshift
         ],
         ##################################
@@ -1322,9 +1322,9 @@ if __name__ == '__main__':
         ## CMD (CUBES) NO CEN colored by EW_Ha ##
         #########################################
         'fig_histo_CMD_CUBES_NC': [
-            elines.loc[m_redshift, 'Mabs_i_NC'], r'${\rm M}_{\rm i}$ (mag) (NO CEN)', 5, 2, None,
+            elines.loc[m_redshift, 'Mabs_i_NC'], r'${\rm M}_{\rm i}$ (mag)${}_{NO CEN}$', 5, 2, None,
             elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'${\rm u}-{\rm i}$ (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -10, 0, 3.5],
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
             m_redshift
         ],
         #########################################
