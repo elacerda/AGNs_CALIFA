@@ -105,12 +105,15 @@ if __name__ == '__main__':
         DBNames_to_drop = []
         for l in f.readlines():
             if l[0] != '#':
-                DBName = l.split(',')[0].strip()
-                if DBName in df['elines'].index:
-                    DBNames_to_drop.append(DBName)
-                    print '%s%s%s: removing galaxy from analisys' % (color.B, DBName, color.E)
-                # else:
-                #     print '%s: not in %s' % (DBName, fnames_long['elines'])
+                tmp = l.split(',')
+                DBName = tmp[0].strip()
+                flag = int(tmp[1])
+                if flag > 0:
+                    if DBName in df['elines'].index:
+                        DBNames_to_drop.append(DBName)
+                        print '%s%s%s: removing galaxy from analisys' % (color.B, DBName, color.E)
+                    # else:
+                    #     print '%s: not in %s' % (DBName, fnames_long['elines'])
         if len(DBNames_to_drop) > 0:
             df_elines_clean = df['elines'].drop(DBNames_to_drop, axis=0)
 
