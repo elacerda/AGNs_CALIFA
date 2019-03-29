@@ -41,39 +41,39 @@ def parser_args(default_args_file='args/default_tables.args'):
 args = parser_args()
 
 # Files and directories
-fname1 = 'CALIFA_3_joint_classnum.pandas.csv'
+fname1 = 'CALIFA_3_DR4_classnum.pandas.csv'
 fname2 = 'CALIFA_basic_joint.pandas.csv'
 fname3 = 'get_CALIFA_cen_broad.pandas.csv'
 fname4 = 'get_mag_cubes_v2.2.pandas.csv'
-fname5 = 'get_RA_DEC.pandas.csv'
-fname6 = 'get_proc_elines_CALIFA.all_good.pandas.csv'
-fname7 = 'NII_Ha_fit.csv'
-fname8 = 'get_mag_cubes_v2.2.NO_CEN.pandas.csv'
-fname8 = 'bitsakis_t12.csv'
-fname9 = 'get_new_morph_temp.pandas.csv'
+fname5 = 'get_mag_cubes_v2.2.NO_CEN.pandas.csv'
+fname6 = 'get_RA_DEC.pandas.csv'
+fname7 = 'get_proc_elines_CALIFA.all_good.pandas.csv'
+fname8 = 'NII_Ha_fit.csv'
+fname9 = 'bitsakis_t12.csv'
+fname10 = 'get_new_morph_temp.pandas.csv'
 fnames_short = {
-    'CALIFA_3_joint_classnum.pandas.csv': '3_joint',
-    'CALIFA_basic_joint.pandas.csv': 'basic_joint',
-    'get_CALIFA_cen_broad.pandas.csv': 'cen_broad',
-    'get_mag_cubes_v2.2.pandas.csv': 'mag_cubes_v2.2',
-    'get_RA_DEC.pandas.csv': 'RA_DEC',
-    'get_proc_elines_CALIFA.all_good.pandas.csv': 'elines',
-    'NII_Ha_fit.csv': 'broad_fit',
-    'get_mag_cubes_v2.2.NO_CEN.pandas.csv': 'mag_cubes_v2.2.NO_CEN',
-    'bitsakis_t12.csv': 'bitsakis_t12',
-    'get_new_morph_temp.pandas.csv': 'new_morph',
+    fname1: 'DR4_morph',
+    fname2: 'basic_joint',
+    fname3: 'cen_broad',
+    fname4: 'mag_cubes_v2.2',
+    fname5: 'mag_cubes_v2.2.NO_CEN',
+    fname6: 'RA_DEC',
+    fname7: 'elines',
+    fname8: 'broad_fit',
+    fname9: 'bitsakis_t12',
+    fname10: 'new_morph',
 }
 fnames_long = {
-    '3_joint': 'CALIFA_3_joint_classnum.pandas.csv',
-    'basic_joint': 'CALIFA_basic_joint.pandas.csv',
-    'cen_broad': 'get_CALIFA_cen_broad.pandas.csv',
-    'mag_cubes_v2.2': 'get_mag_cubes_v2.2.pandas.csv',
-    'RA_DEC': 'get_RA_DEC.pandas.csv',
-    'elines': 'get_proc_elines_CALIFA.all_good.pandas.csv',
-    'broad_fit': 'NII_Ha_fit.csv',
-    'mag_cubes_v2.2.NO_CEN': 'get_mag_cubes_v2.2.NO_CEN.pandas.csv',
-    'bitsakis_t12': 'bitsakis_t12.csv',
-    'new_morph': 'get_new_morph_temp.pandas.csv',
+    'DR4_morph': fname1,
+    'basic_joint': fname2,
+    'cen_broad': fname3,
+    'mag_cubes_v2.2': fname4,
+    'mag_cubes_v2.2.NO_CEN': fname5,
+    'RA_DEC': fname6,
+    'elines': fname7,
+    'broad_fit': fname8,
+    'bitsakis_t12': fname9,
+    'new_morph': fname10,
 }
 # Read CSV files
 df = {}
@@ -137,18 +137,18 @@ df['elines']['r_NC'] = df['mag_cubes_v2.2.NO_CEN']['r_band_mag']
 df['elines']['i_NC'] = df['mag_cubes_v2.2.NO_CEN']['i_band_mag']
 df['elines']['redshift'] = df['mag_cubes_v2.2']['redshift']
 df['elines']['redshift_CALIFA'] = df['basic_joint']['redshift_CALIFA']
-df['elines']['morph'] = df['3_joint']['hubtyp']
+df['elines']['morph'] = df['DR4_morph']['hubtyp']
 df['elines']['RA'] = df['basic_joint']['ra']
 df['elines']['DEC'] = df['basic_joint']['de']
 df['elines']['RA'] = df['RA_DEC']['RA']
 df['elines']['DEC'] = df['RA_DEC']['DEC']
-df['elines']['bar'] = df['3_joint']['bar']
+df['elines']['bar'] = df['DR4_morph']['bar']
 df['elines']['SN_broad'] = df['cen_broad']['Nsigma']
 df['elines']['broad'] = 0
 df['elines']['TYPE'] = 0
 df['elines']['AGN_FLAG'] = 0
 df['elines']['MORPH'] = 'none'
-df['elines']['GalaxyName'] = df['3_joint']['REALNAME']
+df['elines']['GalaxyName'] = df['DR4_morph']['REALNAME']
 df['elines']['GalaxyName'] = df['elines']['GalaxyName'].fillna('')
 df['elines']['morph'] = df['elines']['morph'].fillna(-1)
 df['elines']['Ha_broad'] = df['broad_fit']['Ha_broad']
@@ -179,8 +179,7 @@ for i in df['elines'].index:
         df['elines'].loc[i, 'Morph'] = morph_name[df['elines'].loc[i, 'morph'].astype('int')]
 df['elines']['Morph'] = df['elines']['Morph'].fillna('')
 
-
-
+# Output pickled dataframe to args.output
 with open(args.output, 'wb') as f:
     pickle.dump(df, f, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -225,4 +224,3 @@ with open(args.output, 'wb') as f:
 #         print "(%d, '%s', '%s', '%f', '%f', '%f', '', -1, %d)," % (k, i, reg['GalaxyName'], reg['RA'], reg['DEC'], w, m)
 #         k = k + 1
 # print ';'
-sys.exit()
