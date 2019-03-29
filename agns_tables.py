@@ -50,6 +50,7 @@ fname6 = 'get_proc_elines_CALIFA.all_good.pandas.csv'
 fname7 = 'NII_Ha_fit.csv'
 fname8 = 'get_mag_cubes_v2.2.NO_CEN.pandas.csv'
 fname8 = 'bitsakis_t12.csv'
+fname9 = 'get_new_morph_temp.pandas.csv'
 fnames_short = {
     'CALIFA_3_joint_classnum.pandas.csv': '3_joint',
     'CALIFA_basic_joint.pandas.csv': 'basic_joint',
@@ -60,6 +61,7 @@ fnames_short = {
     'NII_Ha_fit.csv': 'broad_fit',
     'get_mag_cubes_v2.2.NO_CEN.pandas.csv': 'mag_cubes_v2.2.NO_CEN',
     'bitsakis_t12.csv': 'bitsakis_t12',
+    'get_new_morph_temp.pandas.csv': 'new_morph',
 }
 fnames_long = {
     '3_joint': 'CALIFA_3_joint_classnum.pandas.csv',
@@ -71,6 +73,7 @@ fnames_long = {
     'broad_fit': 'NII_Ha_fit.csv',
     'mag_cubes_v2.2.NO_CEN': 'get_mag_cubes_v2.2.NO_CEN.pandas.csv',
     'bitsakis_t12': 'bitsakis_t12.csv',
+    'new_morph': 'get_new_morph_temp.pandas.csv',
 }
 # Read CSV files
 df = {}
@@ -167,11 +170,16 @@ df['elines']['log_NII_Ha_cen'] = np.where(a.apply(np.isnan), b, a)
 # df['elines']['log_SII_Ha_cen_fit'] = df['elines']['log_SII_Ha_cen_mean'] + f
 # df['elines']['log_OI_Ha_cen_fit'] = df['elines']['log_OI_Ha_cen']  + f
 
+for g in df['new_morph'].index:
+    df['elines'].loc[g, 'morph'] = np.floor(df['new_morph'].loc[g, 'Average'])
+
 # Create Morphology visual names array
 for i in df['elines'].index:
     if df['elines'].loc[i, 'morph'] >= 0:
         df['elines'].loc[i, 'Morph'] = morph_name[df['elines'].loc[i, 'morph'].astype('int')]
 df['elines']['Morph'] = df['elines']['Morph'].fillna('')
+
+
 
 with open(args.output, 'wb') as f:
     pickle.dump(df, f, protocol=pickle.HIGHEST_PROTOCOL)
@@ -208,13 +216,13 @@ with open(args.output, 'wb') as f:
 ###########################################################
 # print to create database to morphological classification
 ###########################################################
-k=929
-print 'INSERT INTO morph_class.to_classify (GalID, DBName, GalaxyName, RA, DECL, WEIGHT, comment, WarningID, MorphID) VALUES'
-for i, reg in df['elines'].iterrows():
-    m = int(reg['morph'])
-    if m < 0:
-        w = 0
-        print "(%d, '%s', '%s', '%f', '%f', '%f', '', -1, %d)," % (k, i, reg['GalaxyName'], reg['RA'], reg['DEC'], w, m)
-        k = k + 1
-print ';'
-# sys.exit()
+# k=929
+# print 'INSERT INTO morph_class.to_classify (GalID, DBName, GalaxyName, RA, DECL, WEIGHT, comment, WarningID, MorphID) VALUES'
+# for i, reg in df['elines'].iterrows():
+#     m = int(reg['morph'])
+#     if m < 0:
+#         w = 0
+#         print "(%d, '%s', '%s', '%f', '%f', '%f', '', -1, %d)," % (k, i, reg['GalaxyName'], reg['RA'], reg['DEC'], w, m)
+#         k = k + 1
+# print ';'
+sys.exit()
