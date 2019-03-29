@@ -1058,8 +1058,9 @@ if __name__ == '__main__':
     YS_SF_c__r, N_c__r, sel_c, YS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, YS_SF, x_bins__r, clip=2, interval=interval)
     xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
     p_SFc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print p_SFc
     ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
+    print 'SFc:'
+    print p_SFc
     ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
     # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', label='SFG')
     ### RG ###
@@ -1071,6 +1072,7 @@ if __name__ == '__main__':
     YS_hDIG_c__r, N_c__r, sel_c, YS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, YS_hDIG, x_bins__r, clip=2, interval=interval)
     xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_c__r)
     p_hDIG = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
+    print 'hDIG:'
     print p_hDIG
     ax.plot(interval[0:2], np.polyval(p_hDIG, interval[0:2]), c='k', ls='--', label='RG')
     ax.text(x_bins_center__r[0], np.polyval(p_hDIG, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
@@ -1126,6 +1128,8 @@ if __name__ == '__main__':
     xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
     p_SFc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
     ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
+    print 'SFc:'
+    print p_SFc
     ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
     # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', label='SFG')
     ### RG ###
@@ -1138,6 +1142,8 @@ if __name__ == '__main__':
     xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_c__r)
     p_hDIG = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
     ax.plot(interval[0:2], np.polyval(p_hDIG, interval[0:2]), c='k', ls='--', label='RG')
+    print 'hDIG:'
+    print p_hDIG
     ax.text(x_bins_center__r[0], np.polyval(p_hDIG, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
     # ax.plot(x_bins_center__r, YS_hDIG_c__r, c='k', ls='--', label='RG')
     ###########################

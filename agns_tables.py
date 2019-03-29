@@ -46,7 +46,7 @@ fname2 = 'CALIFA_basic_joint.pandas.csv'
 fname3 = 'get_CALIFA_cen_broad.pandas.csv'
 fname4 = 'get_mag_cubes_v2.2.pandas.csv'
 fname5 = 'get_RA_DEC.pandas.csv'
-fname6 = 'get_proc_elines_CALIFA.clean.pandas.csv'
+fname6 = 'get_proc_elines_CALIFA.all_good.pandas.csv'
 fname7 = 'NII_Ha_fit.csv'
 fname8 = 'get_mag_cubes_v2.2.NO_CEN.pandas.csv'
 fname8 = 'bitsakis_t12.csv'
@@ -56,7 +56,7 @@ fnames_short = {
     'get_CALIFA_cen_broad.pandas.csv': 'cen_broad',
     'get_mag_cubes_v2.2.pandas.csv': 'mag_cubes_v2.2',
     'get_RA_DEC.pandas.csv': 'RA_DEC',
-    'get_proc_elines_CALIFA.clean.pandas.csv': 'elines',
+    'get_proc_elines_CALIFA.all_good.pandas.csv': 'elines',
     'NII_Ha_fit.csv': 'broad_fit',
     'get_mag_cubes_v2.2.NO_CEN.pandas.csv': 'mag_cubes_v2.2.NO_CEN',
     'bitsakis_t12.csv': 'bitsakis_t12',
@@ -67,7 +67,7 @@ fnames_long = {
     'cen_broad': 'get_CALIFA_cen_broad.pandas.csv',
     'mag_cubes_v2.2': 'get_mag_cubes_v2.2.pandas.csv',
     'RA_DEC': 'get_RA_DEC.pandas.csv',
-    'elines': 'get_proc_elines_CALIFA.clean.pandas.csv',
+    'elines': 'get_proc_elines_CALIFA.all_good.pandas.csv',
     'broad_fit': 'NII_Ha_fit.csv',
     'mag_cubes_v2.2.NO_CEN': 'get_mag_cubes_v2.2.NO_CEN.pandas.csv',
     'bitsakis_t12': 'bitsakis_t12.csv',
@@ -190,25 +190,31 @@ with open(args.output, 'wb') as f:
 ##########################
 # MySQL dump for morph DB
 ##########################
-# +------------+-------------+------+-----+---------+-------+
-# | Field      | Type        | Null | Key | Default | Extra |
-# +------------+-------------+------+-----+---------+-------+
-# | GalID      | int(4)      | NO   | PRI | NULL    |       |
-# | DBName     | varchar(50) | NO   |     | NULL    |       |
-# | GalaxyName | varchar(50) | YES  |     | NULL    |       |
-# | RA         | double      | YES  |     | NULL    |       |
-# | DECL       | double      | YES  |     | NULL    |       |
-# | comment    | blob        | YES  |     | NULL    |       |
-# | WarningID  | int(2)      | YES  | MUL | NULL    |       |
-# | MorphID    | int(2)      | YES  | MUL | NULL    |       |
-# +------------+-------------+------+-----+---------+-------+
+# +------------+--------------+------+-----+---------+-------+
+# | Field      | Type         | Null | Key | Default | Extra |
+# +------------+--------------+------+-----+---------+-------+
+# | GalID      | int(4)       | NO   | PRI | NULL    |       |
+# | DBName     | varchar(50)  | NO   |     | NULL    |       |
+# | GalaxyName | varchar(50)  | YES  |     | NULL    |       |
+# | RA         | double       | YES  |     | NULL    |       |
+# | DECL       | double       | YES  |     | NULL    |       |
+# | BARRED     | tinyint(1)   | YES  |     | NULL    |       |
+# | INTERACT   | tinyint(1)   | YES  |     | NULL    |       |
+# | WEIGHT     | double       | YES  |     | NULL    |       |
+# | comment    | varchar(255) | YES  |     | NULL    |       |
+# | WarningID  | int(2)       | YES  | MUL | NULL    |       |
+# | MorphID    | int(2)       | YES  | MUL | NULL    |       |
+# +------------+--------------+------+-----+---------+-------+
 ###########################################################
 # print to create database to morphological classification
 ###########################################################
-# k = 0
-# print 'INSERT INTO morph_class.to_classify VALUES'
-# for i, reg in df['elines'].iterrows():
-#     print "(%d, '%s', '%s', '%f', '%f', '', -1, %d)," % (k, i, reg['GalaxyName'], reg['RA'], reg['DEC'], int(reg['morph']))
-#     k = k + 1
-# print ';'
+k=929
+print 'INSERT INTO morph_class.to_classify (GalID, DBName, GalaxyName, RA, DECL, WEIGHT, comment, WarningID, MorphID) VALUES'
+for i, reg in df['elines'].iterrows():
+    m = int(reg['morph'])
+    if m < 0:
+        w = 0
+        print "(%d, '%s', '%s', '%f', '%f', '%f', '', -1, %d)," % (k, i, reg['GalaxyName'], reg['RA'], reg['DEC'], w, m)
+        k = k + 1
+print ';'
 # sys.exit()
