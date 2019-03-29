@@ -8,40 +8,6 @@ from pytu.functions import debug_var
 from pytu.objects import readFileArgumentParser
 
 
-fname1 = 'CALIFA_3_joint_classnum.pandas.csv'
-fname2 = 'CALIFA_basic_joint.pandas.csv'
-fname3 = 'get_CALIFA_cen_broad.pandas.csv'
-fname4 = 'get_mag_cubes_v2.2.pandas.csv'
-fname5 = 'get_RA_DEC.pandas.csv'
-fname6 = 'get_proc_elines_CALIFA.clean.pandas.csv'
-fname6 = 'NII_Ha_fit.csv'
-fnames_short = {
-    'CALIFA_3_joint_classnum.pandas.csv': '3_joint',
-    'CALIFA_basic_joint.pandas.csv': 'basic_joint',
-    'get_CALIFA_cen_broad.pandas.csv': 'cen_broad',
-    'get_mag_cubes_v2.2.pandas.csv': 'mag_cubes_v2.2',
-    'get_RA_DEC.pandas.csv': 'RA_DEC',
-    'get_proc_elines_CALIFA.clean.pandas.csv': 'elines',
-    'NII_Ha_fit.csv': 'broad_fit',
-}
-fnames_long = {
-    '3_joint': 'CALIFA_3_joint_classnum.pandas.csv',
-    'basic_joint': 'CALIFA_basic_joint.pandas.csv',
-    'cen_broad': 'get_CALIFA_cen_broad.pandas.csv',
-    'mag_cubes_v2.2': 'get_mag_cubes_v2.2.pandas.csv',
-    'RA_DEC': 'get_RA_DEC.pandas.csv',
-    'elines': 'get_proc_elines_CALIFA.clean.pandas.csv',
-    'broad_fit': 'NII_Ha_fit.csv',
-}
-
-
-def fBPT(x, a, b, c):
-    return a + (b/(x + c))
-
-def linval(x, a, b):
-    return np.polyval([a, b], x)
-
-
 def parser_args(default_args_file='args/default_selection.args'):
     """
     Parse the command line args.
@@ -94,6 +60,15 @@ def parser_args(default_args_file='args/default_selection.args'):
     debug_var(True, args=args)
     return args
 
+
+def fBPT(x, a, b, c):
+    return a + (b/(x + c))
+
+
+def linval(x, a, b):
+    return np.polyval([a, b], x)
+
+
 if __name__ == '__main__':
     args = parser_args()
 
@@ -125,19 +100,8 @@ if __name__ == '__main__':
     with open(args.input, 'rb') as f:
         df = pickle.load(f)
 
-    # df['elines'].loc['Arp70', 'morph'] = 18
-    # df['elines'].loc['IC1481', 'morph'] = 12
-    # df['elines'].loc['NGC6789', 'morph'] = 19
-    # df['elines'].loc['SN2014aa', 'morph'] = 12
-    # df['elines'].loc['UGC03789', 'morph'] = 11
-    # # df['elines'].loc['UGC01859', 'morph'] = dE
-    # df['elines'].loc['UGC8856A', 'morph'] = 18
-    # # df['elines'].loc['NGC6251', 'morph'] = E Sy2
-    # df['elines'].loc['NGC6264', 'morph'] = 12
-    # df['elines'].loc['NGC7469', 'morph'] = 10
-
     # REMOVE SOME GALS FROM AGN STUDY
-    with open('%s/remove_gals_AGNpaper.csv' % args.csv_dir, 'r') as f:
+    with open('%s/QC_Pipe3D_CALIFA.csv' % args.csv_dir, 'r') as f:
         DBNames_to_drop = []
         for l in f.readlines():
             if l[0] != '#':
@@ -145,8 +109,8 @@ if __name__ == '__main__':
                 if DBName in df['elines'].index:
                     DBNames_to_drop.append(DBName)
                     print '%s%s%s: removing galaxy from analisys' % (color.B, DBName, color.E)
-                else:
-                    print '%s: not in %s' % (DBName, fnames_long['elines'])
+                # else:
+                #     print '%s: not in %s' % (DBName, fnames_long['elines'])
         if len(DBNames_to_drop) > 0:
             df_elines_clean = df['elines'].drop(DBNames_to_drop, axis=0)
 
@@ -494,14 +458,14 @@ if __name__ == '__main__':
 
     if not args.only_report:
         columns_to_csv = [
-        'AGN_FLAG', 'SN_broad',
-        'RA', 'DEC', 'log_NII_Ha_cen', 'log_NII_Ha_cen_stddev',
-        'log_OIII_Hb_cen_mean', 'log_OIII_Hb_cen_stddev',
-        'log_SII_Ha_cen_mean', 'log_SII_Ha_cen_stddev',
-        'log_OI_Ha_cen', 'e_log_OI_Ha_cen',
-        'EW_Ha_cen_mean', 'EW_Ha_cen_stddev',
+            'AGN_FLAG', 'SN_broad',
+            'RA', 'DEC', 'log_NII_Ha_cen', 'log_NII_Ha_cen_stddev',
+            'log_OIII_Hb_cen_mean', 'log_OIII_Hb_cen_stddev',
+            'log_SII_Ha_cen_mean', 'log_SII_Ha_cen_stddev',
+            'log_OI_Ha_cen', 'e_log_OI_Ha_cen',
+            'EW_Ha_cen_mean', 'EW_Ha_cen_stddev',
         ]
-        elines.loc[elines['AGN_FLAG'] > 0].to_csv('%s/AGN_CANDIDATES.csv' % args.csv_dir, columns=columns_to_csv)
+        elines.loc[elines['AGN_FLAG'] > 0].sort_values('AGN_FLAG').to_csv('%s/AGN_CANDIDATES.csv' % args.csv_dir, columns=columns_to_csv)
 
         to_save = {
             'df': elines,

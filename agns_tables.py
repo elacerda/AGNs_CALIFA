@@ -148,6 +148,7 @@ df['elines']['broad'] = 0
 df['elines']['TYPE'] = 0
 df['elines']['AGN_FLAG'] = 0
 df['elines']['MORPH'] = 'none'
+df['elines']['merg'] = df['DR4_morph']['merg']
 df['elines']['GalaxyName'] = df['DR4_morph']['REALNAME']
 df['elines']['GalaxyName'] = df['elines']['GalaxyName'].fillna('')
 df['elines']['morph'] = df['elines']['morph'].fillna(-1)
