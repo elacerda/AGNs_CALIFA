@@ -80,7 +80,7 @@ df = {}
 na_values = ['BAD', 'nan', -999, '-inf', 'inf']
 for k, v in fnames_short.iteritems():
     f_path = '%s/%s' % (args.csv_dir, k)
-    # print f_path
+    print f_path
     key_dataframe = fnames_short[k]
     df[key_dataframe] = pd.read_csv(f_path, na_values=na_values, sep=',', comment='#', header='infer', index_col=False)
     df[key_dataframe].set_index('DBName', inplace=True, drop=False)

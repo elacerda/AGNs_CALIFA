@@ -99,6 +99,7 @@ if __name__ == '__main__':
 
     with open(args.input, 'rb') as f:
         df = pickle.load(f)
+    elines = df['elines']
 
     # REMOVE SOME GALS FROM AGN STUDY
     with open('%s/QC_Pipe3D_CALIFA.csv' % args.csv_dir, 'r') as f:
@@ -116,9 +117,8 @@ if __name__ == '__main__':
                     #     print '%s: not in %s' % (DBName, fnames_long['elines'])
         if len(DBNames_to_drop) > 0:
             df_elines_clean = df['elines'].drop(DBNames_to_drop, axis=0)
-
-    elines = df_elines_clean.copy()
-    del df_elines_clean
+            elines = df_elines_clean.copy()
+            del df_elines_clean
     del df
 
     # log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
