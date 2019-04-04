@@ -121,6 +121,13 @@ if __name__ == '__main__':
             del df_elines_clean
     del df
 
+    # print_str = '{}\t{}\t{}\t{}\t{}\t{}\t{}'
+    # # Create file for R. Callete
+    # print print_str.format('DBName', 'redshift', 'Mabs_R', 'u', 'g', 'r', 'i')
+    # for i in elines.index:
+    #     t = elines.loc[i]
+    #     print print_str.format(i, t['z_stars'], t['Mabs_R'], t['u'], t['g'], t['r'], t['i'])
+
     # log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
     log_NII_Ha_cen = elines['log_NII_Ha_cen']
     elog_NII_Ha_cen = elines['log_NII_Ha_cen_stddev']
