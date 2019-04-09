@@ -644,7 +644,7 @@ def plot_fig_histo_M_ZHMW(elines, args, x, y, ax, interval=None):
     # mtIII = elines['AGN_FLAG'] == 3
     mtAGN = mtI | mtII
     if interval is None:
-        interval = [7.7, 11.5, -0.9, 0.3]
+        interval = [9.5, 11.5, -0.9, 0.3]
     x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.3)
     y_mean, N_y_mean, _ = redf_xy_bins_interval(x.values, y.values, x_bins__r, interval)
     ax.plot(x_bincenter__r, y_mean, 'k-')
