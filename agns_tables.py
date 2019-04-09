@@ -166,7 +166,8 @@ df['elines'].loc[df['elines']['log_Mass_gas'] == -12, 'log_Mass_gas'] = np.nan
 df['elines'].loc[df['elines']['log_Mass_gas_Av_gas_rad'] == -12, 'log_Mass_gas_Av_gas_rad'] = np.nan
 df['elines']['log_NII_Ha_cen_fit'] = np.log10(df['elines']['NII_6583'] / df['elines']['Ha_narrow'])
 a, b = df['elines']['log_NII_Ha_cen_fit'], df['elines']['log_NII_Ha_cen_mean']
-df['elines']['log_NII_Ha_cen'] = np.where(a.apply(np.isnan), b, a)
+# df['elines']['log_NII_Ha_cen'] = np.where(a.apply(np.isnan), b, a)
+df['elines']['log_NII_Ha_cen'] = df['elines']['log_NII_Ha_cen_mean']
 # f = np.log10(df['elines']['F_Ha_cen']) - np.log10(df['elines']['Ha_narrow'])  # -16 +16
 # df['elines']['log_SII_Ha_cen_fit'] = df['elines']['log_SII_Ha_cen_mean'] + f
 # df['elines']['log_OI_Ha_cen_fit'] = df['elines']['log_OI_Ha_cen']  + f

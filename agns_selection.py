@@ -412,6 +412,12 @@ if __name__ == '__main__':
     if args.broad_fit_rules is True:
         m = (elines['SN_broad'] > args.min_SN_broad)
     elines.loc[m, 'AGN_FLAG'] = 1
+    # Correct NII_Ha for broad type AGNs
+    m = elines['AGN_FLAG'] == 1
+    print elines.loc[m, 'log_NII_Ha_cen']
+    elines.loc[m, 'log_NII_Ha_cen'] = elines.loc[m, 'log_NII_Ha_cen_fit']
+    print elines.loc[m, 'log_NII_Ha_cen']
+    
     N_AGN_tI = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 1].count()
     N_AGN_tII = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 2].count()
     N_AGN_tIII = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 3].count()
