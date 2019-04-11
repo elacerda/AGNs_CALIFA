@@ -183,7 +183,7 @@ df['elines']['Morph'] = df['elines']['Morph'].fillna('')
 
 # Output pickled dataframe to args.output
 with open(args.output, 'wb') as f:
-    pickle.dump(df, f, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(df, f, protocol=2)
 
 #####################
 # check unique names

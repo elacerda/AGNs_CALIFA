@@ -544,4 +544,4 @@ if __name__ == '__main__':
         }
 
         with open(args.output, 'wb') as f:
-            pickle.dump(to_save, f, protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(to_save, f, protocol=2)
