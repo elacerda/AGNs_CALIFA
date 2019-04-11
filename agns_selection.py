@@ -25,12 +25,12 @@ def parser_args(default_args_file='args/default_selection.args'):
         'csv_dir': 'csv',
         'bug': 0.8,
         'output_agn_candidates': 'AGN_CANDIDATES.csv',
-        'EW_SF': 14,
-        'EW_AGN': 3,  # 1.875,
-        'EW_hDIG': 3,
-        'EW_strong': 6,
-        'EW_verystrong': 10,
-        'min_SN_broad': 8,
+        'EW_SF': 14.,
+        'EW_AGN': 3.,  # 1.875,
+        'EW_hDIG': 3.,
+        'EW_strong': 6.,
+        'EW_verystrong': 10.,
+        'min_SN_broad': 8.,
         'only_report': False,
     }
     parser = readFileArgumentParser(fromfile_prefix_chars='@')
@@ -413,11 +413,9 @@ if __name__ == '__main__':
         m = (elines['SN_broad'] > args.min_SN_broad)
     elines.loc[m, 'AGN_FLAG'] = 1
     # Correct NII_Ha for broad type AGNs
-    m = elines['AGN_FLAG'] == 1
-    print elines.loc[m, 'log_NII_Ha_cen']
-    elines.loc[m, 'log_NII_Ha_cen'] = elines.loc[m, 'log_NII_Ha_cen_fit']
-    print elines.loc[m, 'log_NII_Ha_cen']
-    
+    m = (elines['AGN_FLAG'] == 1)
+    elines['log_NII_Ha_cen'] = np.where(m, elines['log_NII_Ha_cen_fit'], elines['log_NII_Ha_cen_mean'])
+
     N_AGN_tI = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 1].count()
     N_AGN_tII = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 2].count()
     N_AGN_tIII = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 3].count()
@@ -481,7 +479,11 @@ if __name__ == '__main__':
             'log_OI_Ha_cen', 'e_log_OI_Ha_cen',
             'EW_Ha_cen_mean', 'EW_Ha_cen_stddev',
         ]
-        elines.loc[elines['AGN_FLAG'] > 0].sort_values('AGN_FLAG').to_csv('%s/AGN_CANDIDATES.csv' % args.csv_dir, columns=columns_to_csv)
+        m = elines['AGN_FLAG'] > 0
+        elines.loc[m].sort_values('AGN_FLAG').to_csv('%s/AGN_CANDIDATES.csv' % args.csv_dir, columns=columns_to_csv)
+
+        # m = (elines['AGN_FLAG'] == 1) | (elines['AGN_FLAG'] == 2)
+        # print elines.loc[m, columns_to_csv].sort_values('AGN_FLAG')
 
         to_save = {
             'df': elines,

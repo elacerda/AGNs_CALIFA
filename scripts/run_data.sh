@@ -1,26 +1,31 @@
 #!/bin/bash
-DATADIR=data
-if [ ! -d "${DATADIR}" ]
+WORKPATH=${HOME}/dev/astro/AGNs_CALIFA
+LOGSPATH=${WORKPATH}/logs
+DATAPATH=${WORKPATH}/data
+CSVPATH=${WORKPATH}/csv
+if [ ! -d "${DATAPATH}" ]
 then
-    mkdir -p "${DATADIR}"
-else
-    echo "$0: directory ${DATADIR} already exists"
+    echo "$0: creating directory ${DATAPATH}"
+    mkdir -p "${DATAPATH}"
 fi
 echo "#######################"
 echo "## Generating tables ##"
 echo "#######################"
-OUTPUT_TABLES="${DATADIR}/tables.pkl"
-./agns_tables.py -O ${OUTPUT_TABLES} --csv_dir=csv
+OUTPUTTABLES="${DATAPATH}/tables.pkl"
+echo "$0: running ./agns_tables.py -O ${OUTPUTTABLES} --csv_dir=${CSVPATH}"
+./agns_tables.py -O ${OUTPUTTABLES} --csv_dir=${CSVPATH}
 echo -e "\n"
 echo "##########################"
 echo "## Generating selection ##"
 echo "##########################"
-#BUG=0.8
+OUTPUTFILE=${DATAPATH}/elines_${RUNTAG}.pkl
 BUG=1
-#EW_AGN=1.875
-EW_AGN=3
-OUTPUT_FILE="${DATADIR}/elines_EWAGN${EW_AGN}_BUG${BUG}.pkl"
-./agns_selection.py -I ${OUTPUT_TABLES} -O ${OUTPUT_FILE} --bug=${BUG} --EW_AGN=${EW_AGN}
+BUG=0.8
+EWAGN=3
+RUNTAG=EWAGN${EWAGN}_BUG${BUG}
+OUTPUT_FILE="${DATAPATH}/elines_${RUNTAG}.pkl"
+echo "$0: running ./agns_selection.py -I ${OUTPUTTABLES} -O ${OUTPUTFILE} --bug=${BUG} --EW_AGN=${EWAGN} --csv_dir=${CSVPATH} --output_agn_candidates=${CSVPATH}/AGN_CANDIDATES_${RUNTAG}.csv"
+./agns_selection.py -I ${OUTPUTTABLES} -O ${OUTPUTFILE} --bug=${BUG} --EW_AGN=${EWAGN} --csv_dir=${CSVPATH} --output_agn_candidates=${CSVPATH}/AGN_CANDIDATES_${RUNTAG}.csv
 #--no_sigma_clip
 echo "#########"
 echo "## END ##"

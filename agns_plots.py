@@ -17,6 +17,7 @@ from pytu.objects import readFileArgumentParser
 from matplotlib.ticker import AutoMinorLocator, MaxNLocator
 
 
+mpl.rcParams['text.usetex'] = True
 mpl.rcParams['font.family'] = 'serif'
 mpl.rcParams['font.serif'] = 'Times New Roman'
 mpl.rcParams['axes.unicode_minus'] = False
@@ -515,9 +516,12 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
     N_y_tAGN = y[mtAGN].count()
-    N_y_tI_above = np.array([np.array(y.loc[mtI & (morph == mt)] > y.loc[mtI & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
-    N_y_tII_above = np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[mtII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
-    N_y_tAGN_above = np.array([np.array(y.loc[mtAGN & (morph == mt)] > y.loc[mtAGN & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+    N_y_tI_above = count_y_above_mean(morph.loc[mtI], y.loc[mtI], y_mean, m)
+    # np.array([np.array(y.loc[mtI & (morph == mt)] > y.loc[(morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+    N_y_tII_above = count_y_above_mean(morph.loc[mtII], y.loc[mtII], y_mean, m)
+    # np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[(morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+    N_y_tAGN_above = count_y_above_mean(morph.loc[mtAGN], y.loc[mtAGN], y_mean, m)
+    # np.array([np.array(y.loc[mtAGN & (morph == mt)] > y.loc[(morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
     ax_Hy_t = ax_Hy.twiny()
     ax_Hy_t.hist(y, orientation='horizontal', bins=15, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
     ax_Hy.hist(y[mtI], orientation='horizontal', bins=15, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
@@ -880,7 +884,7 @@ if __name__ == '__main__':
     ax.yaxis.set_minor_locator(AutoMinorLocator(5))
     ax.tick_params(**tick_params)
     ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
-    ax.legend(handles=legend_elements, ncol=2, loc=2, frameon=False, fontsize='xx-small', borderpad=0, borderaxespad=0.75)
+    ax.legend(handles=legend_elements, ncol=2, loc=2, frameon=False, fontsize=fs-3, borderpad=0, borderaxespad=0.75)
     ##########################
     # SII/Ha
     ##########################
@@ -1108,7 +1112,7 @@ if __name__ == '__main__':
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
     plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$',
+                      ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})_{\rm NO CEN}$',
                       xlabel=xlabel, extent=extent,
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
@@ -1310,7 +1314,7 @@ if __name__ == '__main__':
     print '################################'
     # print elines.loc['2MASXJ01331766+1319567', 'EW_Ha_cen_mean']
     # print np.log10(np.abs(elines.loc['2MASXJ01331766+1319567', 'EW_Ha_cen_mean']))
-    m_redshift = (elines['z_stars'] > 1e-6) & (elines['z_stars'] < 0.2)
+    m_redshift = (elines['z_stars'] > 1e-6) & (elines['z_stars'] < 0.5)
     EW_Ha_cen_zcut = elines.loc[m_redshift, 'EW_Ha_cen_mean'].apply(np.abs)
     plot_histo_xy_dict = {
         ################################
@@ -1325,7 +1329,7 @@ if __name__ == '__main__':
         ##################################
         ## CMD (CUBES) colored by EW_Ha ##
         ##################################
-        'fig_histo_CMD_CUBES': [
+        'fig_histo_CMD_ui_CUBES': [
             elines.loc[m_redshift, 'Mabs_i'], r'$M_i$ (mag)', 5, 2, None,
             elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'$u-i$ (mag)', 3, 5, None,
             EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
@@ -1335,10 +1339,32 @@ if __name__ == '__main__':
         #########################################
         ## CMD (CUBES) NO CEN colored by EW_Ha ##
         #########################################
-        'fig_histo_CMD_CUBES_NC': [
-            elines.loc[m_redshift, 'Mabs_i_NC'], r'$M_i$ (mag)${}_{NO CEN}$', 5, 2, None,
-            elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'$u-i$ (mag)', 3, 5, None,
+        'fig_histo_CMD_ui_CUBES_NC': [
+            elines.loc[m_redshift, 'Mabs_i_NC'], r'$M_i$ (mag)${}_{\rm NO CEN}$', 5, 2, None,
+            elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'$u-i$ (mag)${}_{\rm NO CEN}$', 3, 5, None,
             EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
+            m_redshift
+        ],
+        #########################################
+        ##################################
+        ## CMD (CUBES) colored by EW_Ha ##
+        ##################################
+        'fig_histo_CMD_BR_CUBES': [
+            elines.loc[m_redshift, 'Mabs_R'], r'${\rm M}_{\rm R}$ (mag)', 5, 5, None,
+            elines.loc[m_redshift, 'B_R'], r'B-R (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1.5],
+            m_redshift
+        ],
+        ##################################
+        #########################################
+        ## CMD (CUBES) NO CEN colored by EW_Ha ##
+        #########################################
+        'fig_histo_CMD_BR_CUBES_NC': [
+            # elines.loc[m_redshift, 'Mabs_R_NC'], r'${\rm M}_{\rm R}$ (mag)${}_{\rm NO CEN}$', 5, 5, None,
+            # elines.loc[m_redshift, 'B_R_NC'], r'B-R (mag)${}_{\rm NO CEN}$', 3, 5, None,
+            elines.loc[m_redshift, 'Mabs_R_NC'], r'${\rm M}_{\rm R}$ (mag)', 5, 5, None,
+            elines.loc[m_redshift, 'B_R_NC'], r'B-R (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1.5],
             m_redshift
         ],
         #########################################
@@ -1376,7 +1402,7 @@ if __name__ == '__main__':
         ####################################
         'fig_histo_SFMS_NC': [
             elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None,
+            elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{\rm NO CEN}$', 4, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
         ],
         ####################################
@@ -1503,6 +1529,8 @@ if __name__ == '__main__':
             ax_sc = plot_fig_histo_M_t(elines, args, x, y, ax_sc)
         # if k == 'fig_histo_M_Mgas':
         #     ax_sc = plot_fig_histo_M_Mgas(elines, args, x, y, ax_sc)
+        if k == 'fig_histo_CMD_BR_CUBES_NC':
+            plot_text_ax(ax_sc, 'NOCEN', 0.96, 0.95, fs+2, 'top', 'right', 'k')
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print '################################'
@@ -1540,7 +1568,7 @@ if __name__ == '__main__':
     plots_dict = {
         'fig_Morph_M': ['log_Mass_corr', [7.5, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
         'fig_Morph_C': ['C', [0.5, 5.5], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2],
-        'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^2)$ cen', 4, 2],
+        'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star_{\rm cen}/{\rm M}_{\odot}/{\rm pc}^2)$', 4, 2],
         'fig_Morph_vsigma': ['rat_vel_sigma', [0, 1], r'${\rm v}/\sigma\ ({\rm R} < {\rm Re})$', 2, 5],
         'fig_Morph_Re': ['Re_kpc', [0, 25], r'${\rm Re}/{\rm kpc}$', 6, 2]
     }
