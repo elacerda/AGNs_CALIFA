@@ -14,6 +14,8 @@ import matplotlib.gridspec as gridspec
 from pytu.functions import ma_mask_xyz
 from pytu.objects import readFileArgumentParser
 from matplotlib.ticker import AutoMinorLocator, MaxNLocator
+from CALIFAUtils.scripts import spaxel_size_pc, redshift_dist_Mpc
+
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['font.family'] = 'serif'
@@ -514,9 +516,12 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
     N_y_tAGN = y[mtAGN].count()
-    N_y_tI_above = np.array([np.array(y.loc[mtI & (morph == mt)] > y.loc[mtI & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
-    N_y_tII_above = np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[mtII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
-    N_y_tAGN_above = np.array([np.array(y.loc[mtAGN & (morph == mt)] > y.loc[mtAGN & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+    N_y_tI_above = count_y_above_mean(morph.loc[mtI], y.loc[mtI], y_mean, m)
+    # np.array([np.array(y.loc[mtI & (morph == mt)] > y.loc[(morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+    N_y_tII_above = count_y_above_mean(morph.loc[mtII], y.loc[mtII], y_mean, m)
+    # np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[(morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+    N_y_tAGN_above = count_y_above_mean(morph.loc[mtAGN], y.loc[mtAGN], y_mean, m)
+    # np.array([np.array(y.loc[mtAGN & (morph == mt)] > y.loc[(morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
     ax_Hy_t = ax_Hy.twiny()
     ax_Hy_t.hist(y, orientation='horizontal', bins=15, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
     ax_Hy.hist(y[mtI], orientation='horizontal', bins=15, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
@@ -1093,6 +1098,8 @@ if __name__ == '__main__':
     print('##############')
     print('## (NO CEN)) ##')
     print('##############')
+    x = np.log10(10**elines['Sigma_Mass_cen'] * spaxel_size_pc(redshift_dist_Mpc(elines['z_stars'], 71), 3)**2.)
+    log_Mass_corr_NC = x
     y = elines['lSFR_NO_CEN']
     z = EW_Ha_cen.apply(np.log10)
     xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
@@ -1324,7 +1331,7 @@ if __name__ == '__main__':
         ##################################
         ## CMD (CUBES) colored by EW_Ha ##
         ##################################
-        'fig_histo_CMD_CUBES': [
+        'fig_histo_CMD_ui_CUBES': [
             elines.loc[m_redshift, 'Mabs_i'], r'$M_i$ (mag)', 5, 2, None,
             elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'$u-i$ (mag)', 3, 5, None,
             EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
@@ -1334,10 +1341,32 @@ if __name__ == '__main__':
         #########################################
         ## CMD (CUBES) NO CEN colored by EW_Ha ##
         #########################################
-        'fig_histo_CMD_CUBES_NC': [
-            elines.loc[m_redshift, 'Mabs_i_NC'], r'$M_i$ (mag)${}_{NO CEN}$', 5, 2, None,
+        'fig_histo_CMD_ui_CUBES_NC': [
+            elines.loc[m_redshift, 'Mabs_i_NC'], r'$M_i$ (mag)', 5, 2, None,
             elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'$u-i$ (mag)', 3, 5, None,
             EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
+            m_redshift
+        ],
+        #########################################
+        ##################################
+        ## CMD (CUBES) colored by EW_Ha ##
+        ##################################
+        'fig_histo_CMD_BR_CUBES': [
+            elines.loc[m_redshift, 'Mabs_R'], r'${\rm M}_{\rm R}$ (mag)', 5, 5, None,
+            elines.loc[m_redshift, 'B_R'], r'B-R (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1.5],
+            m_redshift
+        ],
+        ##################################
+        #########################################
+        ## CMD (CUBES) NO CEN colored by EW_Ha ##
+        #########################################
+        'fig_histo_CMD_BR_CUBES_NC': [
+            # elines.loc[m_redshift, 'Mabs_R_NC'], r'${\rm M}_{\rm R}$ (mag)${}_{\rm NO CEN}$', 5, 5, None,
+            # elines.loc[m_redshift, 'B_R_NC'], r'B-R (mag)${}_{\rm NO CEN}$', 3, 5, None,
+            elines.loc[m_redshift, 'Mabs_R_NC'], r'${\rm M}_{\rm R}$ (mag)', 5, 5, None,
+            elines.loc[m_redshift, 'B_R_NC'], r'B-R (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1.5],
             m_redshift
         ],
         #########################################
@@ -1360,7 +1389,6 @@ if __name__ == '__main__':
             EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 3.5],
             m_redshift
         ],
-        ##################################
         ###########################
         ## SFMS colored by EW_Ha ##
         ###########################
@@ -1374,8 +1402,8 @@ if __name__ == '__main__':
         ## SFMS colored by EW_Ha (NO CEN) ##
         ####################################
         'fig_histo_SFMS_NC': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None,
+            log_Mass_corr_NC, r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
         ],
         ####################################
@@ -1500,6 +1528,10 @@ if __name__ == '__main__':
             ax_sc = plot_fig_histo_M_ZHMW(elines, args, x, y, ax_sc)
         if k == 'fig_histo_M_tLW' or k == 'fig_histo_M_tMW':
             ax_sc = plot_fig_histo_M_t(elines, args, x, y, ax_sc)
+        if k == 'fig_histo_CMD_BR_CUBES_NC':
+            plot_text_ax(ax_sc, 'NOCEN', 0.96, 0.95, fs+2, 'top', 'right', 'k')
+        if k == 'fig_histo_SFMS_NC':
+            plot_text_ax(ax_sc, 'NOCEN', 0.04, 0.95, fs+2, 'top', 'left', 'k')
         # if k == 'fig_histo_M_Mgas':
         #     ax_sc = plot_fig_histo_M_Mgas(elines, args, x, y, ax_sc)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)

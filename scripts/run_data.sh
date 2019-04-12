@@ -37,4 +37,4 @@ python3 agns_selection.py -I ${OUTPUTTABLES} -O ${OUTPUTFILE} --bug=${BUG} --EW_
 echo "#########"
 echo "## END ##"
 echo "#########"
-echo "$0: To generate plots run python agns_plots.py -I ${OUTPUTFILE} -vv"
+echo "$0: To generate plots run python3 agns_plots.py -I ${OUTPUTFILE} -vv"
