@@ -1,4 +1,11 @@
 #!/bin/bash
+
+if [ $# -lt 2 ]
+then
+	echo "Usage: $0 EWAGN BUG"
+	exit 1
+fi
+
 WORKPATH=${HOME}/dev/astro/AGNs_CALIFA
 LOGSPATH=${WORKPATH}/logs
 DATAPATH=${WORKPATH}/data
@@ -12,22 +19,22 @@ echo "#######################"
 echo "## Generating tables ##"
 echo "#######################"
 OUTPUTTABLES="${DATAPATH}/tables.pkl"
-echo "$0: running ./agns_tables.py -O ${OUTPUTTABLES} --csv_dir=${CSVPATH}"
-./agns_tables.py -O ${OUTPUTTABLES} --csv_dir=${CSVPATH}
+echo "$0: running python3 agns_tables.py -O ${OUTPUTTABLES} --csv_dir=${CSVPATH}"
+python3 agns_tables.py -O ${OUTPUTTABLES} --csv_dir=${CSVPATH}
 echo -e "\n"
 echo "##########################"
 echo "## Generating selection ##"
 echo "##########################"
-OUTPUTFILE=${DATAPATH}/elines_${RUNTAG}.pkl
-BUG=1
-BUG=0.8
-EWAGN=3
+#BUG=0.8
+EWAGN=$1
+BUG=$2
 RUNTAG=EWAGN${EWAGN}_BUG${BUG}
-OUTPUT_FILE="${DATAPATH}/elines_${RUNTAG}.pkl"
-echo "$0: running ./agns_selection.py -I ${OUTPUTTABLES} -O ${OUTPUTFILE} --bug=${BUG} --EW_AGN=${EWAGN} --csv_dir=${CSVPATH} --output_agn_candidates=${CSVPATH}/AGN_CANDIDATES_${RUNTAG}.csv"
-./agns_selection.py -I ${OUTPUTTABLES} -O ${OUTPUTFILE} --bug=${BUG} --EW_AGN=${EWAGN} --csv_dir=${CSVPATH} --output_agn_candidates=${CSVPATH}/AGN_CANDIDATES_${RUNTAG}.csv
+OUTPUTAGNSFILE=AGN_CANDIDATES_${RUNTAG}.csv
+OUTPUTFILE="${DATAPATH}/elines_${RUNTAG}.pkl"
+echo "$0: running python3 agns_selection.py -I ${OUTPUTTABLES} -O ${OUTPUTFILE} --bug=${BUG} --EW_AGN=${EWAGN} --csv_dir=${CSVPATH} --output_agn_candidates=${OUTPUTAGNSFILE}"
+python3 agns_selection.py -I ${OUTPUTTABLES} -O ${OUTPUTFILE} --bug=${BUG} --EW_AGN=${EWAGN} --csv_dir=${CSVPATH} --output_agn_candidates=${OUTPUTAGNSFILE}
 #--no_sigma_clip
 echo "#########"
 echo "## END ##"
 echo "#########"
-echo "$0: To generate plots run ./agns_plots.py -I ${OUTPUT_FILE} -vv"
+echo "$0: To generate plots run python agns_plots.py -I ${OUTPUTFILE} -vv"

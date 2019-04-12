@@ -1,4 +1,3 @@
-#!/home/lacerda/anaconda2/bin/python
 import os
 import sys
 import pickle
@@ -78,9 +77,9 @@ fnames_long = {
 # Read CSV files
 df = {}
 na_values = ['BAD', 'nan', -999, '-inf', 'inf']
-for k, v in fnames_short.iteritems():
+for k, v in fnames_short.items():
     f_path = '%s/%s' % (args.csv_dir, k)
-    # print f_path
+    # print(f_path)
     key_dataframe = fnames_short[k]
     df[key_dataframe] = pd.read_csv(f_path, na_values=na_values, sep=',', comment='#', header='infer', index_col=False)
     df[key_dataframe].set_index('DBName', inplace=True, drop=False)
@@ -101,9 +100,9 @@ with open('%s/list_Broad_by_eye.pandas.csv' % args.csv_dir, 'r') as f:
             DBName = l.strip()
             if DBName in df['elines'].index:
                 df['elines'].loc[DBName, 'broad_by_eye'] = True
-                print '%s: broad-line by eye' % (DBName)
+                print('%s: broad-line by eye' % (DBName))
             else:
-                print '%s: not in %s' % (DBName, fnames_long['elines'])
+                print('%s: not in %s' % (DBName, fnames_long['elines']))
 
 # Populating dataframe elines joining different data from other dataframes
 for c in df['bitsakis_t12'].columns[1:]:
@@ -193,7 +192,7 @@ with open(args.output, 'wb') as f:
 #     x = set(df[k].index)
 #     gal_indexes = list(set(gal_indexes) & x) + list(set(gal_indexes) ^ x)
 # for n in sorted(gal_indexes):
-#     print n
+#     print(n)
 # sys.exit()
 
 ##########################
@@ -215,14 +214,14 @@ with open(args.output, 'wb') as f:
 # | MorphID    | int(2)       | YES  | MUL | NULL    |       |
 # +------------+--------------+------+-----+---------+-------+
 ###########################################################
-# print to create database to morphological classification
+# print(to create database to morphological classification)
 ###########################################################
 # k=929
-# print 'INSERT INTO morph_class.to_classify (GalID, DBName, GalaxyName, RA, DECL, WEIGHT, comment, WarningID, MorphID) VALUES'
+# print('INSERT INTO morph_class.to_classify (GalID, DBName, GalaxyName, RA, DECL, WEIGHT, comment, WarningID, MorphID) VALUES')
 # for i, reg in df['elines'].iterrows():
 #     m = int(reg['morph'])
 #     if m < 0:
 #         w = 0
-#         print "(%d, '%s', '%s', '%f', '%f', '%f', '', -1, %d)," % (k, i, reg['GalaxyName'], reg['RA'], reg['DEC'], w, m)
+#         print('(%d, '%s', '%s', '%f', '%f', '%f', '', -1, %d),' % (k, i, reg['GalaxyName'], reg['RA'], reg['DEC'], w, m))
 #         k = k + 1
-# print ';'
+# print(';')

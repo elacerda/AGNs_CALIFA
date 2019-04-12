@@ -1,4 +1,3 @@
-#!/home/lacerda/anaconda2/bin/python
 import os
 import sys
 import pickle
@@ -112,9 +111,9 @@ if __name__ == '__main__':
                 if flag > 0:
                     if DBName in df['elines'].index:
                         DBNames_to_drop.append(DBName)
-                        print '%s%s%s: removing galaxy from analisys' % (color.B, DBName, color.E)
+                        print('%s%s%s: removing galaxy from analisys' % (color.B, DBName, color.E))
                     # else:
-                    #     print '%s: not in %s' % (DBName, fnames_long['elines'])
+                    #     print('%s: not in %s' % (DBName, fnames_long['elines']))
         if len(DBNames_to_drop) > 0:
             df_elines_clean = df['elines'].drop(DBNames_to_drop, axis=0)
             elines = df_elines_clean.copy()
@@ -123,10 +122,10 @@ if __name__ == '__main__':
 
     # print_str = '{}\t{}\t{}\t{}\t{}\t{}\t{}'
     # # Create file for R. Callete
-    # print print_str.format('DBName', 'redshift', 'Mabs_R', 'u', 'g', 'r', 'i')
+    # print(print_str.format('DBName', 'redshift', 'Mabs_R', 'u', 'g', 'r', 'i'))
     # for i in elines.index:
     #     t = elines.loc[i]
-    #     print print_str.format(i, t['z_stars'], t['Mabs_R'], t['u'], t['g'], t['r'], t['i'])
+    #     print(print_str.format(i, t['z_stars'], t['Mabs_R'], t['u'], t['g'], t['r'], t['i']))
 
     # log_NII_Ha_cen = elines['log_NII_Ha_cen_mean']
     log_NII_Ha_cen = elines['log_NII_Ha_cen']
@@ -244,9 +243,9 @@ if __name__ == '__main__':
     ###############################################################################
     # BEGIN REPORT RATIOS #########################################################
     ###############################################################################
-    print '\n#RR#################'
-    print '#RR# REPORT RATIOS #'
-    print '#RR#################'
+    print('\n#RR#################')
+    print('#RR# REPORT RATIOS #')
+    print('#RR#################')
     groups = [
         ['log_NII_Ha_cen'],
         ['log_SII_Ha_cen_mean'],
@@ -264,8 +263,8 @@ if __name__ == '__main__':
             N = elines.groupby(g).ngroups
         else:
             N = elines[g[0]].count()
-        print '#RR# %s measured: %d galaxies' % (g, N)
-    print '#RR#################\n'
+        print('#RR# %s measured: %d galaxies' % (g, N))
+    print('#RR#################\n')
     ###############################################################################
     # END REPORT RATIOS ###########################################################
     ###############################################################################
@@ -273,8 +272,8 @@ if __name__ == '__main__':
     ###############################################################################
     # BEGIN REPORT AGN CANDIDATES #################################################
     ###############################################################################
-    print '\n#AC##################'
-    print '#AC# AGN CANDIDATES #'
+    print('\n#AC##################')
+    print('#AC# AGN CANDIDATES #')
     N_TOT = len(elines.index)
     N_GAS = len(elines.loc[elines['F_Ha_cen'] > 0])
     N_NO_GAS = N_TOT - N_GAS
@@ -422,32 +421,32 @@ if __name__ == '__main__':
     N_AGNLINER_N2Ha = elines['AGN_FLAG'].loc[elines['AGN_FLAG'] == 4].count()
 
     # OUTPUT ######################################################################
-    print '#AC##################'
-    print '#AC# %sN.TOTAL%s = %d' % (color.B, color.E, N_TOT)
-    print '#AC# %sN.GAS MASS ESTIMATED%s = %d' % (color.B, color.E, N_GAS_MASS_ESTIM)
-    print '#AC# %sN.NO GAS%s (without %s[NII]/Ha%s and %s[OIII]/Hb%s) = %d' % (color.B, color.E, color.B, color.E, color.B, color.E, N_NO_GAS_BPT)
-    print '#AC# %sN.NO GAS%s (without %sF_Ha_cen%s) = %d' % (color.B, color.E, color.B, color.E, N_NO_GAS)
-    print '#AC##################'
-    print '#AC# %sEW cuts%s:' % (color.B, color.E)
-    print '#AC# \t%snot-pAGB%s (%sN%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_hDIG, args.bug, args.EW_hDIG*args.bug)
-    print '#AC# \t%sAGN%s (%sA%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_AGN, args.bug, args.EW_AGN*args.bug)
-    print '#AC# \t%sStrong%s (%sS%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_strong, args.bug, args.EW_strong*args.bug)
-    print '#AC# \t%sVery strong%s (%sVS%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_verystrong, args.bug, args.EW_verystrong*args.bug)
-    print '#AC# \t%sSF%s: EW > %.2f * %.2f = %.2f A' % (color.B, color.E, args.EW_SF, args.bug, args.EW_SF*args.bug)
-    print '#AC##################'
-    print '#AC# N.AGNs/LINERs candidates by [NII]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_Ha, color.B, color.E, N_AGN_NII_Ha_EW, color.B, color.E, N_SAGN_NII_Ha_EW, color.B, color.E, N_VSAGN_NII_Ha_EW)
-    print '#AC# N.AGNs candidates by [SII]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_SII_Ha, color.B, color.E, N_AGN_SII_Ha_EW, color.B, color.E, N_SAGN_SII_Ha_EW, color.B, color.E, N_VSAGN_SII_Ha_EW)
-    print '#AC# N.AGNs candidates by [OI]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_OI_Ha, color.B, color.E, N_AGN_OI_Ha_EW, color.B, color.E, N_SAGN_OI_Ha_EW, color.B, color.E, N_VSAGN_OI_Ha_EW)
-    print '#AC# N.AGNs candidates by [NII]/Ha and [SII]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_Ha, color.B, color.E, N_AGN_NII_SII_Ha_EW, color.B, color.E, N_SAGN_NII_SII_Ha_EW, color.B, color.E, N_VSAGN_NII_SII_Ha_EW)
-    print '#AC# N.AGNs candidates by [NII]/Ha and [OI]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_OI_Ha, color.B, color.E, N_AGN_NII_OI_Ha_EW, color.B, color.E, N_SAGN_NII_OI_Ha_EW, color.B, color.E, N_VSAGN_NII_OI_Ha_EW)
-    print '#AC# N.AGNs candidates by [NII]/Ha, [SII]/Ha and [OI]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_OI_Ha, color.B, color.E, N_AGN, color.B, color.E, N_SAGN, color.B, color.E, N_VSAGN)
-    print '#AC# N.AGNs %sAGN/LINER%s: %d - %sAGN N2Ha+%s: %d - %sType-II%s: %d - %sType-I%s: %d' % (color.B, color.E, N_AGNLINER_N2Ha, color.B, color.E, N_AGN_tIII, color.B, color.E, N_AGN_tII, color.B, color.E, N_AGN_tI)
-    print '#AC# N.pAGB: %d (%sbelow K01%s: %d - %sbelow K03%s: %d - %sbelow S06%s: %d - %sbelow K01 SII%s: %d - %sbelow K01 OI%s: %d)' % (N_pAGB, color.B, color.E, N_pAGB_below_K01, color.B, color.E, N_pAGB_below_K03, color.B, color.E, N_pAGB_below_S06, color.B, color.E, N_pAGB_below_K01_SII, color.B, color.E, N_pAGB_below_K01_OI)
-    print '#AC# N_SF %sEW%s: %d (%sabove K01%s: %d - %sabove K03%s: %d - %sabove S06%s: %d - %sabove K01_SII%s: %d - %sabove K01_OI%s: %d)' % (color.B, color.E, N_SF_EW, color.B, color.E, N_SF_EW_above_K01, color.B, color.E, N_SF_EW_above_K03, color.B, color.E, N_SF_EW_above_S06, color.B, color.E, N_SF_EW_above_K01_SII, color.B, color.E, N_SF_EW_above_K01_OI)
-    print '#AC# N.SF %sK01%s: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (color.B, color.E, N_SF_K01, color.B, color.E, N_SF_K01_EW, color.B, color.E, N_SSF_K01, color.B, color.E, N_VSSF_K01)
-    print '#AC# N.SF %sK03%s: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (color.B, color.E, N_SF_K03, color.B, color.E, N_SF_K03_EW, color.B, color.E, N_SSF_K03, color.B, color.E, N_VSSF_K03)
-    print '#AC# N.SF %sS06%s: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (color.B, color.E, N_SF_S06, color.B, color.E, N_SF_S06_EW, color.B, color.E, N_SSF_S06, color.B, color.E, N_VSSF_S06)
-    print '#AC##################\n'
+    print('#AC##################')
+    print('#AC# %sN.TOTAL%s = %d' % (color.B, color.E, N_TOT))
+    print('#AC# %sN.GAS MASS ESTIMATED%s = %d' % (color.B, color.E, N_GAS_MASS_ESTIM))
+    print('#AC# %sN.NO GAS%s (without %s[NII]/Ha%s and %s[OIII]/Hb%s) = %d' % (color.B, color.E, color.B, color.E, color.B, color.E, N_NO_GAS_BPT))
+    print('#AC# %sN.NO GAS%s (without %sF_Ha_cen%s) = %d' % (color.B, color.E, color.B, color.E, N_NO_GAS))
+    print('#AC##################')
+    print('#AC# %sEW cuts%s:' % (color.B, color.E))
+    print('#AC# \t%snot-pAGB%s (%sN%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_hDIG, args.bug, args.EW_hDIG*args.bug))
+    print('#AC# \t%sAGN%s (%sA%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_AGN, args.bug, args.EW_AGN*args.bug))
+    print('#AC# \t%sStrong%s (%sS%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_strong, args.bug, args.EW_strong*args.bug))
+    print('#AC# \t%sVery strong%s (%sVS%s): EW > %.2f * %.2f = %.2f A' % (color.B, color.E, color.B, color.E, args.EW_verystrong, args.bug, args.EW_verystrong*args.bug))
+    print('#AC# \t%sSF%s: EW > %.2f * %.2f = %.2f A' % (color.B, color.E, args.EW_SF, args.bug, args.EW_SF*args.bug))
+    print('#AC##################')
+    print('#AC# N.AGNs/LINERs candidates by [NII]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_Ha, color.B, color.E, N_AGN_NII_Ha_EW, color.B, color.E, N_SAGN_NII_Ha_EW, color.B, color.E, N_VSAGN_NII_Ha_EW))
+    print('#AC# N.AGNs candidates by [SII]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_SII_Ha, color.B, color.E, N_AGN_SII_Ha_EW, color.B, color.E, N_SAGN_SII_Ha_EW, color.B, color.E, N_VSAGN_SII_Ha_EW))
+    print('#AC# N.AGNs candidates by [OI]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_OI_Ha, color.B, color.E, N_AGN_OI_Ha_EW, color.B, color.E, N_SAGN_OI_Ha_EW, color.B, color.E, N_VSAGN_OI_Ha_EW))
+    print('#AC# N.AGNs candidates by [NII]/Ha and [SII]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_Ha, color.B, color.E, N_AGN_NII_SII_Ha_EW, color.B, color.E, N_SAGN_NII_SII_Ha_EW, color.B, color.E, N_VSAGN_NII_SII_Ha_EW))
+    print('#AC# N.AGNs candidates by [NII]/Ha and [OI]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_OI_Ha, color.B, color.E, N_AGN_NII_OI_Ha_EW, color.B, color.E, N_SAGN_NII_OI_Ha_EW, color.B, color.E, N_VSAGN_NII_OI_Ha_EW))
+    print('#AC# N.AGNs candidates by [NII]/Ha, [SII]/Ha and [OI]/Ha: %d (%sA%s: %d - %sS%s: %d - %sVS%s: %d)' % (N_AGN_NII_SII_OI_Ha, color.B, color.E, N_AGN, color.B, color.E, N_SAGN, color.B, color.E, N_VSAGN))
+    print('#AC# N.AGNs %sAGN/LINER%s: %d - %sAGN N2Ha+%s: %d - %sType-II%s: %d - %sType-I%s: %d' % (color.B, color.E, N_AGNLINER_N2Ha, color.B, color.E, N_AGN_tIII, color.B, color.E, N_AGN_tII, color.B, color.E, N_AGN_tI))
+    print('#AC# N.pAGB: %d (%sbelow K01%s: %d - %sbelow K03%s: %d - %sbelow S06%s: %d - %sbelow K01 SII%s: %d - %sbelow K01 OI%s: %d)' % (N_pAGB, color.B, color.E, N_pAGB_below_K01, color.B, color.E, N_pAGB_below_K03, color.B, color.E, N_pAGB_below_S06, color.B, color.E, N_pAGB_below_K01_SII, color.B, color.E, N_pAGB_below_K01_OI))
+    print('#AC# N_SF %sEW%s: %d (%sabove K01%s: %d - %sabove K03%s: %d - %sabove S06%s: %d - %sabove K01_SII%s: %d - %sabove K01_OI%s: %d)' % (color.B, color.E, N_SF_EW, color.B, color.E, N_SF_EW_above_K01, color.B, color.E, N_SF_EW_above_K03, color.B, color.E, N_SF_EW_above_S06, color.B, color.E, N_SF_EW_above_K01_SII, color.B, color.E, N_SF_EW_above_K01_OI))
+    print('#AC# N.SF %sK01%s: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (color.B, color.E, N_SF_K01, color.B, color.E, N_SF_K01_EW, color.B, color.E, N_SSF_K01, color.B, color.E, N_VSSF_K01))
+    print('#AC# N.SF %sK03%s: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (color.B, color.E, N_SF_K03, color.B, color.E, N_SF_K03_EW, color.B, color.E, N_SSF_K03, color.B, color.E, N_VSSF_K03))
+    print('#AC# N.SF %sS06%s: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (color.B, color.E, N_SF_S06, color.B, color.E, N_SF_S06_EW, color.B, color.E, N_SSF_S06, color.B, color.E, N_VSSF_S06))
+    print('#AC##################\n')
 
     elines_wmorph = elines.loc[elines['morph'] >= 0]
     N_TOT_WMORPH = len(elines_wmorph.index)
@@ -457,15 +456,15 @@ if __name__ == '__main__':
     N_NO_GAS_BPT_WMORPH = N_TOT_WMORPH - N_GAS_BPT_WMORPH
     N_GAS_MASS_ESTIM_WMORPH = len(elines_wmorph.loc[~elines_wmorph['log_Mass_gas_Av_gas_rad'].apply(np.isnan)])
 
-    print '###################'
-    print '## Morph studies ##'
-    print '###################\n'
-    print '#AC##################'
-    print '#AC# %sN.TOTAL%s = %d' % (color.B, color.E, N_TOT_WMORPH)
-    print '#AC# %sN.GAS MASS ESTIMATED%s = %d' % (color.B, color.E, N_GAS_MASS_ESTIM_WMORPH)
-    print '#AC# %sN.NO GAS%s (without %s[NII]/Ha%s and %s[OIII]/Hb%s) = %d' % (color.B, color.E, color.B, color.E, color.B, color.E, N_NO_GAS_BPT_WMORPH)
-    print '#AC# %sN.NO GAS%s (without %sF_Ha_cen%s) = %d' % (color.B, color.E, color.B, color.E, N_NO_GAS_WMORPH)
-    print '#AC##################\n'
+    print('###################')
+    print('## Morph studies ##')
+    print('###################\n')
+    print('#AC##################')
+    print('#AC# %sN.TOTAL%s = %d' % (color.B, color.E, N_TOT_WMORPH))
+    print('#AC# %sN.GAS MASS ESTIMATED%s = %d' % (color.B, color.E, N_GAS_MASS_ESTIM_WMORPH))
+    print('#AC# %sN.NO GAS%s (without %s[NII]/Ha%s and %s[OIII]/Hb%s) = %d' % (color.B, color.E, color.B, color.E, color.B, color.E, N_NO_GAS_BPT_WMORPH))
+    print('#AC# %sN.NO GAS%s (without %sF_Ha_cen%s) = %d' % (color.B, color.E, color.B, color.E, N_NO_GAS_WMORPH))
+    print('#AC##################\n')
     ###############################################################################
     # END REPORTS #################################################################
     ###############################################################################
@@ -480,10 +479,10 @@ if __name__ == '__main__':
             'EW_Ha_cen_mean', 'EW_Ha_cen_stddev',
         ]
         m = elines['AGN_FLAG'] > 0
-        elines.loc[m].sort_values('AGN_FLAG').to_csv('%s/AGN_CANDIDATES.csv' % args.csv_dir, columns=columns_to_csv)
+        elines.loc[m].sort_values('AGN_FLAG').to_csv('%s/%s' % (args.csv_dir, args.output_agn_candidates), columns=columns_to_csv)
 
         # m = (elines['AGN_FLAG'] == 1) | (elines['AGN_FLAG'] == 2)
-        # print elines.loc[m, columns_to_csv].sort_values('AGN_FLAG')
+        # print(elines.loc[m, columns_to_csv].sort_values('AGN_FLAG'))
 
         to_save = {
             'df': elines,

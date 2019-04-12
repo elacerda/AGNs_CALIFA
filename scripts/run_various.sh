@@ -16,16 +16,19 @@ do
 		OUTPUTFIGSDIR=${FIGSPATH}/${RUNTAG}
 		LOGSEL=${LOGSPATH}/agns_selection_${RUNTAG}.log
 		LOGPLOT=${LOGSPATH}/agns_plots_${RUNTAG}.log
+		OUTPUTAGNSFILE=AGN_CANDIDATES_${RUNTAG}.csv
 		
 		if [ ! -d "${OUTPUTFIGSDIR}" ]
 		then
 			mkdir "${OUTPUTFIGSDIR}" --
 		fi
 
-        SELARGS="-I ${DATAPATH}/tables.pkl --csv_dir=${CSVPATH} --EW_AGN=$A --bug=$b -O ${OUTPUTFILE} --output_agn_candidates=${CSVPATH}/AGN_CANDIDATES_${RUNTAG}.csv"
+		SELARGS="-I ${DATAPATH}/tables.pkl --csv_dir=${CSVPATH} --EW_AGN=$A --bug=$b -O ${OUTPUTFILE} --output_agn_candidates=${OUTPUTAGNSFILE}"
 		PLOTSARGS="-I ${OUTPUTFILE} --figs_dir=${OUTPUTFIGSDIR} -vv"
 
-		${WORKPATH}/agns_selection.py ${SELARGS} &> $LOGSEL
-		${WORKPATH}/agns_plots.py ${PLOTSARGS} &> $LOGPLOT
+		echo "$0: running python3 ${WORKPATH}/agns_selection.py ${SELARGS} &> $LOGSEL"
+		python3 ${WORKPATH}/agns_selection.py ${SELARGS} &> $LOGSEL
+		echo "$0: running python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS} &> $LOGPLOT"
+		python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS} &> $LOGPLOT
 	done
 done

@@ -1,4 +1,3 @@
-#!/home/lacerda/anaconda2/bin/python
 import os
 import sys
 import pickle
@@ -15,7 +14,6 @@ import matplotlib.gridspec as gridspec
 from pytu.functions import ma_mask_xyz
 from pytu.objects import readFileArgumentParser
 from matplotlib.ticker import AutoMinorLocator, MaxNLocator
-
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['font.family'] = 'serif'
@@ -235,7 +233,7 @@ def plot_WHAN(args, N2Ha, WHa, z=None, f=None, ax=None, extent=None, output_name
         sc = ax.scatter(xm, ym, **scatter_kwargs)
     else:
         xm, ym, z = ma_mask_xyz(N2Ha, np.ma.log10(WHa), z, mask=mask)
-        #   print xm, ym, z
+        #   print(xm, ym, z)
         sc = ax.scatter(xm, ym, c=z, cmap=cmap, vmin=vmin, vmax=vmax, marker='o', s=1, edgecolor='none')
         cb_width = 0.05
         cb_ax = f.add_axes([right, bottom, cb_width, top-bottom])
@@ -334,32 +332,32 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, z_label=N
     ax.tick_params(**tick_params)
     # ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
     if args.verbose > 0:
-        print '# x #'
+        print('# x #')
         xlim = ax.get_xlim()
         x_low = x.loc[x < xlim[0]]
         x_upp = x.loc[x > xlim[1]]
-        print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
+        print('# N.x points < %.1f: %d' % (xlim[0], x_low.count()))
         if args.verbose > 1:
             for i in x_low.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
+                print('#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('# N.x points > %.1f: %d' % (xlim[1], x_upp.count()))
         if args.verbose > 1:
             for i in x_upp.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '#####'
-        print '# y #'
+                print('#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('#####')
+        print('# y #')
         ylim = ax.get_ylim()
         y_low = y.loc[y < ylim[0]]
         y_upp = y.loc[y > ylim[1]]
-        print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
+        print('# N.y points < %.1f: %d' % (ylim[0], y_low.count()))
         if args.verbose > 1:
             for i in y_low.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
+                print('#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('# N.y points > %.1f: %d' % (ylim[1], y_upp.count()))
         if args.verbose > 1:
             for i in y_upp.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '#####'
+                print('#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('#####')
     if output_name is not None:
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
@@ -405,7 +403,7 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     ax_Hy.tick_params(**tick_params)
     ax_Hy_t.tick_params(**tick_params)
     ####################################
-    # print len(x), len(y), len(mtAGN)
+    # print(len(x), len(y), len(mtAGN))
     # xm, ym = ma_mask_xyz(x, y, mask=~mtAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     sc = ax_sc.scatter(x, y, c=z, **scatter_kwargs_EWmaxmin)
@@ -432,32 +430,32 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     cb.update_ticks()
     ####################################
     if args.verbose > 0:
-        print '# x #'
+        print('# x #')
         xlim = ax_sc.get_xlim()
         x_low = x.loc[x < xlim[0]]
         x_upp = x.loc[x > xlim[1]]
-        print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
+        print('# N.x points < %.1f: %d' % (xlim[0], x_low.count()))
         if args.verbose > 1:
             for i in x_low.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
+                print('#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('# N.x points > %.1f: %d' % (xlim[1], x_upp.count()))
         if args.verbose > 1:
             for i in x_upp.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '#####'
-        print '# y #'
+                print('#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('#####')
+        print('# y #')
         ylim = ax_sc.get_ylim()
         y_low = y.loc[y < ylim[0]]
         y_upp = y.loc[y > ylim[1]]
-        print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
+        print('# N.y points < %.1f: %d' % (ylim[0], y_low.count()))
         if args.verbose > 1:
             for i in y_low.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
+                print('#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('# N.y points > %.1f: %d' % (ylim[1], y_upp.count()))
         if args.verbose > 1:
             for i in y_upp.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '#####'
+                print('#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('#####')
     return ax_Hx, ax_Hy, ax_sc
 
 
@@ -487,19 +485,19 @@ def plot_x_morph(elines, args, ax):
     ax_t.tick_params(**tick_params)
     ####################################
     if args.verbose > 0:
-        print '# x #'
+        print('# x #')
         xlim = ax.get_xlim()
         x_low = x.loc[x < xlim[0]]
         x_upp = x.loc[x > xlim[1]]
-        print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
+        print('# N.x points < %.1f: %d' % (xlim[0], x_low.count()))
         if args.verbose > 1:
             for i in x_low.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines_wmorph.loc[i, 'AGN_FLAG'])
-        print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
+                print('#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines_wmorph.loc[i, 'AGN_FLAG']))
+        print('# N.x points > %.1f: %d' % (xlim[1], x_upp.count()))
         if args.verbose > 1:
             for i in x_upp.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines_wmorph.loc[i, 'AGN_FLAG'])
-        print '#####'
+                print('#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines_wmorph.loc[i, 'AGN_FLAG']))
+        print('#####')
     return ax
 
 
@@ -516,20 +514,17 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
     N_y_tAGN = y[mtAGN].count()
-    N_y_tI_above = count_y_above_mean(morph.loc[mtI], y.loc[mtI], y_mean, m)
-    # np.array([np.array(y.loc[mtI & (morph == mt)] > y.loc[(morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
-    N_y_tII_above = count_y_above_mean(morph.loc[mtII], y.loc[mtII], y_mean, m)
-    # np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[(morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
-    N_y_tAGN_above = count_y_above_mean(morph.loc[mtAGN], y.loc[mtAGN], y_mean, m)
-    # np.array([np.array(y.loc[mtAGN & (morph == mt)] > y.loc[(morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+    N_y_tI_above = np.array([np.array(y.loc[mtI & (morph == mt)] > y.loc[mtI & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+    N_y_tII_above = np.array([np.array(y.loc[mtII & (morph == mt)] > y.loc[mtII & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
+    N_y_tAGN_above = np.array([np.array(y.loc[mtAGN & (morph == mt)] > y.loc[mtAGN & (morph == mt)].mean()).astype('int').sum() for mt in m]).sum()
     ax_Hy_t = ax_Hy.twiny()
     ax_Hy_t.hist(y, orientation='horizontal', bins=15, range=yrange, histtype='step', fill=True, facecolor='green', edgecolor='none', align='mid', density=True, alpha=0.5)
     ax_Hy.hist(y[mtI], orientation='horizontal', bins=15, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tI, align='mid', density=True)
     ax_Hy.hist(y[mtII], orientation='horizontal', bins=15, hatch='//////', range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tII, align='mid', density=True)
     # ax_Hy.hist(y[mtAGN], orientation='horizontal', bins=15, range=yrange, histtype='step', linewidth=1, edgecolor=color_AGN_tIII, align='mid', density=True)
-    print '# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI)
-    print '# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII)
-    print '# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN)
+    print('# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
+    print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
+    print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
     ax_Hy.set_ylabel(ylabel)
     ax_Hy.xaxis.set_major_locator(MaxNLocator(2, prune='upper'))
     ax_Hy.xaxis.set_minor_locator(AutoMinorLocator(5))
@@ -568,19 +563,19 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     cb.update_ticks()
     ####################################
     if args.verbose > 0:
-        print '# y #'
+        print('# y #')
         ylim = ax_sc.get_ylim()
         y_low = y.loc[y < ylim[0]]
         y_upp = y.loc[y > ylim[1]]
-        print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
+        print('# N.y points < %.1f: %d' % (ylim[0], y_low.count()))
         if args.verbose > 1:
             for i in y_low.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
+                print('#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('# N.y points > %.1f: %d' % (ylim[1], y_upp.count()))
         if args.verbose > 1:
             for i in y_upp.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '#####'
+                print('#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('#####')
     return ax_Hx, ax_Hy, ax_sc
 
 
@@ -608,19 +603,19 @@ def plot_fig_histo_MZR(elines, args, x, y, ax):
     # YFITS = YFIT[iSFIT]
     # popt, pcov = curve_fit(f=modlogOHSF2017, xdata=XFITS, ydata=YFITS, p0=[8.8, 0.015, 11.5], bounds=[[8.54, 0.005, 11.499], [9, 0.022, 11.501]])
     # ax.plot(XFITS, modlogOHSF2017(XFITS, *popt), 'k--')
-    # print 'a:%.2f b:%.4f c:%.1f' % (popt[0], popt[1], popt[2])
+    # print('a:%.2f b:%.4f c:%.1f' % (popt[0], popt[1], popt[2]))
     ### Above ###
     m_y_tI_above = y.loc[mtI] > x.loc[mtI].apply(modlogOHSF2017_t2)
     m_y_tII_above = y.loc[mtII] > x.loc[mtII].apply(modlogOHSF2017_t2)
     # m_y_tIII_above = y.loc[mtIII] > x.loc[mtIII].apply(modlogOHSF2017_t2)
     m_y_tAGN_above = y.loc[mtAGN] > x.loc[mtAGN].apply(modlogOHSF2017_t2)
-    print 'AGN Type I:'
-    print elines.loc[m_y_tI_above.index[m_y_tI_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-    print 'AGN Type II:'
-    print elines.loc[m_y_tII_above.index[m_y_tII_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-    # print elines.loc[m_y_tIII_above.index[m_y_tIII_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
-    print 'AGNs:'
-    print elines.loc[m_y_tAGN_above.index[m_y_tAGN_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']]
+    print('AGN Type I:')
+    print(elines.loc[m_y_tI_above.index[m_y_tI_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']])
+    print('AGN Type II:')
+    print(elines.loc[m_y_tII_above.index[m_y_tII_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']])
+    # print(elines.loc[m_y_tIII_above.index[m_y_tIII_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']])
+    print('AGNs:')
+    print(elines.loc[m_y_tAGN_above.index[m_y_tAGN_above], ['log_Mass_corr', 'OH_Re_fit_t2', 'modlogOHSF2017_t2']])
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
     # N_y_tIII = y[mtIII].count()
@@ -629,10 +624,10 @@ def plot_fig_histo_MZR(elines, args, x, y, ax):
     N_y_tII_above = m_y_tII_above.astype('int').sum()
     # N_y_tIII_above = m_y_tIII_above.astype('int').sum()
     N_y_tAGN_above = m_y_tAGN_above.astype('int').sum()
-    print '# B.F. Type-I AGN above SF2017 curve: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI)
-    print '# B.F. Type-II AGN above SF2017 curve: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII)
-    # print '# 2 crit. AGN above SF2017 curve: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII)
-    print '# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN)
+    print('# B.F. Type-I AGN above SF2017 curve: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
+    print('# B.F. Type-II AGN above SF2017 curve: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
+    # print('# 2 crit. AGN above SF2017 curve: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
+    print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
     return ax
 
 
@@ -648,7 +643,7 @@ def plot_fig_histo_M_ZHMW(elines, args, x, y, ax, interval=None):
     # mtIII = elines['AGN_FLAG'] == 3
     mtAGN = mtI | mtII
     if interval is None:
-        interval = [9.5, 11.5, -0.9, 0.3]
+        interval = [7.7, 11.5, -0.9, 0.3]
     x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.3)
     y_mean, N_y_mean, _ = redf_xy_bins_interval(x.values, y.values, x_bins__r, interval)
     ax.plot(x_bincenter__r, y_mean, 'k-')
@@ -661,10 +656,10 @@ def plot_fig_histo_M_ZHMW(elines, args, x, y, ax, interval=None):
     N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r, interval=interval)
     # N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r, interval=interval)
     N_y_tAGN_above = count_y_above_mean(x.loc[mtAGN].values, y.loc[mtAGN].values, y_mean, x_bins__r, interval=interval)
-    print '# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI)
-    print '# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII)
-    # print '# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII)
-    print '# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN)
+    print('# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
+    print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
+    # print('# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
+    print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
     return ax_sc
 
 
@@ -687,13 +682,13 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     m = ~(np.isnan(x) | np.isnan(y) | np.isnan(WHa))
     y_SF_mean = y.loc[m & SFc].mean()
     y_hDIG_mean = y.loc[m & hDIG].mean()
-    print 'y_AGNs_mean: %.2f Gyr' % 10**(y_AGNs_mean - 9)
-    print 'y_BF_AGNs_mean: %.2f Gyr' % 10**(y_BF_AGNs_mean - 9)
-    print 'y_AGNs_tI_mean: %.2f Gyr' % 10**(y_AGNs_tI_mean - 9)
-    print 'y_AGNs_tII_mean: %.2f Gyr' % 10**(y_AGNs_tII_mean - 9)
-    # print 'y_AGNs_tIII_mean: %.2f Gyr' % 10**(y_AGNs_tIII_mean - 9)
-    print 'y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9)
-    print 'y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9)
+    print('y_AGNs_mean: %.2f Gyr' % 10**(y_AGNs_mean - 9))
+    print('y_BF_AGNs_mean: %.2f Gyr' % 10**(y_BF_AGNs_mean - 9))
+    print('y_AGNs_tI_mean: %.2f Gyr' % 10**(y_AGNs_tI_mean - 9))
+    print('y_AGNs_tII_mean: %.2f Gyr' % 10**(y_AGNs_tII_mean - 9))
+    # print('y_AGNs_tIII_mean: %.2f Gyr' % 10**(y_AGNs_tIII_mean - 9))
+    print('y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9))
+    print('y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9))
     ### MSFS ###
     ### SFG ###
     SFRHa = elines['lSFR']
@@ -707,7 +702,7 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
     SFRHaS_SF_c__r, N_c__r, sel_c, SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, clip=2, interval=interval)
     # p = np.ma.polyfit(x_bins_center__r, SFRHaS_SF_c__r, 1)
-    # print 10**(YS_SF[sel].mean()-9), 10**(YS_SF[sel_c].mean()-9)
+    # print(10**(YS_SF[sel].mean()-9), 10**(YS_SF[sel_c].mean()-9))
     mean_t_SF = YS_SF[sel_c].mean()
     # ax_sc.axhline(mean_t_SF, xmin=0.9/(12.-8.), c='b', ls='--')
     ax_sc.axhline(mean_t_SF, c='b', ls='--')
@@ -723,7 +718,7 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     # SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, interval=interval)
     SFRHaS_hDIG_c__r, N_c__r, sel_c, SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, clip=2, interval=interval)
     # p = np.ma.polyfit(x_bins_center__r, SFRHaS_hDIG_c__r, 1)
-    # print 10**(YS_hDIG[sel].mean()-9), 10**(YS_hDIG[sel_c].mean()-9)
+    # print(10**(YS_hDIG[sel].mean()-9), 10**(YS_hDIG[sel_c].mean()-9))
     mean_t_hDIG = YS_hDIG[sel_c].mean()
     # ax_sc.axhline(mean_t_hDIG, xmin=0.9/(12.-8.), c='r', ls='--')
     ax_sc.axhline(mean_t_hDIG, c='r', ls='--')
@@ -844,9 +839,9 @@ if __name__ == '__main__':
     ##########################
     ## BPT colored by EW_Ha ##
     ##########################
-    print '\n##########################'
-    print '## BPT colored by EW_Ha ##'
-    print '##########################'
+    print('\n##########################')
+    print('## BPT colored by EW_Ha ##')
+    print('##########################')
     f = plot_setup(width=latex_text_width, aspect=1/3.)
     N_rows, N_cols = 1, 3
     bottom, top, left, right = 0.18, 0.95, 0.08, 0.9
@@ -858,9 +853,9 @@ if __name__ == '__main__':
     y = log_OIII_Hb_cen
     ##########################
     ### NII/Ha
-    print '##########################'
-    print '## [NII]/Ha             ##'
-    print '##########################'
+    print('##########################')
+    print('## [NII]/Ha             ##')
+    print('##########################')
     ax = ax0
     x = log_NII_Ha_cen
     extent = [-1.6, 0.8, -1.2, 1.5]
@@ -884,13 +879,13 @@ if __name__ == '__main__':
     ax.yaxis.set_minor_locator(AutoMinorLocator(5))
     ax.tick_params(**tick_params)
     ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
-    ax.legend(handles=legend_elements, ncol=2, loc=2, frameon=False, fontsize=fs-3, borderpad=0, borderaxespad=0.75)
+    ax.legend(handles=legend_elements, ncol=2, loc=2, frameon=False, fontsize='xx-small', borderpad=0, borderaxespad=0.75)
     ##########################
     # SII/Ha
     ##########################
-    print '##########################'
-    print '## [SII]/Ha             ##'
-    print '##########################'
+    print('##########################')
+    print('## [SII]/Ha             ##')
+    print('##########################')
     ax = ax1
     x = log_SII_Ha_cen
     extent = [-1.6, 0.8, -1.2, 1.5]
@@ -918,9 +913,9 @@ if __name__ == '__main__':
     ##########################
     # OI/Ha
     ##########################
-    print '##########################'
-    print '## [OI]/Ha              ##'
-    print '##########################'
+    print('##########################')
+    print('## [OI]/Ha              ##')
+    print('##########################')
     ax = ax2
     x = log_OI_Ha_cen
     extent = [-3, 0.8, -1.2, 1.5]
@@ -955,15 +950,15 @@ if __name__ == '__main__':
     f.text(0.01, 0.5, r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', va='center', rotation='vertical', fontsize=fs+4)
     f.savefig('%s/fig_BPT.%s' % (args.figs_dir, args.img_suffix), dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
-    print '##########################'
+    print('##########################')
     ##########################
 
     ##################################
     ## WHAN colored by [OIII]/Hbeta ##
     ##################################
-    print '\n##################################'
-    print '## WHAN colored by [OIII]/Hbeta ##'
-    print '##################################'
+    print('\n##################################')
+    print('## WHAN colored by [OIII]/Hbeta ##')
+    print('##################################')
     x = log_NII_Ha_cen
     y = EW_Ha_cen
     z = log_OIII_Hb_cen
@@ -987,46 +982,46 @@ if __name__ == '__main__':
     ax.scatter(x.loc[mtI], y.loc[mtI], **scatter_AGN_tI_kwargs)
     ####################################
     if args.verbose > 0:
-        print '# x #'
+        print('# x #')
         xlim = ax.get_xlim()
         x_low = x.loc[x < xlim[0]]
         x_upp = x.loc[x > xlim[1]]
-        print '# N.x points < %.1f: %d' % (xlim[0], x_low.count())
+        print('# N.x points < %.1f: %d' % (xlim[0], x_low.count()))
         if args.verbose > 1:
             for i in x_low.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '# N.x points > %.1f: %d' % (xlim[1], x_upp.count())
+                print('#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('# N.x points > %.1f: %d' % (xlim[1], x_upp.count()))
         if args.verbose > 1:
             for i in x_upp.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '#####'
-        print '# y #'
+                print('#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('#####')
+        print('# y #')
         ylim = ax.get_ylim()
         y_low = y.loc[y < ylim[0]]
         y_upp = y.loc[y > ylim[1]]
-        print '# N.y points < %.1f: %d' % (ylim[0], y_low.count())
+        print('# N.y points < %.1f: %d' % (ylim[0], y_low.count()))
         if args.verbose > 1:
             for i in y_low.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '# N.y points > %.1f: %d' % (ylim[1], y_upp.count())
+                print('#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('# N.y points > %.1f: %d' % (ylim[1], y_upp.count()))
         if args.verbose > 1:
             for i in y_upp.index:
-                print '#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG'])
-        print '#####'
+                print('#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('#####')
     ####################################
     output_name='%s/fig_WHAN.%s' % (args.figs_dir, args.img_suffix)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
-    print '##################################'
+    print('##################################')
     ##################################
 
 
     ###########################
     ## SFMS colored by EW_Ha ##
     ###########################
-    print '\n###########################'
-    print '## SFMS colored by EW_Ha ##'
-    print '###########################'
+    print('\n###########################')
+    print('## SFMS colored by EW_Ha ##')
+    print('###########################')
     x = elines['log_Mass_corr']
     y = elines['lSFR']
     z = EW_Ha_cen.apply(np.log10)
@@ -1063,8 +1058,8 @@ if __name__ == '__main__':
     xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
     p_SFc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
     ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-    print 'SFc:'
-    print p_SFc
+    print('SFc:')
+    print(p_SFc)
     ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
     # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', label='SFG')
     ### RG ###
@@ -1076,8 +1071,8 @@ if __name__ == '__main__':
     YS_hDIG_c__r, N_c__r, sel_c, YS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, YS_hDIG, x_bins__r, clip=2, interval=interval)
     xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_c__r)
     p_hDIG = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print 'hDIG:'
-    print p_hDIG
+    print('hDIG:')
+    print(p_hDIG)
     ax.plot(interval[0:2], np.polyval(p_hDIG, interval[0:2]), c='k', ls='--', label='RG')
     ax.text(x_bins_center__r[0], np.polyval(p_hDIG, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
     # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', ls='--', label='SFG')
@@ -1085,19 +1080,19 @@ if __name__ == '__main__':
     N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
     N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
     N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
-    print '# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI)
-    print '# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII)
-    print '# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN)
-    print '# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN)
+    print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
+    print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
+    print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
+    print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
     ###########################
     output_name = '%s/fig_SFMS.%s' % (args.figs_dir, args.img_suffix)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
-    print '###########################'
+    print('###########################')
     ###########################
-    print '##############'
-    print '## (NO CEN) ##'
-    print '##############'
+    print('##############')
+    print('## (NO CEN)) ##')
+    print('##############')
     y = elines['lSFR_NO_CEN']
     z = EW_Ha_cen.apply(np.log10)
     xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
@@ -1112,7 +1107,7 @@ if __name__ == '__main__':
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
     plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})_{\rm NO CEN}$',
+                      ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$',
                       xlabel=xlabel, extent=extent,
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
@@ -1132,8 +1127,8 @@ if __name__ == '__main__':
     xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
     p_SFc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
     ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-    print 'SFc:'
-    print p_SFc
+    print('SFc:')
+    print(p_SFc)
     ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
     # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', label='SFG')
     ### RG ###
@@ -1146,8 +1141,8 @@ if __name__ == '__main__':
     xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_c__r)
     p_hDIG = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
     ax.plot(interval[0:2], np.polyval(p_hDIG, interval[0:2]), c='k', ls='--', label='RG')
-    print 'hDIG:'
-    print p_hDIG
+    print('hDIG:')
+    print(p_hDIG)
     ax.text(x_bins_center__r[0], np.polyval(p_hDIG, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
     # ax.plot(x_bins_center__r, YS_hDIG_c__r, c='k', ls='--', label='RG')
     ###########################
@@ -1158,19 +1153,19 @@ if __name__ == '__main__':
     N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
     N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
     N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
-    print '# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI)
-    print '# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII)
-    print '# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN)
-    print '# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN)
-    print '###########################'
+    print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
+    print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
+    print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
+    print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
+    print('###########################')
     ################################
 
     ###############################
     ## Mgas-SFR colored by EW_Ha ##
     ###############################
-    print '\n###############################'
-    print '## Mgas-SFR colored by EW_Ha ##'
-    print '###############################'
+    print('\n###############################')
+    print('## Mgas-SFR colored by EW_Ha ##')
+    print('###############################')
     x = elines['log_Mass_gas_Av_gas_rad']
     xlabel = r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$'
     extent = [5, 11, -4.5, 2.5]
@@ -1190,9 +1185,9 @@ if __name__ == '__main__':
     #############################
     ## M-Mgas colored by EW_Ha ##
     #############################
-    print '\n#############################'
-    print '## M-Mgas colored by EW_Ha ##'
-    print '#############################'
+    print('\n#############################')
+    print('## M-Mgas colored by EW_Ha ##')
+    print('#############################')
     n_bins_min_x = 5
     n_bins_maj_y = 6
     n_bins_min_y = 5
@@ -1203,15 +1198,15 @@ if __name__ == '__main__':
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                       output_name='%s/fig_M_Mgas.%s' % (args.figs_dir, args.img_suffix))
-    print '#############################'
+    print('#############################')
     #############################
 
     ##########################
     ## M-C colored by EW_Ha ##
     ##########################
-    print '\n##########################'
-    print '## M-C colored by EW_Ha ##'
-    print '##########################'
+    print('\n##########################')
+    print('## M-C colored by EW_Ha ##')
+    print('##########################')
     n_bins_min_x = 5
     n_bins_maj_y = 6
     n_bins_min_y = 2
@@ -1222,15 +1217,15 @@ if __name__ == '__main__':
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                       output_name='%s/fig_M_C.%s' % (args.figs_dir, args.img_suffix))
-    print '##########################'
+    print('##########################')
     ##########################
 
     #############################
     ## sSFR-C colored by EW_Ha ##
     #############################
-    print '\n#############################'
-    print '## sSFR-C colored by EW_Ha ##'
-    print '#############################'
+    print('\n#############################')
+    print('## sSFR-C colored by EW_Ha ##')
+    print('#############################')
     x = elines['lSFR'] - elines['log_Mass_corr']
     y = elines['C']
     z = EW_Ha_cen.apply(np.log10)
@@ -1254,24 +1249,24 @@ if __name__ == '__main__':
     N_AGN_tII_GV = ((x[mtII] <= -10.8) & (x[mtII] > -11.8)).astype('int').sum()
     N_BFAGN_GV = ((x[mBFAGN] <= -10.8) & (x[mBFAGN] > -11.8)).astype('int').sum()
     N_ALLAGN_GV = ((x[mALLAGN] <= -10.8) & (x[mALLAGN] > -11.8)).astype('int').sum()
-    print '# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI)
-    print '# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII)
-    print '# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN)
-    print '# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN)
+    print('# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI))
+    print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
+    print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
+    print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
     ax.axvline(x=-11.8, c='k', ls='--')
     ax.axvline(x=-10.8, c='k', ls='--')
 
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
-    print '#############################'
+    print('#############################')
     ##########################
 
     #############################
     ## M-sSFR colored by EW_Ha ##
     #############################
-    print '\n#############################'
-    print '## M-sSFR colored by EW_Ha ##'
-    print '#############################'
+    print('\n#############################')
+    print('## M-sSFR colored by EW_Ha ##')
+    print('#############################')
     x = elines['log_Mass_corr']
     y = elines['lSFR'] - elines['log_Mass_corr']
     z = EW_Ha_cen.apply(np.log10)
@@ -1297,24 +1292,24 @@ if __name__ == '__main__':
     N_AGN_tII_GV = ((y[mtII] <= -10.8) & (y[mtII] > -11.8)).astype('int').sum()
     N_BFAGN_GV = ((y[mBFAGN] <= -10.8) & (y[mBFAGN] > -11.8)).astype('int').sum()
     N_ALLAGN_GV = ((y[mALLAGN] <= -10.8) & (y[mALLAGN] > -11.8)).astype('int').sum()
-    print '# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI)
-    print '# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII)
-    print '# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN)
-    print '# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN)
+    print('# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI))
+    print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
+    print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
+    print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
-    print '#############################'
+    print('#############################')
     ##########################
 
     ################################
     ## X Y histo colored by EW_Ha ##
     ################################
-    print '\n################################'
-    print '## X Y histo colored by EW_Ha ##'
-    print '################################'
-    # print elines.loc['2MASXJ01331766+1319567', 'EW_Ha_cen_mean']
-    # print np.log10(np.abs(elines.loc['2MASXJ01331766+1319567', 'EW_Ha_cen_mean']))
-    m_redshift = (elines['z_stars'] > 1e-6) & (elines['z_stars'] < 0.5)
+    print('\n################################')
+    print('## X Y histo colored by EW_Ha ##')
+    print('################################')
+    # print(elines.loc['2MASXJ01331766+1319567', 'EW_Ha_cen_mean'])
+    # print(np.log10(np.abs(elines.loc['2MASXJ01331766+1319567', 'EW_Ha_cen_mean'])))
+    m_redshift = (elines['z_stars'] > 1e-6) & (elines['z_stars'] < 0.2)
     EW_Ha_cen_zcut = elines.loc[m_redshift, 'EW_Ha_cen_mean'].apply(np.abs)
     plot_histo_xy_dict = {
         ################################
@@ -1329,7 +1324,7 @@ if __name__ == '__main__':
         ##################################
         ## CMD (CUBES) colored by EW_Ha ##
         ##################################
-        'fig_histo_CMD_ui_CUBES': [
+        'fig_histo_CMD_CUBES': [
             elines.loc[m_redshift, 'Mabs_i'], r'$M_i$ (mag)', 5, 2, None,
             elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'$u-i$ (mag)', 3, 5, None,
             EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
@@ -1339,32 +1334,10 @@ if __name__ == '__main__':
         #########################################
         ## CMD (CUBES) NO CEN colored by EW_Ha ##
         #########################################
-        'fig_histo_CMD_ui_CUBES_NC': [
-            elines.loc[m_redshift, 'Mabs_i_NC'], r'$M_i$ (mag)${}_{\rm NO CEN}$', 5, 2, None,
-            elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'$u-i$ (mag)${}_{\rm NO CEN}$', 3, 5, None,
+        'fig_histo_CMD_CUBES_NC': [
+            elines.loc[m_redshift, 'Mabs_i_NC'], r'$M_i$ (mag)${}_{NO CEN}$', 5, 2, None,
+            elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'$u-i$ (mag)', 3, 5, None,
             EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
-            m_redshift
-        ],
-        #########################################
-        ##################################
-        ## CMD (CUBES) colored by EW_Ha ##
-        ##################################
-        'fig_histo_CMD_BR_CUBES': [
-            elines.loc[m_redshift, 'Mabs_R'], r'${\rm M}_{\rm R}$ (mag)', 5, 5, None,
-            elines.loc[m_redshift, 'B_R'], r'B-R (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1.5],
-            m_redshift
-        ],
-        ##################################
-        #########################################
-        ## CMD (CUBES) NO CEN colored by EW_Ha ##
-        #########################################
-        'fig_histo_CMD_BR_CUBES_NC': [
-            # elines.loc[m_redshift, 'Mabs_R_NC'], r'${\rm M}_{\rm R}$ (mag)${}_{\rm NO CEN}$', 5, 5, None,
-            # elines.loc[m_redshift, 'B_R_NC'], r'B-R (mag)${}_{\rm NO CEN}$', 3, 5, None,
-            elines.loc[m_redshift, 'Mabs_R_NC'], r'${\rm M}_{\rm R}$ (mag)', 5, 5, None,
-            elines.loc[m_redshift, 'B_R_NC'], r'B-R (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1.5],
             m_redshift
         ],
         #########################################
@@ -1402,7 +1375,7 @@ if __name__ == '__main__':
         ####################################
         'fig_histo_SFMS_NC': [
             elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{\rm NO CEN}$', 4, 2, None,
+            elines['lSFR_NO_CEN'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$', 4, 2, None,
             EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
         ],
         ####################################
@@ -1493,9 +1466,9 @@ if __name__ == '__main__':
         ###############################
     }
 
-    for k, v in plot_histo_xy_dict.iteritems():
-        print '\n################################'
-        print '# %s' % k
+    for k, v in plot_histo_xy_dict.items():
+        print('\n################################')
+        print('# %s' % k)
         x, xlabel, n_bins_maj_x, n_bins_min_x, prune_x = v[0:5]
         y, ylabel, n_bins_maj_y, n_bins_min_y, prune_y = v[5:10]
         z = v[10]
@@ -1529,12 +1502,10 @@ if __name__ == '__main__':
             ax_sc = plot_fig_histo_M_t(elines, args, x, y, ax_sc)
         # if k == 'fig_histo_M_Mgas':
         #     ax_sc = plot_fig_histo_M_Mgas(elines, args, x, y, ax_sc)
-        if k == 'fig_histo_CMD_BR_CUBES_NC':
-            plot_text_ax(ax_sc, 'NOCEN', 0.96, 0.95, fs+2, 'top', 'right', 'k')
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
-        print '################################'
-    print '\n################################'
+        print('################################')
+    print('\n################################')
     ################################
     ################################
 
@@ -1543,9 +1514,9 @@ if __name__ == '__main__':
     ###########
     # Create an object spanning only galaxies with defined morphology
     elines_wmorph = elines.loc[elines['morph'] >= 0].copy()
-    print '\n#################'
-    print '## Morph plots ##'
-    print '#################'
+    print('\n#################')
+    print('## Morph plots ##')
+    print('#################')
     mtI = elines_wmorph['AGN_FLAG'] == 1
     mtII = elines_wmorph['AGN_FLAG'] == 2
     mtBFAGN = (mtI | mtII)
@@ -1556,25 +1527,25 @@ if __name__ == '__main__':
     HtII, _ = np.histogram(x[mtII], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5])
     HtAGN, _ = np.histogram(x[mtAGN], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5])
     HtBFAGN, _ = np.histogram(x[mtBFAGN], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5])
-    print 'mtp\ttot\ttI\ttII\ttBFAGN\t\ttAGN'
+    print('mtp\ttot\ttI\ttII\ttBFAGN\t\ttAGN')
     for mtyp, tot, tI, tII, tBFAGN, tAGN in zip(morph_name[7:], H, HtI, HtII, HtBFAGN, HtAGN):
-        print '%s\t%d\t%d\t%d\t%d\t\t%d' % (mtyp, tot, tI, tII, tBFAGN, tAGN)
+        print('%s\t%d\t%d\t%d\t%d\t\t%d' % (mtyp, tot, tI, tII, tBFAGN, tAGN))
     ##########################
     ## Morph colored by EW_Ha ##
     ############################
-    print '\n############################'
-    print '## Morph colored by EW_Ha ##'
-    print '############################'
+    print('\n############################')
+    print('## Morph colored by EW_Ha ##')
+    print('############################')
     plots_dict = {
         'fig_Morph_M': ['log_Mass_corr', [7.5, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
         'fig_Morph_C': ['C', [0.5, 5.5], r'$\log ({\rm R}90/{\rm R}50)$', 6, 2],
-        'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star_{\rm cen}/{\rm M}_{\odot}/{\rm pc}^2)$', 4, 2],
+        'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma^\star/{\rm M}_{\odot}/{\rm pc}^2)$ cen', 4, 2],
         'fig_Morph_vsigma': ['rat_vel_sigma', [0, 1], r'${\rm v}/\sigma\ ({\rm R} < {\rm Re})$', 2, 5],
         'fig_Morph_Re': ['Re_kpc', [0, 25], r'${\rm Re}/{\rm kpc}$', 6, 2]
     }
-    for k, v in plots_dict.iteritems():
-        print '\n############################'
-        print '# %s ' % k
+    for k, v in plots_dict.items():
+        print('\n############################')
+        print('# %s' % k)
         ykey, yrange, ylabel, n_bins_maj_y, n_bins_min_y = v
         y = elines_wmorph[ykey]
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
@@ -1589,8 +1560,8 @@ if __name__ == '__main__':
         # gs.tight_layout(f)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
-        print '############################'
-    print '\n#################'
+        print('############################')
+    print('\n#################')
     ############################
 
 ###############################################################################
