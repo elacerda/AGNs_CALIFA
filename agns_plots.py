@@ -1098,7 +1098,8 @@ if __name__ == '__main__':
     print('##############')
     print('## (NO CEN)) ##')
     print('##############')
-    x = np.log10(10**elines['Sigma_Mass_cen'] * spaxel_size_pc(redshift_dist_Mpc(elines['z_stars'], 71), 3)**2.)
+    Mass_cen = 10**elines['Sigma_Mass_cen'] * spaxel_size_pc(redshift_dist_Mpc(elines['z_stars'], 71), 3)**2.
+    x = np.log10(10**elines['log_Mass_corr'] - Mass_cen)
     log_Mass_corr_NC = x
     y = elines['lSFR_NO_CEN']
     z = EW_Ha_cen.apply(np.log10)
@@ -1114,11 +1115,12 @@ if __name__ == '__main__':
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
     ax = plt.subplot(gs[0])
     plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})_{NO CEN}$',
+                      ylabel=r'$\log ({\rm SFR}/{\rm M}_{\odot}/{\rm yr})$',
                       xlabel=xlabel, extent=extent,
                       n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                       n_bins_min_x=n_bins_min_x, prune_x=prune_x,
                       f=f, ax=ax)
+    plot_text_ax(ax, 'NOCEN', 0.04, 0.95, fs+2, 'top', 'left', 'k')
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     WHa = EW_Ha_cen
