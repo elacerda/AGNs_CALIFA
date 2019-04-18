@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import sys
 import pickle
@@ -24,7 +25,7 @@ def parser_args(default_args_file='args/default_selection.args'):
         'csv_dir': 'csv',
         'bug': 0.8,
         'output_agn_candidates': 'AGN_CANDIDATES.csv',
-        'EW_SF': 14.,
+        'EW_SF': 10.,
         'EW_AGN': 3.,  # 1.875,
         'EW_hDIG': 3.,
         'EW_strong': 6.,

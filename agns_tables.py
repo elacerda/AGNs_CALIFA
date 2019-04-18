@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import sys
 import pickle
@@ -5,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pytu.functions import debug_var
 from pytu.objects import readFileArgumentParser
-
+from CALIFAUtils.scripts import spaxel_size_pc, redshift_dist_Mpc
 
 morph_name = ['E0', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'S0', 'S0a', 'Sa', 'Sab', 'Sb', 'Sbc', 'Sc', 'Scd', 'Sd', 'Sdm', 'Sm', 'I']
 
@@ -55,7 +56,7 @@ fnames_short = {
     fname2: 'basic_joint',
     fname3: 'cen_broad',
     fname4: 'mag_cubes_v2.2',
-    fname5: 'mag_cubes_v2.2.NO_CEN',
+    fname5: 'mag_cubes_v2.2.NC',
     fname6: 'RA_DEC',
     fname7: 'elines',
     fname8: 'broad_fit',
@@ -67,7 +68,7 @@ fnames_long = {
     'basic_joint': fname2,
     'cen_broad': fname3,
     'mag_cubes_v2.2': fname4,
-    'mag_cubes_v2.2.NO_CEN': fname5,
+    'mag_cubes_v2.2.NC': fname5,
     'RA_DEC': fname6,
     'elines': fname7,
     'broad_fit': fname8,
@@ -107,13 +108,16 @@ with open('%s/list_Broad_by_eye.pandas.csv' % args.csv_dir, 'r') as f:
 # Populating dataframe elines joining different data from other dataframes
 for c in df['bitsakis_t12'].columns[1:]:
     df['elines'][c] = df['bitsakis_t12'][c]
+df['elines'].rename(columns={'lSFR_NO_CEN': 'lSFR_NC'}, inplace=True)
 df['elines']['CALIFAID_2'] = df['basic_joint']['CALIFAID']
 df['elines']['C'] = df['mag_cubes_v2.2']['C']
 df['elines']['e_C'] = df['mag_cubes_v2.2']['error_C']
-df['elines']['Mabs_i'] = df['mag_cubes_v2.2']['i_band_abs_mag']
-df['elines']['e_Mabs_i'] = df['mag_cubes_v2.2']['i_band_abs_mag_error']
+df['elines']['Mabs_V'] = df['mag_cubes_v2.2']['V_band_abs_mag']
+df['elines']['e_Mabs_V'] = df['mag_cubes_v2.2']['V_band_abs_mag_error']
 df['elines']['Mabs_R'] = df['mag_cubes_v2.2']['R_band_abs_mag']
 df['elines']['e_Mabs_R'] = df['mag_cubes_v2.2']['R_band_abs_mag_error']
+df['elines']['Mabs_i'] = df['mag_cubes_v2.2']['i_band_abs_mag']
+df['elines']['e_Mabs_i'] = df['mag_cubes_v2.2']['i_band_abs_mag_error']
 df['elines']['B_V'] = df['mag_cubes_v2.2']['B_V']
 df['elines']['e_B_V'] = df['mag_cubes_v2.2']['error_B_V']
 df['elines']['B_R'] = df['mag_cubes_v2.2']['B_R']
@@ -122,18 +126,20 @@ df['elines']['u'] = df['mag_cubes_v2.2']['u_band_mag']
 df['elines']['g'] = df['mag_cubes_v2.2']['g_band_mag']
 df['elines']['r'] = df['mag_cubes_v2.2']['r_band_mag']
 df['elines']['i'] = df['mag_cubes_v2.2']['i_band_mag']
-df['elines']['Mabs_i_NC'] = df['mag_cubes_v2.2.NO_CEN']['i_band_abs_mag']
-df['elines']['e_Mabs_i_NC'] = df['mag_cubes_v2.2.NO_CEN']['i_band_abs_mag_error']
-df['elines']['Mabs_R_NC'] = df['mag_cubes_v2.2.NO_CEN']['R_band_abs_mag']
-df['elines']['e_Mabs_R_NC'] = df['mag_cubes_v2.2.NO_CEN']['R_band_abs_mag_error']
-df['elines']['B_V_NC'] = df['mag_cubes_v2.2.NO_CEN']['B_V']
-df['elines']['e_B_V_NC'] = df['mag_cubes_v2.2.NO_CEN']['error_B_V']
-df['elines']['B_R_NC'] = df['mag_cubes_v2.2.NO_CEN']['B_R']
-df['elines']['e_B_R_NC'] = df['mag_cubes_v2.2.NO_CEN']['error_B_R']
-df['elines']['u_NC'] = df['mag_cubes_v2.2.NO_CEN']['u_band_mag']
-df['elines']['g_NC'] = df['mag_cubes_v2.2.NO_CEN']['g_band_mag']
-df['elines']['r_NC'] = df['mag_cubes_v2.2.NO_CEN']['r_band_mag']
-df['elines']['i_NC'] = df['mag_cubes_v2.2.NO_CEN']['i_band_mag']
+df['elines']['Mabs_V_NC'] = df['mag_cubes_v2.2.NC']['V_band_abs_mag']
+df['elines']['e_Mabs_V_NC'] = df['mag_cubes_v2.2.NC']['V_band_abs_mag_error']
+df['elines']['Mabs_R_NC'] = df['mag_cubes_v2.2.NC']['R_band_abs_mag']
+df['elines']['e_Mabs_R_NC'] = df['mag_cubes_v2.2.NC']['R_band_abs_mag_error']
+df['elines']['Mabs_i_NC'] = df['mag_cubes_v2.2.NC']['i_band_abs_mag']
+df['elines']['e_Mabs_i_NC'] = df['mag_cubes_v2.2.NC']['i_band_abs_mag_error']
+df['elines']['B_V_NC'] = df['mag_cubes_v2.2.NC']['B_V']
+df['elines']['e_B_V_NC'] = df['mag_cubes_v2.2.NC']['error_B_V']
+df['elines']['B_R_NC'] = df['mag_cubes_v2.2.NC']['B_R']
+df['elines']['e_B_R_NC'] = df['mag_cubes_v2.2.NC']['error_B_R']
+df['elines']['u_NC'] = df['mag_cubes_v2.2.NC']['u_band_mag']
+df['elines']['g_NC'] = df['mag_cubes_v2.2.NC']['g_band_mag']
+df['elines']['r_NC'] = df['mag_cubes_v2.2.NC']['r_band_mag']
+df['elines']['i_NC'] = df['mag_cubes_v2.2.NC']['i_band_mag']
 df['elines']['redshift'] = df['mag_cubes_v2.2']['redshift']
 df['elines']['redshift_CALIFA'] = df['basic_joint']['redshift_CALIFA']
 df['elines']['morph'] = df['DR4_morph']['hubtyp']
@@ -160,7 +166,7 @@ df['elines']['EW_Ha_ALL'] = df['elines']['EW_Ha_ALL'].apply(np.abs)
 df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
 df['elines'].loc[df['elines']['log_Mass'] < 0, 'log_Mass'] = np.nan
 df['elines'].loc[df['elines']['lSFR'] < -10, 'lSFR'] = np.nan
-df['elines'].loc[df['elines']['lSFR_NO_CEN'] < -10, 'lSFR_NO_CEN'] = np.nan
+df['elines'].loc[df['elines']['lSFR_NC'] < -10, 'lSFR_NC'] = np.nan
 df['elines'].loc[df['elines']['log_Mass_gas'] == -12, 'log_Mass_gas'] = np.nan
 df['elines'].loc[df['elines']['log_Mass_gas_Av_gas_rad'] == -12, 'log_Mass_gas_Av_gas_rad'] = np.nan
 df['elines']['log_NII_Ha_cen_fit'] = np.log10(df['elines']['NII_6583'] / df['elines']['Ha_narrow'])
@@ -170,6 +176,10 @@ df['elines']['log_NII_Ha_cen'] = df['elines']['log_NII_Ha_cen_mean']
 # f = np.log10(df['elines']['F_Ha_cen']) - np.log10(df['elines']['Ha_narrow'])  # -16 +16
 # df['elines']['log_SII_Ha_cen_fit'] = df['elines']['log_SII_Ha_cen_mean'] + f
 # df['elines']['log_OI_Ha_cen_fit'] = df['elines']['log_OI_Ha_cen']  + f
+df['elines']['Mass_cen'] = 10**df['elines']['Sigma_Mass_cen'] * spaxel_size_pc(redshift_dist_Mpc(df['elines']['z_stars'], 71), 3)**2.
+df['elines']['log_Mass_corr_NC'] = np.log10(10**df['elines']['log_Mass_corr'] - df['elines']['Mass_cen'])
+df['elines']['sSFR'] = df['elines']['lSFR'] - df['elines']['log_Mass_corr']
+df['elines']['sSFR_NC'] = df['elines']['lSFR_NC'] - df['elines']['log_Mass_corr_NC']
 
 for g in df['new_morph'].index:
     df['elines'].loc[g, 'morph'] = np.floor(df['new_morph'].loc[g, 'Average'])
