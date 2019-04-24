@@ -7,6 +7,18 @@ FIGSPATH=${WORKPATH}/figs
 LOGSPATH=${WORKPATH}/logs
 DATAPATH=${WORKPATH}/data
 CSVPATH=${WORKPATH}/csv
+if [ ! -d "${DATAPATH}" ]
+then
+    echo "$0: creating directory ${DATAPATH}"
+    mkdir -p "${DATAPATH}"
+fi
+echo "#######################"
+echo "## Generating tables ##"
+echo "#######################"
+OUTPUTTABLES="${DATAPATH}/tables.pkl"
+echo "$0: running python3 agns_tables.py -O ${OUTPUTTABLES} --csv_dir=${CSVPATH}"
+python3 agns_tables.py -O ${OUTPUTTABLES} --csv_dir=${CSVPATH}
+echo -e "\n"
 for b in ${BUG[*]}
 do
 	for A in ${EWAGN[*]}

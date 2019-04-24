@@ -1629,8 +1629,8 @@ if __name__ == '__main__':
         ## CMD (CUBES) colored by EW_Ha ##
         ##################################
         'fig_histo_CMD_ui_CUBES': [
-            elines.loc[m_redshift, 'Mabs_i'], r'$M_i$ (mag)', 5, 2, None,
-            elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'$u-i$ (mag)', 3, 5, None,
+            elines.loc[m_redshift, 'Mabs_i'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None,
+            elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'u-i (mag)', 3, 5, None,
             EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
             m_redshift
         ],
@@ -1639,12 +1639,35 @@ if __name__ == '__main__':
         ## CMD (CUBES) NO CEN colored by EW_Ha ##
         #########################################
         'fig_histo_CMD_ui_CUBES_NC': [
-            elines.loc[m_redshift, 'Mabs_i_NC'], r'$M_i$ (mag)', 5, 2, None,
-            elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'$u-i$ (mag)', 3, 5, None,
+            elines.loc[m_redshift, 'Mabs_i_NC'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None,
+            elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'i_NC'], r'u-i (mag)', 3, 5, None,
             EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
             m_redshift
         ],
         #########################################
+
+        ##################################
+        ## CMD (CUBES) colored by EW_Ha ##
+        ##################################
+        'fig_histo_CMD_ur_CUBES': [
+            elines.loc[m_redshift, 'Mabs_r'], r'${\rm M}_{\rm r}$ (mag)', 5, 2, None,
+            elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'r'], r'u-r (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
+            m_redshift
+        ],
+        ##################################
+        #########################################
+        ## CMD (CUBES) NO CEN colored by EW_Ha ##
+        #########################################
+        'fig_histo_CMD_ur_CUBES_NC': [
+            elines.loc[m_redshift, 'Mabs_r_NC'], r'${\rm M}_{\rm r}$ (mag)', 5, 2, None,
+            elines.loc[m_redshift, 'u_NC'] - elines.loc[m_redshift, 'r_NC'], r'u-r (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
+            m_redshift
+        ],
+        #########################################
+
+
         ##################################
         ## CMD (CUBES) colored by EW_Ha ##
         ##################################
@@ -1694,7 +1717,7 @@ if __name__ == '__main__':
         ##################################
         'fig_histo_sSFR_ui': [
             elines.loc[m_redshift, 'lSFR'] - elines.loc[m_redshift, 'log_Mass_corr'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
-            elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'$u-i$ (mag)', 3, 5, None,
+            elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'i'], r'u-i (mag)', 3, 5, None,
             EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 3.5],
             m_redshift
         ],
@@ -1704,7 +1727,7 @@ if __name__ == '__main__':
         ##################################
         'fig_histo_sSFR_ur': [
             elines.loc[m_redshift, 'sSFR'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
-            elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'r'], r'$u-r$ (mag)', 3, 5, None,
+            elines.loc[m_redshift, 'u'] - elines.loc[m_redshift, 'r'], r'u-r (mag)', 3, 5, None,
             EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 3.5],
             m_redshift
         ],
@@ -1941,4 +1964,36 @@ if __name__ == '__main__':
 
 ###############################################################################
 # END PLOTS ###################################################################
+###############################################################################
+
+###############################################################################
+# BEGIN IPYTHON RECIPES #######################################################
+###############################################################################
+
+###############################
+### Concentration histogram ###
+###############################
+# bins=15
+# plt.clf()
+# plt.xlabel('R90/R50', fontsize=15)
+# plt.ylabel('prob. density', fontsize=15)
+# kwargs=dict(histtype='step', linewidth=3, bins=bins, facecolor='none', range=[1.5,4], density=True, align='mid')
+# plt.hist(elines.loc[m_et, 'C'], edgecolor='r', label='E+S0+S0a', **kwargs)
+# plt.hist(elines.loc[m_lt, 'C'], edgecolor='b', label='spirals+Irr', **kwargs)
+# plt.hist(elines.loc[mtI | mtII, 'C'], edgecolor='g', linestyle='--', label='AGN hosts', **kwargs)
+# plt.axvline(x=2.6, ls='--', c='k', label='Strateva et al. (2001)')
+# plt.xticks(fontsize=15)
+# plt.yticks(fontsize=15)
+# plt.ylim(0, 2)
+# plt.gca().xaxis.set_major_locator(MaxNLocator(6))
+# plt.gca().xaxis.set_minor_locator(AutoMinorLocator(5))
+# plt.gca().yaxis.set_major_locator(MaxNLocator(4))
+# plt.gca().yaxis.set_minor_locator(AutoMinorLocator(5))
+# tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
+# plt.gca().tick_params(**tick_params)
+# plt.legend(fontsize=15)
+###############################
+
+###############################################################################
+# END IPYTHON RECIPES #########################################################
 ###############################################################################
