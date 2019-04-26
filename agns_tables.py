@@ -192,6 +192,10 @@ df['elines']['Mass_cen'] = 10**df['elines']['Sigma_Mass_cen'] * spaxel_size_pc(r
 df['elines']['log_Mass_corr_NC'] = np.log10(10**df['elines']['log_Mass_corr'] - df['elines']['Mass_cen'])
 df['elines']['sSFR'] = df['elines']['lSFR'] - df['elines']['log_Mass_corr']
 df['elines']['sSFR_NC'] = df['elines']['lSFR_NC'] - df['elines']['log_Mass_corr_NC']
+df['elines']['u_i'] = df['elines']['u'] - df['elines']['i']
+df['elines']['u_r'] = df['elines']['u'] - df['elines']['r']
+df['elines']['u_i_NC'] = df['elines']['u_NC'] - df['elines']['i_NC']
+df['elines']['u_r_NC'] = df['elines']['u_NC'] - df['elines']['r_NC']
 
 for g in df['new_morph'].index:
     df['elines'].loc[g, 'morph'] = np.floor(df['new_morph'].loc[g, 'Average'])
