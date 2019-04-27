@@ -1363,7 +1363,7 @@ if __name__ == '__main__':
     y = elines['log_SFR_ssp_100Myr']
     z = EW_Ha_cen.apply(np.log10)
     xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
-    extent = [7.5, 12, -2.5, 1.5]
+    extent = [7.5, 12, -4.5, 2.5]
     n_bins_min_x = 5
     n_bins_maj_y = 4
     n_bins_min_y = 5

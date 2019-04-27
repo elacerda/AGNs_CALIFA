@@ -7,6 +7,7 @@ then
 fi
 
 WORKPATH=${HOME}/dev/astro/AGNs_CALIFA
+FIGSPATH=${WORKPATH}/figs
 LOGSPATH=${WORKPATH}/logs
 DATAPATH=${WORKPATH}/data
 CSVPATH=${WORKPATH}/csv
@@ -33,8 +34,19 @@ OUTPUTAGNSFILE=AGN_CANDIDATES_${RUNTAG}.csv
 OUTPUTFILE="${DATAPATH}/elines_${RUNTAG}.pkl"
 echo "$0: running python3 agns_selection.py -I ${OUTPUTTABLES} -O ${OUTPUTFILE} --bug=${BUG} --EW_AGN=${EWAGN} --csv_dir=${CSVPATH} --output_agn_candidates=${OUTPUTAGNSFILE}"
 python3 agns_selection.py -I ${OUTPUTTABLES} -O ${OUTPUTFILE} --bug=${BUG} --EW_AGN=${EWAGN} --csv_dir=${CSVPATH} --output_agn_candidates=${OUTPUTAGNSFILE}
-#--no_sigma_clip
+echo -e "\n"
+echo "######################"
+echo "## Generating plots ##"
+echo "######################"
+OUTPUTFIGSDIR=${FIGSPATH}/${RUNTAG}
+LOGPLOT=${LOGSPATH}/agns_plots_${RUNTAG}.log
+if [ ! -d "${OUTPUTFIGSDIR}" ]
+then
+    mkdir "${OUTPUTFIGSDIR}" --
+fi
+PLOTSARGS="-I ${OUTPUTFILE} --figs_dir=${OUTPUTFIGSDIR} -vv"
+echo "$0: running python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS} &> $LOGPLOT"
+python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS} &> $LOGPLOT
 echo "#########"
 echo "## END ##"
 echo "#########"
-echo "$0: To generate plots run python3 agns_plots.py -I ${OUTPUTFILE} -vv"
