@@ -8,7 +8,6 @@ fi
 
 WORKPATH=${HOME}/dev/astro/AGNs_CALIFA
 FIGSPATH=${WORKPATH}/figs
-LOGSPATH=${WORKPATH}/logs
 DATAPATH=${WORKPATH}/data
 CSVPATH=${WORKPATH}/csv
 if [ ! -d "${DATAPATH}" ]
@@ -39,14 +38,13 @@ echo "######################"
 echo "## Generating plots ##"
 echo "######################"
 OUTPUTFIGSDIR=${FIGSPATH}/${RUNTAG}
-LOGPLOT=${LOGSPATH}/agns_plots_${RUNTAG}.log
 if [ ! -d "${OUTPUTFIGSDIR}" ]
 then
     mkdir "${OUTPUTFIGSDIR}" --
 fi
 PLOTSARGS="-I ${OUTPUTFILE} --figs_dir=${OUTPUTFIGSDIR} -vv"
-echo "$0: running python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS} &> $LOGPLOT"
-python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS} &> $LOGPLOT
+echo "$0: running python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS}"
+python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS}
 echo "#########"
 echo "## END ##"
 echo "#########"

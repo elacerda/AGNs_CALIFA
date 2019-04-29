@@ -113,6 +113,12 @@ def modlogOHSF2017_t2(x):
     return modlogOHSF2017(x, a, b, c)
 
 
+def create_bins(interval, step):
+    bins = np.arange(interval[0]-step, interval[1]+step, step)
+    bins_center = (bins[:-1] + bins[1:])/2.
+    return bins, bins_center, len(bins_center)
+
+
 def count_y_above_mean(x, y, y_mean, x_bins, interval=None):
     x, y = xyz_clean_sort_interval(x, y, interval=interval)
     idx = np.digitize(x, x_bins)
@@ -186,7 +192,30 @@ def redf_xy_bins_interval(x, y, bins__r, interval=None, clip=None, mode='mean'):
             y_bin = y[idx == i+1]
             y__R[i], N__R[i] = redf(reduce_func, y_bin, np.ma.masked)
             sel = np.append(np.unique(sel), np.unique(y_idxs[idx == i+1]))
-        return y__R, N__R, sel.astype('int').tolist()
+        return None, None, None, y__R, N__R, sel.astype('int').tolist()
+
+
+def linear_regression_mean(x, y, interval, step=None, clip=None):
+    pc = None
+    if step is None:
+        step = 0.1
+    XS, YS = xyz_clean_sort_interval(x.values, y.values)
+    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], step)
+    YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = redf_xy_bins_interval(XS, YS, x_bins__r, clip=clip, interval=interval)
+    if clip is not None:
+        xm, ym = ma_mask_xyz(x_bins_center__r, YS_c__r)
+        pc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
+        print('linear regression with {:d} sigma clip:'.format(clip))
+        print(pc)
+        sigma_dev = (y - np.polyval(pc, x)).std()
+        print('sigma dev = {:.5f}'.format(sigma_dev))
+    xm, ym = ma_mask_xyz(x_bins_center__r, YS__r)
+    p = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
+    print('linear regression with no sigma clip:')
+    print(p)
+    sigma_dev = (y - np.polyval(p, x)).std()
+    print('sigma dev = {:.5f}'.format(sigma_dev))
+    return p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel
 
 
 def plot_setup(width, aspect, fignum=None, dpi=300, cmap=None):
@@ -645,12 +674,6 @@ def plot_fig_histo_MZR(elines, args, x, y, ax):
     return ax
 
 
-def create_bins(interval, step):
-    bins = np.arange(interval[0]-step, interval[1]+step, step)
-    bins_center = (bins[:-1] + bins[1:])/2.
-    return bins, bins_center, len(bins_center)
-
-
 def plot_fig_histo_M_ZHMW(elines, args, x, y, ax, interval=None):
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
@@ -659,7 +682,7 @@ def plot_fig_histo_M_ZHMW(elines, args, x, y, ax, interval=None):
     if interval is None:
         interval = [9, 11.5, -0.9, 0.3]
     x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.3)
-    y_mean, N_y_mean, _ = redf_xy_bins_interval(x.values, y.values, x_bins__r, interval)
+    _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(x.values, y.values, x_bins__r, interval)
     ax.plot(x_bincenter__r, y_mean, 'k-')
     ### above ###
     N_y_tI = y[mtI].count()
@@ -1142,7 +1165,7 @@ if __name__ == '__main__':
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     WHa = EW_Ha_cen
-    WHa_Re =(-1. * elines['EW_Ha_Re'])
+    WHa_Re = (-1. * elines['EW_Ha_Re'])
     WHa_ALL = elines['EW_Ha_ALL']
     hDIG = sel_EW & (WHa <= args.EW_hDIG)
     SFc = sel_EW & (WHa > args.EW_SF)
@@ -1151,79 +1174,27 @@ if __name__ == '__main__':
     hDIG_ALL = sel_EW & (WHa_ALL <= args.EW_hDIG)
     SFc_ALL = sel_EW & (WHa_ALL > args.EW_SF)
     interval = [8.3, 11.8, 7.5, 10.5]
-    ### SFc ###
-    x_SF = x.loc[SFc]
-    y_SF = y.loc[SFc]
-    XS_SF, YS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_SF_c__r, N_c__r, sel_c, YS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, YS_SF, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
-    p_SFc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('SFc:')
-    print(p_SFc)
-    ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-    ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    x_SFc_Re = x.loc[SFc_Re]
-    y_SFc_Re = y.loc[SFc_Re]
-    XS_SFc_Re, YS_SFc_Re = xyz_clean_sort_interval(x_SFc_Re.values, y_SFc_Re.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SFc_Re__r, N__r, sel = redf_xy_bins_interval(XS_SFc_Re, SFRHaS_SFc_Re, x_bins__r, interval=interval)
-    YS_SFc_Re_c__r, N_c__r, sel_c, YS_SFc_Re__r, N__r, sel = redf_xy_bins_interval(XS_SFc_Re, YS_SFc_Re, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SFc_Re_c__r)
-    p_SFc_Re = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('SFc_Re:')
-    print(p_SFc_Re)
-
-    x_SFc_ALL = x.loc[SFc_ALL]
-    y_SFc_ALL = y.loc[SFc_ALL]
-    XS_SFc_ALL, YS_SFc_ALL = xyz_clean_sort_interval(x_SFc_ALL.values, y_SFc_ALL.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SFc_ALL__r, N__r, sel = redf_xy_bins_interval(XS_SFc_ALL, SFRHaS_SFc_ALL, x_bins__r, interval=interval)
-    YS_SFc_ALL_c__r, N_c__r, sel_c, YS_SFc_ALL__r, N__r, sel = redf_xy_bins_interval(XS_SFc_ALL, YS_SFc_ALL, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SFc_ALL_c__r)
-    p_SFc_ALL = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('SFc_ALL:')
-    print(p_SFc_ALL)
-    # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', label='SFG')
-    ### RG ###
-    x_hDIG = x.loc[hDIG]
-    y_hDIG = y.loc[hDIG]
-    XS_hDIG, YS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_hDIG_c__r, N_c__r, sel_c, YS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, YS_hDIG, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_c__r)
-    p_hDIG = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('hDIG:')
-    print(p_hDIG)
-    ax.plot(interval[0:2], np.polyval(p_hDIG, interval[0:2]), c='k', ls='--', label='RG')
-    ax.text(x_bins_center__r[0], np.polyval(p_hDIG, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    x_hDIG_Re = x.loc[hDIG_Re]
-    y_hDIG_Re = y.loc[hDIG_Re]
-    XS_hDIG_Re, YS_hDIG_Re = xyz_clean_sort_interval(x_hDIG_Re.values, y_hDIG_Re.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_hDIG_Re_c__r, N_c__r, sel_c, YS_hDIG_Re__r, N__r, sel = redf_xy_bins_interval(XS_hDIG_Re, YS_hDIG_Re, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_Re_c__r)
-    p_hDIG_Re = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('hDIG_Re:')
-    print(p_hDIG_Re)
-    x_hDIG_ALL = x.loc[hDIG_ALL]
-    y_hDIG_ALL = y.loc[hDIG_ALL]
-    XS_hDIG_ALL, YS_hDIG_ALL = xyz_clean_sort_interval(x_hDIG_ALL.values, y_hDIG_ALL.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_hDIG_ALL_c__r, N_c__r, sel_c, YS_hDIG_ALL__r, N__r, sel = redf_xy_bins_interval(XS_hDIG_ALL, YS_hDIG_ALL, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_ALL_c__r)
-    p_hDIG_ALL = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('hDIG_ALL:')
-    print(p_hDIG_ALL)
-    # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', ls='--', label='SFG')
-    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
-    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
-    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
-    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
+    dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
+    for k, v in dict_masks.items():
+        print('{}:'.format(k))
+        X = x.loc[v]
+        Y = y.loc[v]
+        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
+        if k == 'SFc':
+            p_SFc = p
+            p_SFc_c = pc
+            ax.plot(interval[0:2], np.polyval(p_SFc_c, interval[0:2]), c='k', label='SFG')
+            ax.text(x_bins_center__r[0], np.polyval(p_SFc_c, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
+        if k == 'hDIG':
+            p_hDIG = p
+            p_hDIG_c = pc
+            ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
+            ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
+    ###########################
+    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc_c, x[mtI])) <= 0).astype('int').sum()
+    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc_c, x[mtII])) <= 0).astype('int').sum()
+    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc_c, x[mBFAGN])) <= 0).astype('int').sum()
+    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc_c, x[mALLAGN])) <= 0).astype('int').sum()
     print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
     print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
     print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
@@ -1270,78 +1241,23 @@ if __name__ == '__main__':
     hDIG_ALL = sel_EW & (WHa_ALL <= args.EW_hDIG)
     SFc_ALL = sel_EW & (WHa_ALL > args.EW_SF)
     interval = [8.3, 11.8, 7.5, 10.5]
-    ### SFc ###
-    x_SF = x.loc[SFc]
-    y_SF = y.loc[SFc]
-    XS_SF, YS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_SF_c__r, N_c__r, sel_c, YS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, YS_SF, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
-    p_SFc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('SFc:')
-    print(p_SFc)
-    ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-    ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    x_SFc_Re = x.loc[SFc_Re]
-    y_SFc_Re = y.loc[SFc_Re]
-    XS_SFc_Re, YS_SFc_Re = xyz_clean_sort_interval(x_SFc_Re.values, y_SFc_Re.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SFc_Re__r, N__r, sel = redf_xy_bins_interval(XS_SFc_Re, SFRHaS_SFc_Re, x_bins__r, interval=interval)
-    YS_SFc_Re_c__r, N_c__r, sel_c, YS_SFc_Re__r, N__r, sel = redf_xy_bins_interval(XS_SFc_Re, YS_SFc_Re, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SFc_Re_c__r)
-    p_SFc_Re = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('SFc_Re:')
-    print(p_SFc_Re)
-    x_SFc_ALL = x.loc[SFc_ALL]
-    y_SFc_ALL = y.loc[SFc_ALL]
-    XS_SFc_ALL, YS_SFc_ALL = xyz_clean_sort_interval(x_SFc_ALL.values, y_SFc_ALL.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SFc_ALL__r, N__r, sel = redf_xy_bins_interval(XS_SFc_ALL, SFRHaS_SFc_ALL, x_bins__r, interval=interval)
-    YS_SFc_ALL_c__r, N_c__r, sel_c, YS_SFc_ALL__r, N__r, sel = redf_xy_bins_interval(XS_SFc_ALL, YS_SFc_ALL, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SFc_ALL_c__r)
-    p_SFc_ALL = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('SFc_ALL:')
-    print(p_SFc_ALL)
-    # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', label='SFG')
-    ### RG ###
-    x_hDIG = x.loc[hDIG]
-    y_hDIG = y.loc[hDIG]
-    XS_hDIG, YS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_hDIG_c__r, N_c__r, sel_c, YS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, YS_hDIG, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_c__r)
-    p_hDIG = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('hDIG:')
-    print(p_hDIG)
-    ax.plot(interval[0:2], np.polyval(p_hDIG, interval[0:2]), c='k', ls='--', label='RG')
-    ax.text(x_bins_center__r[0], np.polyval(p_hDIG, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    x_hDIG_Re = x.loc[hDIG_Re]
-    y_hDIG_Re = y.loc[hDIG_Re]
-    XS_hDIG_Re, YS_hDIG_Re = xyz_clean_sort_interval(x_hDIG_Re.values, y_hDIG_Re.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_hDIG_Re_c__r, N_c__r, sel_c, YS_hDIG_Re__r, N__r, sel = redf_xy_bins_interval(XS_hDIG_Re, YS_hDIG_Re, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_Re_c__r)
-    p_hDIG_Re = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('hDIG_Re:')
-    print(p_hDIG_Re)
-    x_hDIG_ALL = x.loc[hDIG_ALL]
-    y_hDIG_ALL = y.loc[hDIG_ALL]
-    XS_hDIG_ALL, YS_hDIG_ALL = xyz_clean_sort_interval(x_hDIG_ALL.values, y_hDIG_ALL.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_hDIG_ALL_c__r, N_c__r, sel_c, YS_hDIG_ALL__r, N__r, sel = redf_xy_bins_interval(XS_hDIG_ALL, YS_hDIG_ALL, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_ALL_c__r)
-    p_hDIG_ALL = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('hDIG_ALL:')
-    print(p_hDIG_ALL)
-    # ax.plot(x_bins_center__r, YS_hDIG_c__r, c='k', ls='--', label='RG')
+    dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
+    for k, v in dict_masks.items():
+        print('{}:'.format(k))
+        X = x.loc[v]
+        Y = y.loc[v]
+        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
+        if k == 'SFc':
+            p_SFc = p
+            p_SFc_c = pc
+            ax.plot(interval[0:2], np.polyval(p_SFc_c, interval[0:2]), c='k', label='SFG')
+            ax.text(x_bins_center__r[0], np.polyval(p_SFc_c, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
+        if k == 'hDIG':
+            p_hDIG = p
+            p_hDIG_c = pc
+            ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
+            ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
     ###########################
-    output_name = '%s/fig_SFMS_NC.%s' % (args.figs_dir, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
     N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
     N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
     N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
@@ -1350,6 +1266,10 @@ if __name__ == '__main__':
     print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
     print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
     print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
+    ###########################
+    output_name = '%s/fig_SFMS_NC.%s' % (args.figs_dir, args.img_suffix)
+    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
     print('###########################')
     ################################
 
@@ -1391,74 +1311,23 @@ if __name__ == '__main__':
     hDIG_ALL = sel_EW & (WHa_ALL <= args.EW_hDIG)
     SFc_ALL = sel_EW & (WHa_ALL > args.EW_SF)
     interval = [8.3, 11.8, 7.5, 10.5]
-    ### SFc ###
-    x_SF = x.loc[SFc]
-    y_SF = y.loc[SFc]
-    XS_SF, YS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_SF_c__r, N_c__r, sel_c, YS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, YS_SF, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SF_c__r)
-    p_SFc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('SFc:')
-    print(p_SFc)
-    ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-    ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    x_SFc_Re = x.loc[SFc_Re]
-    y_SFc_Re = y.loc[SFc_Re]
-    XS_SFc_Re, YS_SFc_Re = xyz_clean_sort_interval(x_SFc_Re.values, y_SFc_Re.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SFc_Re__r, N__r, sel = redf_xy_bins_interval(XS_SFc_Re, SFRHaS_SFc_Re, x_bins__r, interval=interval)
-    YS_SFc_Re_c__r, N_c__r, sel_c, YS_SFc_Re__r, N__r, sel = redf_xy_bins_interval(XS_SFc_Re, YS_SFc_Re, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SFc_Re_c__r)
-    p_SFc_Re = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('SFc_Re:')
-    print(p_SFc_Re)
-    x_SFc_ALL = x.loc[SFc_ALL]
-    y_SFc_ALL = y.loc[SFc_ALL]
-    XS_SFc_ALL, YS_SFc_ALL = xyz_clean_sort_interval(x_SFc_ALL.values, y_SFc_ALL.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SFc_ALL__r, N__r, sel = redf_xy_bins_interval(XS_SFc_ALL, SFRHaS_SFc_ALL, x_bins__r, interval=interval)
-    YS_SFc_ALL_c__r, N_c__r, sel_c, YS_SFc_ALL__r, N__r, sel = redf_xy_bins_interval(XS_SFc_ALL, YS_SFc_ALL, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_SFc_ALL_c__r)
-    p_SFc_ALL = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('SFc_ALL:')
-    print(p_SFc_ALL)
-    # ax.plot(x_bins_center__r, YS_SF_c__r, c='k', label='SFG')
-    ### RG ###
-    x_hDIG = x.loc[hDIG]
-    y_hDIG = y.loc[hDIG]
-    XS_hDIG, YS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_hDIG_c__r, N_c__r, sel_c, YS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, YS_hDIG, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_c__r)
-    p_hDIG = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('hDIG:')
-    print(p_hDIG)
-    ax.plot(interval[0:2], np.polyval(p_hDIG, interval[0:2]), c='k', ls='--', label='RG')
-    ax.text(x_bins_center__r[0], np.polyval(p_hDIG, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    x_hDIG_Re = x.loc[hDIG_Re]
-    y_hDIG_Re = y.loc[hDIG_Re]
-    XS_hDIG_Re, YS_hDIG_Re = xyz_clean_sort_interval(x_hDIG_Re.values, y_hDIG_Re.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_hDIG_Re_c__r, N_c__r, sel_c, YS_hDIG_Re__r, N__r, sel = redf_xy_bins_interval(XS_hDIG_Re, YS_hDIG_Re, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_Re_c__r)
-    p_hDIG_Re = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('hDIG_Re:')
-    print(p_hDIG_Re)
-    x_hDIG_ALL = x.loc[hDIG_ALL]
-    y_hDIG_ALL = y.loc[hDIG_ALL]
-    XS_hDIG_ALL, YS_hDIG_ALL = xyz_clean_sort_interval(x_hDIG_ALL.values, y_hDIG_ALL.values)
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    YS_hDIG_ALL_c__r, N_c__r, sel_c, YS_hDIG_ALL__r, N__r, sel = redf_xy_bins_interval(XS_hDIG_ALL, YS_hDIG_ALL, x_bins__r, clip=2, interval=interval)
-    xm, ym = ma_mask_xyz(x_bins_center__r, YS_hDIG_ALL_c__r)
-    p_hDIG_ALL = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
-    print('hDIG_ALL:')
-    print(p_hDIG_ALL)
-    # ax.plot(x_bins_center__r, YS_hDIG_c__r, c='k', ls='--', label='RG')
+    dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
+    for k, v in dict_masks.items():
+        print('{}:'.format(k))
+        X = x.loc[v]
+        Y = y.loc[v]
+        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
+        if k == 'SFc':
+            p_SFc = p
+            p_SFc_c = pc
+            ax.plot(interval[0:2], np.polyval(p_SFc_c, interval[0:2]), c='k', label='SFG')
+            ax.text(x_bins_center__r[0], np.polyval(p_SFc_c, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
+        if k == 'hDIG':
+            p_hDIG = p
+            p_hDIG_c = pc
+            ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
+            ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
+    ###########################
     N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
     N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
     N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
