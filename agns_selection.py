@@ -69,6 +69,14 @@ def linval(x, a, b):
     return np.polyval([a, b], x)
 
 
+def morph_adjust(x):
+    r = x
+    # If not NAN or M_TYPE E* (0-7) call it E
+    if ~np.isnan(x) and x <= 7:
+        r = 7
+    return r
+
+
 if __name__ == '__main__':
     args = parser_args()
 
@@ -449,6 +457,7 @@ if __name__ == '__main__':
     print('#AC# N.SF %sS06%s: %d (%sN%s: %d - %sS%s: %d - %sVS%s: %d)' % (color.B, color.E, N_SF_S06, color.B, color.E, N_SF_S06_EW, color.B, color.E, N_SSF_S06, color.B, color.E, N_VSSF_S06))
     print('#AC##################\n')
 
+    morph_name = ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'S0', 'S0a', 'Sa', 'Sab', 'Sb', 'Sbc', 'Sc', 'Scd', 'Sd', 'Sdm', 'Sm', 'I']
     elines_wmorph = elines.loc[elines['morph'] >= 0]
     N_TOT_WMORPH = len(elines_wmorph.index)
     N_GAS_WMORPH = len(elines_wmorph.loc[elines_wmorph['F_Ha_cen'] > 0])
@@ -545,3 +554,75 @@ if __name__ == '__main__':
 
         with open(args.output, 'wb') as f:
             pickle.dump(to_save, f, protocol=2)
+
+    ###############################################################################
+    # BEGIN PAPER REPORTS #########################################################
+    ###############################################################################
+    mtI = elines['AGN_FLAG'] == 1
+    N_AGN_tI = mtI.astype('int').sum()
+    mtII = elines['AGN_FLAG'] == 2
+    N_AGN_tII = mtII.astype('int').sum()
+    mBFAGN = mtI | mtII
+    N_BFAGN = mBFAGN.astype('int').sum()
+    mAGN = elines['AGN_FLAG'] > 0
+    N_ALLAGN = mAGN.astype('int').sum()
+    x = elines['morph'].apply(morph_adjust)
+    H, _ = np.histogram(x, bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5])
+    HtI, _ = np.histogram(x[mtI], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5])
+    HtII, _ = np.histogram(x[mtII], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5])
+    HAGN, _ = np.histogram(x[mAGN], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5])
+    HBFAGN, _ = np.histogram(x[mBFAGN], bins=np.linspace(6.5, 19.5, 14), range=[6.5, 19.5])
+    print('mtp\ttot\ttI\ttII\ttBFAGN\t\ttAGN')
+    for mtyp, tot, tI, tII, tBFAGN, tAGN in zip(morph_name[7:], H, HtI, HtII, HBFAGN, HAGN):
+        print('%s\t%d\t%d\t%d\t%d\t\t%d' % (mtyp, tot, tI, tII, tBFAGN, tAGN))
+    N_elipt = H[0]
+    N_lent = H[1] + H[2]
+    N_ET = N_elipt + N_lent
+    N_spirals = H[3:-1].sum()
+    N_irr = H[-1]
+    N_LT = N_spirals + N_irr
+    print('N_elipt:{}\tN_lent:{}\tN_ET:{}\tN_spirals:{}\tN_irr:{}\tN_LT:{}'.format(N_elipt, N_lent, N_ET, N_spirals, N_irr, N_LT))
+
+    N_SF_NIIHa_OIIIHb = (sel_NIIHa & sel_OIIIHb & sel_SF_EW).astype('int').sum()
+    N_SF_SIIHa_OIIIHb = (sel_SIIHa & sel_OIIIHb & sel_SF_EW).astype('int').sum()
+    N_SF_OIHa_OIIIHb = (sel_OIHa & sel_OIIIHb & sel_SF_EW).astype('int').sum()
+    N_pAGB_NIIHa_OIIIHb = (sel_NIIHa & sel_OIIIHb & sel_pAGB).astype('int').sum()
+    N_pAGB_SIIHa_OIIIHb = (sel_SIIHa & sel_OIIIHb & sel_pAGB).astype('int').sum()
+    N_pAGB_OIHa_OIIIHb = (sel_OIHa & sel_OIIIHb & sel_pAGB).astype('int').sum()
+    print('N_SF_NIIHa_OIIIHb:{}  N_SF_SIIHa_OIIIHb:{}  N_SF_OIHa_OIIIHb:{}  N_pAGB_NIIHa_OIIIHb:{}  N_pAGB_SIIHa_OIIIHb:{}  N_pAGB_OIHa_OIIIHb:{}  '.format(N_SF_NIIHa_OIIIHb,N_SF_SIIHa_OIIIHb,N_SF_OIHa_OIIIHb,N_pAGB_NIIHa_OIIIHb,N_pAGB_SIIHa_OIIIHb,N_pAGB_OIHa_OIIIHb))
+    m = ~sel_below_K01
+    N_above_K01 = m.astype('int').sum()
+    N_pAGB_above_K01 = (m & sel_pAGB).astype('int').sum()
+    N_SF_EW_above_K01 = (m & sel_SF_EW).astype('int').sum()
+    N_mtI_above_K01 = (m & mtI).astype('int').sum()
+    N_mtII_above_K01 = (m & mtII).astype('int').sum()
+    N_AGN_SF_above_K01 = (m & sel_SF_EW & (mtI | mtII)).astype('int').sum()
+    print('N_above_K01:{}  pAGB:{}  SF:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01:{}'.format(N_above_K01, N_pAGB_above_K01, N_SF_EW_above_K01, N_mtI_above_K01, N_mtII_above_K01, N_AGN_SF_above_K01))
+    m = ~sel_below_K01_SII
+    N_above_K01_SII = m.astype('int').sum()
+    N_pAGB_above_K01_SII = (m & sel_pAGB).astype('int').sum()
+    N_SF_EW_above_K01_SII = (m & sel_SF_EW).astype('int').sum()
+    N_mtI_above_K01_SII = (m & mtI).astype('int').sum()
+    N_mtII_above_K01_SII = (m & mtII).astype('int').sum()
+    N_AGN_SF_above_K01_SII = (m & sel_SF_EW & (mtI | mtII)).astype('int').sum()
+    print('N_above_K01_SII:{}  pAGB:{}  SF:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01_SII:{}'.format(N_above_K01_SII, N_pAGB_above_K01_SII, N_SF_EW_above_K01_SII, N_mtI_above_K01_SII, N_mtII_above_K01_SII, N_AGN_SF_above_K01_SII))
+    m = ~sel_below_K01_OI
+    N_above_K01_OI = m.astype('int').sum()
+    N_pAGB_above_K01_OI = (m & sel_pAGB).astype('int').sum()
+    N_SF_EW_above_K01_OI = (m & sel_SF_EW).astype('int').sum()
+    N_mtI_above_K01_OI = (m & mtI).astype('int').sum()
+    N_mtII_above_K01_OI = (m & mtII).astype('int').sum()
+    N_AGN_SF_above_K01_OI = (m & sel_SF_EW & (mtI | mtII)).astype('int').sum()
+    print('N_above_K01_OI:{}  pAGB:{}  SF:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01_OI:{}'.format(N_above_K01_OI, N_pAGB_above_K01_OI, N_SF_EW_above_K01_OI, N_mtI_above_K01_OI, N_mtII_above_K01_OI, N_AGN_SF_above_K01_OI))
+    m = ~sel_below_K03
+    N_above_K03 = m.astype('int').sum()
+    N_pAGB_above_K03 = (m & sel_pAGB).astype('int').sum()
+    N_SF_EW_above_K03 = (m & sel_SF_EW).astype('int').sum()
+    N_mtI_above_K03 = (m & mtI).astype('int').sum()
+    N_mtII_above_K03 = (m & mtII).astype('int').sum()
+    N_AGN_SF_above_K03 = (m & sel_SF_EW & (mtI | mtII)).astype('int').sum()
+    print('N_above_K03:{}  pAGB:{}  SF:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01:{}'.format(N_above_K03, N_pAGB_above_K03, N_SF_EW_above_K03, N_mtI_above_K03, N_mtII_above_K03, N_AGN_SF_above_K03))
+
+    ###############################################################################
+    # END PAPER REPORTS ###########################################################
+    ###############################################################################
