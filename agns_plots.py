@@ -1272,6 +1272,72 @@ if __name__ == '__main__':
     plt.close(f)
     print('########################################')
     ########################################
+    ######################################
+    ## SFMS SF colored by central EW_Ha ##
+    ######################################
+    print('\n###########################################')
+    print('## SFMS SF (Ha) colored by central EW_Ha ##')
+    print('###########################################')
+    x = elines['log_Mass_corr']
+    y = elines['log_SFR_SF']
+    xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
+    extent = [7.5, 12, -4.5, 2.5]
+    n_bins_min_x = 5
+    n_bins_maj_y = 4
+    n_bins_min_y = 2
+    prune_x = None
+    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+    N_rows, N_cols = 1, 1
+    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+    ax = plt.subplot(gs[0])
+    plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
+                      ylabel=r'$\log ({\rm SFR_{{\rm H}}\alpha}/{\rm M}_{\odot}/{\rm yr})$',
+                      xlabel=xlabel, extent=extent,
+                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                      n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel,
+                      f=f, ax=ax)
+    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
+    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
+    WHa = EW_Ha_cen
+    WHa_Re = (-1. * elines['EW_Ha_Re'])
+    WHa_ALL = elines['EW_Ha_ALL']
+    hDIG = sel_EW & (WHa <= args.EW_hDIG)
+    SFc = sel_EW & (WHa > args.EW_SF)
+    hDIG_Re = sel_EW & (WHa_Re <= args.EW_hDIG)
+    SFc_Re = sel_EW & (WHa_Re > args.EW_SF)
+    hDIG_ALL = sel_EW & (WHa_ALL <= args.EW_hDIG)
+    SFc_ALL = sel_EW & (WHa_ALL > args.EW_SF)
+    interval = [8.3, 11.8, 7.5, 10.5]
+    dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
+    for k, v in dict_masks.items():
+        print('{}:'.format(k))
+        X = x.loc[v]
+        Y = y.loc[v]
+        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
+        if k == 'SFc_ALL':
+            p_SFc = p
+            p_SFc_c = pc
+            ax.plot(interval[0:2], np.polyval(p_SFc_c, interval[0:2]), c='k', label='SFG')
+            ax.text(x_bins_center__r[0], np.polyval(p_SFc_c, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
+        # if k == 'hDIG':
+        #     p_hDIG = p
+        #     p_hDIG_c = pc
+        #     ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
+        #     ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
+    ###########################
+    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc_c, x[mtI])) <= 0).astype('int').sum()
+    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc_c, x[mtII])) <= 0).astype('int').sum()
+    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc_c, x[mBFAGN])) <= 0).astype('int').sum()
+    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc_c, x[mALLAGN])) <= 0).astype('int').sum()
+    print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
+    print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
+    print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
+    print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
+    ###########################
+    output_name = '%s/fig_SFMS_SF_cWHa.%s' % (args.figs_dir, args.img_suffix)
+    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
     ###############################################
     ## SFMS SSP (10Myr) colored by central EW_Ha ##
     ###############################################
@@ -1777,6 +1843,15 @@ if __name__ == '__main__':
             m_redshift
         ],
         ##################################
+        ###########################
+        ## SFMS colored by EW_Ha ##
+        ###########################
+        'fig_histo_SFMS_SF': [
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_SFR_SF'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None,
+            EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
+        ],
+        ###########################
         ###########################
         ## SFMS colored by EW_Ha ##
         ###########################

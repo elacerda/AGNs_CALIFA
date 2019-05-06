@@ -26,7 +26,7 @@ def parser_args(default_args_file='args/default_selection.args'):
         'bug': 0.8,
         'output_agn_candidates': 'AGN_CANDIDATES.csv',
         'EW_SF': 10.,
-        'EW_AGN': 3.,  # 1.875,
+        'EW_AGN': 3.,
         'EW_hDIG': 3.,
         'EW_strong': 6.,
         'EW_verystrong': 10.,
@@ -623,6 +623,16 @@ if __name__ == '__main__':
     N_AGN_SF_above_K03 = (m & sel_SF_EW & (mtI | mtII)).astype('int').sum()
     print('N_above_K03:{}  pAGB:{}  SF:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01:{}'.format(N_above_K03, N_pAGB_above_K03, N_SF_EW_above_K03, N_mtI_above_K03, N_mtII_above_K03, N_AGN_SF_above_K03))
 
+    N_pAGB_all = (sel_pAGB & sel_OIIIHb & sel_NIIHa & sel_SIIHa & sel_OIHa).astype('int').sum()
+    N_pAGB_inBPT = (sel_pAGB & sel_OIIIHb & sel_NIIHa).astype('int').sum()
+    N_pAGB_inSII = (sel_pAGB & sel_OIIIHb & sel_SIIHa).astype('int').sum()
+    N_pAGB_inOI = (sel_pAGB & sel_OIIIHb & sel_OIHa).astype('int').sum()
+    print('N_pAGB_all:{}  N_pAGB_inBPT:{}  N_pAGB_inSII:{}  N_pAGB_inOI:{}'.format(N_pAGB_all, N_pAGB_inBPT, N_pAGB_inSII, N_pAGB_inOI))
+    N_SF_EW_all = (sel_SF_EW & sel_OIIIHb & sel_NIIHa & sel_SIIHa & sel_OIHa).astype('int').sum()
+    N_SF_EW_inBPT = (sel_SF_EW & sel_OIIIHb & sel_NIIHa).astype('int').sum()
+    N_SF_EW_inSII = (sel_SF_EW & sel_OIIIHb & sel_SIIHa).astype('int').sum()
+    N_SF_EW_inOI = (sel_SF_EW & sel_OIIIHb & sel_OIHa).astype('int').sum()
+    print('N_SF_EW_all:{}  N_SF_EW_inBPT:{}  N_SF_EW_inSII:{}  N_SF_EW_inOI:{}'.format(N_SF_EW_all, N_SF_EW_inBPT, N_SF_EW_inSII, N_SF_EW_inOI))
     ###############################################################################
     # END PAPER REPORTS ###########################################################
     ###############################################################################
