@@ -179,6 +179,10 @@ df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
 df['elines'].loc[df['elines']['log_Mass'] < 0, 'log_Mass'] = np.nan
 df['elines'].loc[df['elines']['lSFR'] < -10, 'lSFR'] = np.nan
 df['elines'].loc[df['elines']['lSFR_NC'] < -10, 'lSFR_NC'] = np.nan
+df['elines'].loc[df['elines']['log_SFR_SF'] < -10, 'log_SFR_SF'] = np.nan
+df['elines'].loc[df['elines']['log_SFR_ssp'] < -10, 'log_SFR_ssp'] = np.nan
+df['elines'].loc[df['elines']['log_SFR_ssp_10Myr'] < -10, 'log_SFR_ssp_10Myr'] = np.nan
+df['elines'].loc[df['elines']['log_SFR_ssp_100Myr'] < -10, 'log_SFR_ssp_100Myr'] = np.nan
 df['elines'].loc[df['elines']['log_Mass_gas'] == -12, 'log_Mass_gas'] = np.nan
 df['elines'].loc[df['elines']['log_Mass_gas_Av_gas_rad'] == -12, 'log_Mass_gas_Av_gas_rad'] = np.nan
 df['elines']['log_NII_Ha_cen_fit'] = np.log10(df['elines']['NII_6583'] / df['elines']['Ha_narrow'])

@@ -2097,6 +2097,57 @@ if __name__ == '__main__':
 # plt.legend(fontsize=15)
 ###############################
 
+
+######################
+### sSFR vs logWHa ###
+######################
+# x = elines['EW_Ha_cen_mean'].apply(np.log10)
+# plt.xlabel(r'$\log ({\rm W}_{{\rm H}\alpha}/{\rm \AA})$', fontsize=20)
+# y = elines['log_SFR_ssp'] - elines['log_Mass_corr']
+# plt.ylabel(r'$\log ({\rm sSFR_{\rm SSP}}/{\rm yr})$', fontsize=20)
+# interval = [-1, 2.5, -12, -9]
+# plt.clf()
+# plt.scatter(x, y, c='gray', alpha=0.5)
+# plt.scatter(x.loc[mtI], y.loc[mtI], marker='*', color='k', s=150)
+# plt.scatter(x.loc[mtII], y.loc[mtII], marker='*', color='b', s=150)
+# x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.3)
+# _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(x.values, y.values, x_bins__r, interval)
+# plt.plot(x_bincenter__r, y_mean, 'ro--')
+# plt.xlim(interval[0:2])
+# plt.ylim(interval[2:4])
+
+# x = elines['EW_Ha_cen_mean'].apply(np.log10)
+# plt.xlabel(r'$\log ({\rm W}_{{\rm H}\alpha}/{\rm \AA})$', fontsize=20)
+# y = elines['log_SFR_SF'] - elines['log_Mass_corr']
+# plt.ylabel(r'$\log ({\rm sSFR_{{\rm H}\alpha}}/{\rm yr})$', fontsize=20)
+# interval = [-1.5, 3, -14.5, -8.5]
+# plt.clf()
+# plt.scatter(x, y, c='gray', alpha=0.5)
+# plt.scatter(x.loc[mtI], y.loc[mtI], marker='*', color='k', s=150)
+# plt.scatter(x.loc[mtII], y.loc[mtII], marker='*', color='b', s=150)
+# x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.3)
+# _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(x.values, y.values, x_bins__r, interval)
+# plt.plot(x_bincenter__r, y_mean, 'ro--')
+# plt.xlim(interval[0:2])
+# plt.ylim(interval[2:4])
+#
+# x = elines['EW_Ha_cen_mean'].apply(np.log10)
+# plt.xlabel(r'$\log ({\rm W}_{{\rm H}\alpha}/{\rm \AA})$', fontsize=20)
+# y = elines['log_SFR_SF'] - elines['log_SFR_ssp']
+# plt.ylabel(r'$\Delta_{\rm SFR}$', fontsize=20)
+# interval = [-1.5, 3, -3.5, 1]
+# plt.clf()
+# plt.scatter(x, y, c='gray', alpha=0.5)
+# plt.scatter(x.loc[mtI], y.loc[mtI], marker='*', color='k', s=150)
+# plt.scatter(x.loc[mtII], y.loc[mtII], marker='*', color='b', s=150)
+# x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.3)
+# _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(x.values, y.values, x_bins__r, interval)
+# plt.plot(x_bincenter__r, y_mean, 'ro--')
+# plt.xlim(interval[0:2])
+# plt.ylim(interval[2:4])
+# plt.axhline(y=0, color='k', ls='-.')
+######################
+
 ###############################################################################
 # END IPYTHON RECIPES #########################################################
 ###############################################################################
