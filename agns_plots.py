@@ -704,7 +704,7 @@ def plot_fig_histo_M_ZHMW(elines, args, x, y, ax, interval=None):
 
 def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     WHa = elines['EW_Ha_ALL']
-    WHa_Re =(-1. * elines['EW_Ha_Re'])
+    WHa_Re = elines['EW_Ha_Re']
     WHa_ALL = elines['EW_Ha_ALL']
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
@@ -872,7 +872,9 @@ if __name__ == '__main__':
     sel_SIIHa = pickled['sel_SIIHa']
     sel_OIHa = pickled['sel_OIHa']
     sel_MS = pickled['sel_MS']
-    sel_EW = pickled['sel_EW']
+    sel_EW_cen = pickled['sel_EW_cen']
+    sel_EW_ALL = pickled['sel_EW_ALL']
+    sel_EW_Re = pickled['sel_EW_Re']
     sel_below_K01 = pickled['sel_below_K01']
     sel_below_K01_SII = pickled['sel_below_K01_SII']
     sel_below_K01_OI = pickled['sel_below_K01_OI']
@@ -1001,7 +1003,7 @@ if __name__ == '__main__':
     ax.yaxis.set_minor_locator(AutoMinorLocator(5))
     ax.tick_params(**tick_params)
     ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
-    ax.legend(handles=legend_elements, ncol=2, loc=2, frameon=False, fontsize='xx-small', borderpad=0, borderaxespad=0.75)
+    ax.legend(handles=legend_elements, ncol=2, loc=2, frameon=False, fontsize=4, borderpad=0, borderaxespad=0.75)
     ##########################
     # SII/Ha
     ##########################
@@ -1167,14 +1169,14 @@ if __name__ == '__main__':
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     WHa = EW_Ha_cen
-    WHa_Re = (-1. * elines['EW_Ha_Re'])
+    WHa_Re = elines['EW_Ha_Re']
     WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW & (WHa <= args.EW_hDIG)
-    SFc = sel_EW & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW & (WHa_ALL > args.EW_SF)
+    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
+    SFc = sel_EW_cen & (WHa > args.EW_SF)
+    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
+    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
+    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
+    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
     interval = [8.3, 11.8, 7.5, 10.5]
     dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
     for k, v in dict_masks.items():
@@ -1232,14 +1234,14 @@ if __name__ == '__main__':
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     WHa = EW_Ha_cen
-    WHa_Re =(-1. * elines['EW_Ha_Re'])
+    WHa_Re = elines['EW_Ha_Re']
     WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW & (WHa <= args.EW_hDIG)
-    SFc = sel_EW & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW & (WHa_ALL > args.EW_SF)
+    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
+    SFc = sel_EW_cen & (WHa > args.EW_SF)
+    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
+    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
+    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
+    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
     interval = [8.3, 11.8, 7.5, 10.5]
     dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
     for k, v in dict_masks.items():
@@ -1300,14 +1302,14 @@ if __name__ == '__main__':
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     WHa = EW_Ha_cen
-    WHa_Re = (-1. * elines['EW_Ha_Re'])
+    WHa_Re = elines['EW_Ha_Re']
     WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW & (WHa <= args.EW_hDIG)
-    SFc = sel_EW & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW & (WHa_ALL > args.EW_SF)
+    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
+    SFc = sel_EW_cen & (WHa > args.EW_SF)
+    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
+    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
+    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
+    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
     interval = [8.3, 11.8, 7.5, 10.5]
     dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
     for k, v in dict_masks.items():
@@ -1367,14 +1369,14 @@ if __name__ == '__main__':
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     WHa = EW_Ha_cen
-    WHa_Re =(-1. * elines['EW_Ha_Re'])
+    WHa_Re = elines['EW_Ha_Re']
     WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW & (WHa <= args.EW_hDIG)
-    SFc = sel_EW & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW & (WHa_ALL > args.EW_SF)
+    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
+    SFc = sel_EW_cen & (WHa > args.EW_SF)
+    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
+    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
+    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
+    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
     interval = [8.3, 11.8, 7.5, 10.5]
     dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
     for k, v in dict_masks.items():
@@ -1436,14 +1438,14 @@ if __name__ == '__main__':
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     WHa = EW_Ha_cen
-    WHa_Re =(-1. * elines['EW_Ha_Re'])
+    WHa_Re = elines['EW_Ha_Re']
     WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW & (WHa <= args.EW_hDIG)
-    SFc = sel_EW & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW & (WHa_ALL > args.EW_SF)
+    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
+    SFc = sel_EW_cen & (WHa > args.EW_SF)
+    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
+    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
+    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
+    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
     interval = [8.3, 11.8, 7.5, 10.5]
     dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
     for k, v in dict_masks.items():
@@ -1504,14 +1506,14 @@ if __name__ == '__main__':
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     WHa = EW_Ha_cen
-    WHa_Re =(-1. * elines['EW_Ha_Re'])
+    WHa_Re = elines['EW_Ha_Re']
     WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW & (WHa <= args.EW_hDIG)
-    SFc = sel_EW & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW & (WHa_ALL > args.EW_SF)
+    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
+    SFc = sel_EW_cen & (WHa > args.EW_SF)
+    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
+    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
+    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
+    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
     interval = [8.3, 11.8, 7.5, 10.5]
     dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
     for k, v in dict_masks.items():

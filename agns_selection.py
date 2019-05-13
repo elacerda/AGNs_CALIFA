@@ -147,6 +147,10 @@ if __name__ == '__main__':
     elog_OIII_Hb_cen = elines['log_OIII_Hb_cen_stddev']
     EW_Ha_cen = elines['EW_Ha_cen_mean']
     eEW_Ha_cen = elines['EW_Ha_cen_stddev']
+    EW_Ha_Re = elines['EW_Ha_Re']
+    eEW_Ha_Re = elines['e_EW_Ha_Re']
+    EW_Ha_ALL = elines['EW_Ha_ALL']
+    eEW_Ha_ALL = elines['e_EW_Ha_ALL']
     ###############################################################
     L = Lines()
     # consts_K01 = L.consts['K01']
@@ -191,7 +195,9 @@ if __name__ == '__main__':
     sel_SIIHa = ~(log_SII_Ha_cen.apply(np.isnan))
     sel_OIHa = ~(log_OI_Ha_cen.apply(np.isnan))
     sel_MS = sel_NIIHa & sel_OIIIHb & sel_SIIHa & sel_OIHa
-    sel_EW = ~(EW_Ha_cen.apply(np.isnan))
+    sel_EW_cen = ~(EW_Ha_cen.apply(np.isnan))
+    sel_EW_Re = ~(EW_Ha_Re.apply(np.isnan))
+    sel_EW_ALL = ~(EW_Ha_ALL.apply(np.isnan))
     # K01
     sel_below_K01 = L.belowlinebpt('K01', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
     sel_below_K01_SII = L.belowlinebpt('K01_SII_Ha', log_SII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
@@ -214,14 +220,15 @@ if __name__ == '__main__':
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01
     sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_OIHa_OIIIHb_K01
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 = sel_AGNLINER_NIIHa_OIIIHb & sel_AGN_SIIHa_OIIIHb_K01 & sel_AGN_OIHa_OIIIHb_K01
-    sel_AGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug))
-    sel_SAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug))
-    sel_VSAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug))
+    sel_AGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW_cen & (EW_Ha_cen > args.EW_AGN*args.bug))
+    sel_SAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug))
+    sel_VSAGN_candidates = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug))
     sel_SF_NIIHa_OIIIHb_K01 = sel_NIIHa & sel_OIIIHb & sel_below_K01
     sel_SF_NIIHa_OIIIHb_K03 = sel_NIIHa & sel_OIIIHb & L.belowlinebpt('K03', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
     sel_SF_NIIHa_OIIIHb_S06 = sel_NIIHa & sel_OIIIHb & L.belowlinebpt('S06', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
-    sel_pAGB = sel_EW & (EW_Ha_cen <= args.EW_hDIG*args.bug)
-    sel_SF_EW = sel_EW & (EW_Ha_cen > args.EW_SF*args.bug)
+    sel_pAGB = sel_EW_cen & (EW_Ha_cen <= args.EW_hDIG*args.bug)
+    sel_SF_EW = sel_EW_cen & (EW_Ha_cen > args.EW_SF*args.bug)
+    sel_SF_EW_CanoDiaz = sel_EW_cen & (EW_Ha_cen > 6*args.bug)
 
     # MAIN SAMPLE SELECTIONS (EXCLUDING POINTS WITHOUT SII AND OI)
     sel_AGNLINER_NIIHa_OIIIHb_MS = sel_MS & ~sel_below_K01
@@ -233,14 +240,14 @@ if __name__ == '__main__':
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_MS = sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_SIIHa_OIIIHb_K01_MS
     sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01_MS = sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_OIHa_OIIIHb_K01_MS
     sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS = sel_AGNLINER_NIIHa_OIIIHb_MS & sel_AGN_SIIHa_OIIIHb_K01_MS & sel_AGN_OIHa_OIIIHb_K01_MS
-    sel_AGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug))
-    sel_SAGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug))
-    sel_VSAGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug))
+    sel_AGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW_cen & (EW_Ha_cen > args.EW_AGN*args.bug))
+    sel_SAGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug))
+    sel_VSAGN_candidates_MS = (sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01_MS & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug))
     sel_SF_NIIHa_OIIIHb_K01_MS = sel_MS & sel_below_K01
     sel_SF_NIIHa_OIIIHb_K03_MS = sel_MS & L.belowlinebpt('K03', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
     sel_SF_NIIHa_OIIIHb_S06_MS = sel_MS & L.belowlinebpt('S06', log_NII_Ha_cen, log_OIII_Hb_cen, sigma_clip=sigma_clip)
-    sel_pAGB_MS = sel_MS & sel_EW & (EW_Ha_cen <= args.EW_hDIG*args.bug)
-    sel_SF_EW_MS = sel_MS & sel_EW & (EW_Ha_cen > args.EW_SF*args.bug)
+    sel_pAGB_MS = sel_MS & sel_EW_cen & (EW_Ha_cen <= args.EW_hDIG*args.bug)
+    sel_SF_EW_MS = sel_MS & sel_EW_cen & (EW_Ha_cen > args.EW_SF*args.bug)
 
     ###############################################################################
     # END SETTING VALUES ##########################################################
@@ -298,31 +305,31 @@ if __name__ == '__main__':
     m = sel_AGNLINER_NIIHa_OIIIHb
     N_AGN_NII_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    N_AGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
-    N_SAGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
-    # elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)), 'TYPE'] = 7
-    N_VSAGN_NII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    N_AGN_NII_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
+    N_SAGN_NII_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    # elines.loc[(m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug)), 'TYPE'] = 7
+    N_VSAGN_NII_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     # SF
     # m = sel_SF_NIIHa_OIIIHb_K01_MS
     m = sel_SF_NIIHa_OIIIHb_K01
     N_SF_K01 = m.values.astype('int').sum()
-    N_SF_K01_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
-    N_SSF_K01 = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
-    N_VSSF_K01 = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    N_SF_K01_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+    N_SSF_K01 = (m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    N_VSSF_K01 = (m & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     # m = sel_SF_NIIHa_OIIIHb_K03_MS
     m = sel_SF_NIIHa_OIIIHb_K03
     N_SF_K03 = m.values.astype('int').sum()
-    N_SF_K03_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
-    elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)), 'TYPE'] = 6
-    N_SSF_K03 = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
-    elines.loc[(m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)), 'TYPE'] = 1
-    N_VSSF_K03 = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    N_SF_K03_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+    elines.loc[(m & sel_EW_cen & (EW_Ha_cen > args.EW_hDIG*args.bug)), 'TYPE'] = 6
+    N_SSF_K03 = (m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    elines.loc[(m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug)), 'TYPE'] = 1
+    N_VSSF_K03 = (m & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     # m = sel_SF_NIIHa_OIIIHb_S06_MS
     m = sel_SF_NIIHa_OIIIHb_S06
     N_SF_S06 = m.values.astype('int').sum()
-    N_SF_S06_EW = (m & sel_EW & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
-    N_SSF_S06 = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
-    N_VSSF_S06 = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    N_SF_S06_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_hDIG*args.bug)).values.astype('int').sum()
+    N_SSF_S06 = (m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    N_VSSF_S06 = (m & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     ###############################################################
     # [OIII] vs [SII]
     ###############################################################
@@ -330,9 +337,9 @@ if __name__ == '__main__':
     m = sel_AGN_SIIHa_OIIIHb_K01
     N_AGN_SII_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    N_AGN_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
-    N_SAGN_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
-    N_VSAGN_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    N_AGN_SII_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
+    N_SAGN_SII_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    N_VSAGN_SII_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     ###############################################################
     # [OIII] vs [NII] + [OIII] vs [SII]
     ###############################################################
@@ -340,9 +347,9 @@ if __name__ == '__main__':
     m = sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01
     N_AGN_NII_SII_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    N_AGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
-    N_SAGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
-    N_VSAGN_NII_SII_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    N_AGN_NII_SII_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
+    N_SAGN_NII_SII_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    N_VSAGN_NII_SII_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     ###############################################################
     # [OIII] vs [OI]
     ###############################################################
@@ -350,9 +357,9 @@ if __name__ == '__main__':
     m = sel_AGN_OIHa_OIIIHb_K01
     N_AGN_OI_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    N_AGN_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
-    N_SAGN_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
-    N_VSAGN_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    N_AGN_OI_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
+    N_SAGN_OI_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    N_VSAGN_OI_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     ###############################################################
     # [OIII] vs [NII] + [OIII] vs [OI]
     ###############################################################
@@ -360,9 +367,9 @@ if __name__ == '__main__':
     m = sel_AGN_NIIHa_OIIIHb_K01_OIHa_K01
     N_AGN_NII_OI_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    N_AGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
-    N_SAGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
-    N_VSAGN_NII_OI_Ha_EW = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
+    N_AGN_NII_OI_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_AGN*args.bug)).values.astype('int').sum()
+    N_SAGN_NII_OI_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug)).values.astype('int').sum()
+    N_VSAGN_NII_OI_Ha_EW = (m & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug)).values.astype('int').sum()
     ###############################################################
     # [OIII] vs [NII] + [OIII] vs [SII] + [OIII] vs [OI]
     ###############################################################
@@ -371,13 +378,13 @@ if __name__ == '__main__':
     m = sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01
     N_AGN_NII_SII_OI_Ha = m.values.astype('int').sum()
     # plus EW(Ha)
-    sel_AGN = (m & sel_EW & (EW_Ha_cen > args.EW_AGN*args.bug))
+    sel_AGN = (m & sel_EW_cen & (EW_Ha_cen > args.EW_AGN*args.bug))
     N_AGN = sel_AGN.values.astype('int').sum()
     elines.loc[sel_AGN, 'TYPE'] = 2
-    sel_SAGN = (m & sel_EW & (EW_Ha_cen > args.EW_strong*args.bug))
+    sel_SAGN = (m & sel_EW_cen & (EW_Ha_cen > args.EW_strong*args.bug))
     N_SAGN = sel_SAGN.values.astype('int').sum()
     elines.loc[sel_SAGN, 'TYPE'] = 3
-    sel_VSAGN = (m & sel_EW & (EW_Ha_cen > args.EW_verystrong*args.bug))
+    sel_VSAGN = (m & sel_EW_cen & (EW_Ha_cen > args.EW_verystrong*args.bug))
     N_VSAGN = sel_VSAGN.values.astype('int').sum()
     ###############################################################
     ###############################################################
@@ -507,7 +514,9 @@ if __name__ == '__main__':
             'sel_SIIHa': sel_SIIHa,
             'sel_OIHa': sel_OIHa,
             'sel_MS': sel_MS,
-            'sel_EW': sel_EW,
+            'sel_EW_cen': sel_EW_cen,
+            'sel_EW_ALL': sel_EW_ALL,
+            'sel_EW_Re': sel_EW_Re,
             'sel_below_K01': sel_below_K01,
             'sel_below_K01_SII': sel_below_K01_SII,
             'sel_below_K01_OI': sel_below_K01_OI,
@@ -583,56 +592,75 @@ if __name__ == '__main__':
     N_LT = N_spirals + N_irr
     print('N_elipt:{}\tN_lent:{}\tN_ET:{}\tN_spirals:{}\tN_irr:{}\tN_LT:{}'.format(N_elipt, N_lent, N_ET, N_spirals, N_irr, N_LT))
 
-    N_SF_NIIHa_OIIIHb = (sel_NIIHa & sel_OIIIHb & sel_SF_EW).astype('int').sum()
-    N_SF_SIIHa_OIIIHb = (sel_SIIHa & sel_OIIIHb & sel_SF_EW).astype('int').sum()
-    N_SF_OIHa_OIIIHb = (sel_OIHa & sel_OIIIHb & sel_SF_EW).astype('int').sum()
+    N_SF_EW_NIIHa_OIIIHb = (sel_NIIHa & sel_OIIIHb & sel_SF_EW).astype('int').sum()
+    N_SF_EW_SIIHa_OIIIHb = (sel_SIIHa & sel_OIIIHb & sel_SF_EW).astype('int').sum()
+    N_SF_EW_OIHa_OIIIHb = (sel_OIHa & sel_OIIIHb & sel_SF_EW).astype('int').sum()
+    N_SFCD_EW_NIIHa_OIIIHb = (sel_NIIHa & sel_OIIIHb & sel_SF_EW_CanoDiaz).astype('int').sum()
+    N_SFCD_EW_SIIHa_OIIIHb = (sel_SIIHa & sel_OIIIHb & sel_SF_EW_CanoDiaz).astype('int').sum()
+    N_SFCD_EW_OIHa_OIIIHb = (sel_OIHa & sel_OIIIHb & sel_SF_EW_CanoDiaz).astype('int').sum()
     N_pAGB_NIIHa_OIIIHb = (sel_NIIHa & sel_OIIIHb & sel_pAGB).astype('int').sum()
     N_pAGB_SIIHa_OIIIHb = (sel_SIIHa & sel_OIIIHb & sel_pAGB).astype('int').sum()
     N_pAGB_OIHa_OIIIHb = (sel_OIHa & sel_OIIIHb & sel_pAGB).astype('int').sum()
-    print('N_SF_NIIHa_OIIIHb:{}  N_SF_SIIHa_OIIIHb:{}  N_SF_OIHa_OIIIHb:{}  N_pAGB_NIIHa_OIIIHb:{}  N_pAGB_SIIHa_OIIIHb:{}  N_pAGB_OIHa_OIIIHb:{}  '.format(N_SF_NIIHa_OIIIHb,N_SF_SIIHa_OIIIHb,N_SF_OIHa_OIIIHb,N_pAGB_NIIHa_OIIIHb,N_pAGB_SIIHa_OIIIHb,N_pAGB_OIHa_OIIIHb))
+    print('N_SF_EW_NIIHa_OIIIHb:{}  N_SF_EW_SIIHa_OIIIHb:{}  N_SF_EW_OIHa_OIIIHb:{}  N_SFCD_EW_NIIHa_OIIIHb:{}  N_SFCD_EW_SIIHa_OIIIHb:{}  N_SFCD_EW_OIHa_OIIIHb:{}  N_pAGB_NIIHa_OIIIHb:{}  N_pAGB_SIIHa_OIIIHb:{}  N_pAGB_OIHa_OIIIHb:{}  '.format(N_SF_EW_NIIHa_OIIIHb,N_SF_EW_SIIHa_OIIIHb,N_SF_EW_OIHa_OIIIHb,N_SFCD_EW_NIIHa_OIIIHb,N_SFCD_EW_SIIHa_OIIIHb,N_SFCD_EW_OIHa_OIIIHb,N_pAGB_NIIHa_OIIIHb,N_pAGB_SIIHa_OIIIHb,N_pAGB_OIHa_OIIIHb))
+
     m = ~sel_below_K01
     N_above_K01 = m.astype('int').sum()
     N_pAGB_above_K01 = (m & sel_pAGB).astype('int').sum()
     N_SF_EW_above_K01 = (m & sel_SF_EW).astype('int').sum()
+    N_SFCD_EW_above_K01 = (m & sel_SF_EW_CanoDiaz).astype('int').sum()
     N_mtI_above_K01 = (m & mtI).astype('int').sum()
     N_mtII_above_K01 = (m & mtII).astype('int').sum()
     N_AGN_SF_above_K01 = (m & sel_SF_EW & (mtI | mtII)).astype('int').sum()
-    print('N_above_K01:{}  pAGB:{}  SF:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01:{}'.format(N_above_K01, N_pAGB_above_K01, N_SF_EW_above_K01, N_mtI_above_K01, N_mtII_above_K01, N_AGN_SF_above_K01))
+    print('N_above_K01:{}  pAGB:{}  SF:{}  SFCD:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01:{}'.format(N_above_K01, N_pAGB_above_K01, N_SF_EW_above_K01, N_SFCD_EW_above_K01, N_mtI_above_K01, N_mtII_above_K01, N_AGN_SF_above_K01))
+
     m = ~sel_below_K01_SII
     N_above_K01_SII = m.astype('int').sum()
     N_pAGB_above_K01_SII = (m & sel_pAGB).astype('int').sum()
     N_SF_EW_above_K01_SII = (m & sel_SF_EW).astype('int').sum()
+    N_SFCD_EW_above_K01_SII = (m & sel_SF_EW_CanoDiaz).astype('int').sum()
     N_mtI_above_K01_SII = (m & mtI).astype('int').sum()
     N_mtII_above_K01_SII = (m & mtII).astype('int').sum()
     N_AGN_SF_above_K01_SII = (m & sel_SF_EW & (mtI | mtII)).astype('int').sum()
-    print('N_above_K01_SII:{}  pAGB:{}  SF:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01_SII:{}'.format(N_above_K01_SII, N_pAGB_above_K01_SII, N_SF_EW_above_K01_SII, N_mtI_above_K01_SII, N_mtII_above_K01_SII, N_AGN_SF_above_K01_SII))
+    print('N_above_K01_SII:{}  pAGB:{}  SF:{}  SFCD:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01_SII:{}'.format(N_above_K01_SII, N_pAGB_above_K01_SII, N_SF_EW_above_K01_SII, N_SF_EW_above_K01_SII, N_mtI_above_K01_SII, N_mtII_above_K01_SII, N_AGN_SF_above_K01_SII))
+
     m = ~sel_below_K01_OI
     N_above_K01_OI = m.astype('int').sum()
     N_pAGB_above_K01_OI = (m & sel_pAGB).astype('int').sum()
     N_SF_EW_above_K01_OI = (m & sel_SF_EW).astype('int').sum()
+    N_SFCD_EW_above_K01_OI = (m & sel_SF_EW_CanoDiaz).astype('int').sum()
     N_mtI_above_K01_OI = (m & mtI).astype('int').sum()
     N_mtII_above_K01_OI = (m & mtII).astype('int').sum()
     N_AGN_SF_above_K01_OI = (m & sel_SF_EW & (mtI | mtII)).astype('int').sum()
-    print('N_above_K01_OI:{}  pAGB:{}  SF:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01_OI:{}'.format(N_above_K01_OI, N_pAGB_above_K01_OI, N_SF_EW_above_K01_OI, N_mtI_above_K01_OI, N_mtII_above_K01_OI, N_AGN_SF_above_K01_OI))
+    print('N_above_K01_OI:{}  pAGB:{}  SF:{}  SFCD:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01_OI:{}'.format(N_above_K01_OI, N_pAGB_above_K01_OI, N_SF_EW_above_K01_OI, N_SF_EW_above_K01_OI, N_mtI_above_K01_OI, N_mtII_above_K01_OI, N_AGN_SF_above_K01_OI))
+
     m = ~sel_below_K03
     N_above_K03 = m.astype('int').sum()
     N_pAGB_above_K03 = (m & sel_pAGB).astype('int').sum()
     N_SF_EW_above_K03 = (m & sel_SF_EW).astype('int').sum()
+    N_SFCD_EW_above_K03 = (m & sel_SF_EW_CanoDiaz).astype('int').sum()
     N_mtI_above_K03 = (m & mtI).astype('int').sum()
     N_mtII_above_K03 = (m & mtII).astype('int').sum()
     N_AGN_SF_above_K03 = (m & sel_SF_EW & (mtI | mtII)).astype('int').sum()
-    print('N_above_K03:{}  pAGB:{}  SF:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01:{}'.format(N_above_K03, N_pAGB_above_K03, N_SF_EW_above_K03, N_mtI_above_K03, N_mtII_above_K03, N_AGN_SF_above_K03))
+    print('N_above_K03:{}  pAGB:{}  SF:{}  SFCD:{}  N_tI:{}  N_tII:{}  N_AGN_SF_above_K01:{}'.format(N_above_K03, N_pAGB_above_K03, N_SF_EW_above_K03, N_SFCD_EW_above_K03, N_mtI_above_K03, N_mtII_above_K03, N_AGN_SF_above_K03))
 
     N_pAGB_all = (sel_pAGB & sel_OIIIHb & sel_NIIHa & sel_SIIHa & sel_OIHa).astype('int').sum()
     N_pAGB_inBPT = (sel_pAGB & sel_OIIIHb & sel_NIIHa).astype('int').sum()
     N_pAGB_inSII = (sel_pAGB & sel_OIIIHb & sel_SIIHa).astype('int').sum()
     N_pAGB_inOI = (sel_pAGB & sel_OIIIHb & sel_OIHa).astype('int').sum()
     print('N_pAGB_all:{}  N_pAGB_inBPT:{}  N_pAGB_inSII:{}  N_pAGB_inOI:{}'.format(N_pAGB_all, N_pAGB_inBPT, N_pAGB_inSII, N_pAGB_inOI))
+
     N_SF_EW_all = (sel_SF_EW & sel_OIIIHb & sel_NIIHa & sel_SIIHa & sel_OIHa).astype('int').sum()
     N_SF_EW_inBPT = (sel_SF_EW & sel_OIIIHb & sel_NIIHa).astype('int').sum()
     N_SF_EW_inSII = (sel_SF_EW & sel_OIIIHb & sel_SIIHa).astype('int').sum()
     N_SF_EW_inOI = (sel_SF_EW & sel_OIIIHb & sel_OIHa).astype('int').sum()
     print('N_SF_EW_all:{}  N_SF_EW_inBPT:{}  N_SF_EW_inSII:{}  N_SF_EW_inOI:{}'.format(N_SF_EW_all, N_SF_EW_inBPT, N_SF_EW_inSII, N_SF_EW_inOI))
+
+    N_SFCD_EW_all = (sel_SF_EW_CanoDiaz & sel_OIIIHb & sel_NIIHa & sel_SIIHa & sel_OIHa).astype('int').sum()
+    N_SFCD_EW_inBPT = (sel_SF_EW_CanoDiaz & sel_OIIIHb & sel_NIIHa).astype('int').sum()
+    N_SFCD_EW_inSII = (sel_SF_EW_CanoDiaz & sel_OIIIHb & sel_SIIHa).astype('int').sum()
+    N_SFCD_EW_inOI = (sel_SF_EW_CanoDiaz & sel_OIIIHb & sel_OIHa).astype('int').sum()
+    print('N_SFCD_EW_all:{}  N_SFCD_EW_inBPT:{}  N_SFCD_EW_inSII:{}  N_SFCD_EW_inOI:{}'.format(N_SFCD_EW_all, N_SFCD_EW_inBPT, N_SFCD_EW_inSII, N_SFCD_EW_inOI))
+
     ###############################################################################
     # END PAPER REPORTS ###########################################################
     ###############################################################################

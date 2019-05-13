@@ -175,6 +175,7 @@ df['elines']['NII_6583'] = df['broad_fit']['NII_6583']
 df['elines']['NII_6548'] = df['broad_fit']['NII_6548']
 df['elines']['EW_Ha_cen_mean'] = df['elines']['EW_Ha_cen_mean'].apply(np.abs)
 df['elines']['EW_Ha_ALL'] = df['elines']['EW_Ha_ALL'].apply(np.abs)
+df['elines']['EW_Ha_Re'] = df['elines']['EW_Ha_Re'].apply(np.abs)
 df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
 df['elines'].loc[df['elines']['log_Mass'] < 0, 'log_Mass'] = np.nan
 df['elines'].loc[df['elines']['lSFR'] < -10, 'lSFR'] = np.nan
