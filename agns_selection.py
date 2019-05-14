@@ -661,6 +661,11 @@ if __name__ == '__main__':
     N_SFCD_EW_inOI = (sel_SF_EW_CanoDiaz & sel_OIIIHb & sel_OIHa).astype('int').sum()
     print('N_SFCD_EW_all:{}  N_SFCD_EW_inBPT:{}  N_SFCD_EW_inSII:{}  N_SFCD_EW_inOI:{}'.format(N_SFCD_EW_all, N_SFCD_EW_inBPT, N_SFCD_EW_inSII, N_SFCD_EW_inOI))
 
+    N_AGN_below_K06_SII = (sel_EW_cen & (EW_Ha_cen > 3) & sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_below_K06_SII).astype('int').sum()
+    N_AGN_below_K06_OI = (sel_EW_cen & (EW_Ha_cen > 3) & sel_AGN_NIIHa_OIIIHb_K01_SIIHa_K01_OIHa_K01 & sel_below_K06_OI).astype('int').sum()
+    N_AGN_below_CF10 = (sel_below_CF10 & (mtI | mtII)).astype('int').sum()
+    print('N_AGN_below_K06_SII:{}  N_AGN_below_K06_OI:{}  N_AGN_below_CF10:{}'.format(N_AGN_below_K06_SII, N_AGN_below_K06_OI, N_AGN_below_CF10))
+
     ###############################################################################
     # END PAPER REPORTS ###########################################################
     ###############################################################################
