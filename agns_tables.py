@@ -187,7 +187,7 @@ df['elines'].loc[df['elines']['log_SFR_ssp_100Myr'] < -10, 'log_SFR_ssp_100Myr']
 df['elines'].loc[df['elines']['log_Mass_gas'] == -12, 'log_Mass_gas'] = np.nan
 df['elines'].loc[df['elines']['log_Mass_gas_Av_gas_rad'] == -12, 'log_Mass_gas_Av_gas_rad'] = np.nan
 df['elines']['log_NII_Ha_cen_fit'] = np.log10(df['elines']['NII_6583'] / df['elines']['Ha_narrow'])
-a, b = df['elines']['log_NII_Ha_cen_fit'], df['elines']['log_NII_Ha_cen_mean']
+# a, b = df['elines']['log_NII_Ha_cen_fit'], df['elines']['log_NII_Ha_cen_mean']
 # m = a.apply(np.isnan)
 # m = a.apply(np.isnan) | (df['elines']['EW_Ha_cen_mean'] <= 3)
 # df['elines']['log_NII_Ha_cen'] = np.where(m, b, a)

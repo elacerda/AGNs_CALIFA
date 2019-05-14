@@ -2104,7 +2104,10 @@ if __name__ == '__main__':
 ### sSFR vs logWHa ###
 ######################
 # x = elines['EW_Ha_cen_mean'].apply(np.log10)
-# plt.xlabel(r'$\log ({\rm W}_{{\rm H}\alpha}/{\rm \AA})$', fontsize=20)
+# EW_Ha_Re_SF = 10**(elines['log_SFR_SF'] - elines['lSFR']) * elines['EW_Ha_ALL']
+# x = EW_Ha_Re_SF.apply(np.log10)
+# xlabel = r'$\log ({\rm W}_{{\rm H}\alpha}^{\rm SF}/{\rm \AA})$'
+# plt.xlabel(xlabel, fontsize=20)
 # y = elines['log_SFR_ssp'] - elines['log_Mass_corr']
 # plt.ylabel(r'$\log ({\rm sSFR_{\rm SSP}}/{\rm yr})$', fontsize=20)
 # interval = [-1, 2.5, -12, -9]
@@ -2117,9 +2120,9 @@ if __name__ == '__main__':
 # plt.plot(x_bincenter__r, y_mean, 'ro--')
 # plt.xlim(interval[0:2])
 # plt.ylim(interval[2:4])
-
+#
 # x = elines['EW_Ha_cen_mean'].apply(np.log10)
-# plt.xlabel(r'$\log ({\rm W}_{{\rm H}\alpha}/{\rm \AA})$', fontsize=20)
+# plt.xlabel(xlabel, fontsize=20)
 # y = elines['log_SFR_SF'] - elines['log_Mass_corr']
 # plt.ylabel(r'$\log ({\rm sSFR_{{\rm H}\alpha}}/{\rm yr})$', fontsize=20)
 # interval = [-1.5, 3, -14.5, -8.5]
@@ -2134,7 +2137,7 @@ if __name__ == '__main__':
 # plt.ylim(interval[2:4])
 #
 # x = elines['EW_Ha_cen_mean'].apply(np.log10)
-# plt.xlabel(r'$\log ({\rm W}_{{\rm H}\alpha}/{\rm \AA})$', fontsize=20)
+# plt.xlabel(xlabel, fontsize=20)
 # y = elines['log_SFR_SF'] - elines['log_SFR_ssp']
 # plt.ylabel(r'$\Delta_{\rm SFR}$', fontsize=20)
 # interval = [-1.5, 3, -3.5, 1]
