@@ -733,12 +733,19 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     print('y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9))
     print('y_GV_mean: %.2f Gyr' % 10**(y_GV_mean - 9))
     print('y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9))
+    ############## using 6 A as limite between SF/RG
+    OLD = WHa < 6
+    YOUNG = WHa > 6
+    y_OLD_mean = y.loc[m & OLD].mean()
+    y_YOUNG_mean = y.loc[m & YOUNG].mean()
+    print('y_OLD_mean: %.2f Gyr' % 10**(y_OLD_mean - 9))
+    print('y_YOUNG_mean: %.2f Gyr' % 10**(y_YOUNG_mean - 9))
     ### MSFS ###
     ### SFG ###
     SFRHa = elines['lSFR']
-    x_SF = x.loc[SFc]
-    y_SF = y.loc[SFc]
-    SFRHa_SF = SFRHa.loc[SFc]
+    x_SF = x.loc[YOUNG]
+    y_SF = y.loc[YOUNG]
+    SFRHa_SF = SFRHa.loc[YOUNG]
     XS_SF, YS_SF, SFRHaS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values, SFRHa_SF.values)
     if interval is None:
         interval = [8.3, 11.8, 7.5, 10.5]
@@ -752,9 +759,9 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     ax_sc.axhline(mean_t_SF, c='b', ls='--')
     ax_sc.text(0.05, 0.77, '%.2f Gyr' % (10**(mean_t_SF - 9)), color='b', fontsize=args.fontsize, va='center', transform=ax.transAxes)
     ### RG ###
-    x_hDIG = x.loc[hDIG]
-    y_hDIG = y.loc[hDIG]
-    SFRHa_hDIG = SFRHa.loc[hDIG]
+    x_hDIG = x.loc[OLD]
+    y_hDIG = y.loc[OLD]
+    SFRHa_hDIG = SFRHa.loc[OLD]
     XS_hDIG, YS_hDIG, SFRHaS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values, SFRHa_hDIG.values)
     if interval is None:
         interval = [8.3, 11.8, 7.5, 10.5]
@@ -779,6 +786,13 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     print('y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9))
     print('y_GV_mean: %.2f Gyr' % 10**(y_GV_mean - 9))
     print('y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9))
+    ############## using 6 A as limite between SF/RG
+    OLD = WHa < 6
+    YOUNG = WHa > 6
+    y_OLD_mean = y.loc[m & OLD].mean()
+    y_YOUNG_mean = y.loc[m & YOUNG].mean()
+    print('y_OLD_mean: %.2f Gyr' % 10**(y_OLD_mean - 9))
+    print('y_YOUNG_mean: %.2f Gyr' % 10**(y_YOUNG_mean - 9))
     ### MSFS ###
     ### SFG ###
     SFRHa = elines['lSFR']
@@ -819,6 +833,12 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     print('y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9))
     print('y_GV_mean: %.2f Gyr' % 10**(y_GV_mean - 9))
     print('y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9))
+    OLD = WHa < 6
+    YOUNG = WHa > 6
+    y_OLD_mean = y.loc[m & OLD].mean()
+    y_YOUNG_mean = y.loc[m & YOUNG].mean()
+    print('y_OLD_mean: %.2f Gyr' % 10**(y_OLD_mean - 9))
+    print('y_YOUNG_mean: %.2f Gyr' % 10**(y_YOUNG_mean - 9))
     ### MSFS ###
     ### SFG ###
     SFRHa = elines['lSFR']

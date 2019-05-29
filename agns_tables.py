@@ -51,6 +51,7 @@ fname7 = 'get_proc_elines_CALIFA.all_good.pandas.csv'
 fname8 = 'NII_Ha_fit.csv'
 fname9 = 'bitsakis_t12.csv'
 fname10 = 'get_new_morph_temp.pandas.csv'
+fname11 = 'AGNs_CALIFA_weights_gals.csv'
 fnames_short = {
     fname1: 'DR4_morph',
     fname2: 'basic_joint',
@@ -62,6 +63,7 @@ fnames_short = {
     fname8: 'broad_fit',
     fname9: 'bitsakis_t12',
     fname10: 'new_morph',
+    fname11: 'weights'
 }
 fnames_long = {
     'DR4_morph': fname1,
@@ -74,6 +76,7 @@ fnames_long = {
     'broad_fit': fname8,
     'bitsakis_t12': fname9,
     'new_morph': fname10,
+    'weights': fname11,
 }
 # Read CSV files
 df = {}
@@ -205,6 +208,7 @@ df['elines']['u_i'] = df['elines']['u'] - df['elines']['i']
 df['elines']['u_r'] = df['elines']['u'] - df['elines']['r']
 df['elines']['u_i_NC'] = df['elines']['u_NC'] - df['elines']['i_NC']
 df['elines']['u_r_NC'] = df['elines']['u_NC'] - df['elines']['r_NC']
+df['elines']['weights'] = df['weights']['w_califa']
 
 for g in df['new_morph'].index:
     df['elines'].loc[g, 'morph'] = np.floor(df['new_morph'].loc[g, 'Average'])
