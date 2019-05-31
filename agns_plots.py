@@ -703,168 +703,104 @@ def plot_fig_histo_M_ZHMW(elines, args, x, y, ax, interval=None):
 
 
 def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
-    WHa = elines['EW_Ha_ALL']
-    WHa_Re = elines['EW_Ha_Re']
-    WHa_ALL = elines['EW_Ha_ALL']
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
-    # mtIII = elines['AGN_FLAG'] == 3
+    mtIII = elines['AGN_FLAG'] == 3
+    mtIV = elines['AGN_FLAG'] == 4
     mtAGN = mtI | mtII
-    y_AGNs_mean = y.loc[mtAGN].mean()
-    y_BF_AGNs_mean = y.loc[(mtAGN) & (elines['AGN_FLAG'] < 3)].mean()
-    # ax_sc.axhline(y_AGNs_mean, xmin=0.9/(12.-8.), c='g', ls='--')
-    ax_sc.axhline(y_AGNs_mean, c='g', ls='--')
-    ax_sc.text(0.05, 0.85, '%.2f Gyr' % (10**(y_AGNs_mean - 9)), color='g', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+    mtallAGN = mtI | mtII | mtIII | mtIV
+    y_AGNs_mean = y.loc[mtallAGN].mean()
+    y_BF_AGNs_mean = y.loc[mtAGN].mean()
+    y_AGNs_std = y.loc[mtallAGN].std()
+    y_BF_AGNs_std = y.loc[mtAGN].std()
+    ax_sc.axhline(y_BF_AGNs_mean, c='g', ls='--')
+    ax_sc.text(0.05, 0.85, '%.2f Gyr' % (10**(y_BF_AGNs_mean - 9)), color='g', fontsize=args.fontsize, va='center', transform=ax.transAxes)
     y_AGNs_tI_mean = y.loc[mtI].mean()
     y_AGNs_tII_mean = y.loc[mtII].mean()
-    # y_AGNs_tIII_mean = y.loc[mtIII].mean()
-    print('y_AGNs_mean: %.2f Gyr' % 10**(y_AGNs_mean - 9))
-    print('y_BF_AGNs_mean: %.2f Gyr' % 10**(y_BF_AGNs_mean - 9))
-    print('y_AGNs_tI_mean: %.2f Gyr' % 10**(y_AGNs_tI_mean - 9))
-    print('y_AGNs_tII_mean: %.2f Gyr' % 10**(y_AGNs_tII_mean - 9))
+    y_AGNs_tI_std = y.loc[mtI].std()
+    y_AGNs_tII_std = y.loc[mtII].std()
+    print('y_AGNs_mean: %.2f Gyr (sigma: %.2f)' % (10**(y_AGNs_mean - 9), y_AGNs_std))
+    print('y_BF_AGNs_mean: %.2f Gyr (sigma: %.2f)' % (10**(y_BF_AGNs_mean - 9), y_BF_AGNs_std))
+    print('y_AGNs_tI_mean: %.2f Gyr (sigma: %.2f)' % (10**(y_AGNs_tI_mean - 9), y_AGNs_tI_std))
+    print('y_AGNs_tII_mean: %.2f Gyr (sigma: %.2f)' % (10**(y_AGNs_tII_mean - 9), y_AGNs_tII_std))
     # print('y_AGNs_tIII_mean: %.2f Gyr' % 10**(y_AGNs_tIII_mean - 9))
-    m = ~(np.isnan(x) | np.isnan(y) | np.isnan(WHa))
-    hDIG = WHa <= args.EW_hDIG
-    GV = (WHa > args.EW_hDIG) & (WHa <= args.EW_SF)
-    SFc = WHa > args.EW_SF
-    y_SF_mean = y.loc[m & SFc].mean()
-    y_GV_mean = y.loc[m & GV].mean()
-    y_hDIG_mean = y.loc[m & hDIG].mean()
-    print('y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9))
-    print('y_GV_mean: %.2f Gyr' % 10**(y_GV_mean - 9))
-    print('y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9))
-    ############## using 6 A as limite between SF/RG
-    OLD = WHa < 6
-    YOUNG = WHa > 6
-    y_OLD_mean = y.loc[m & OLD].mean()
-    y_YOUNG_mean = y.loc[m & YOUNG].mean()
-    print('y_OLD_mean: %.2f Gyr' % 10**(y_OLD_mean - 9))
-    print('y_YOUNG_mean: %.2f Gyr' % 10**(y_YOUNG_mean - 9))
-    ### MSFS ###
-    ### SFG ###
+    WHa = elines['EW_Ha_cen_mean']
+    WHa_Re = elines['EW_Ha_Re']
+    WHa_ALL = elines['EW_Ha_ALL']
+    m_dict_WHa = dict(cen=WHa, Re=WHa_Re, ALL=WHa_ALL)
+    m_dict = {k: dict() for k in m_dict_WHa.keys()}
+    logt_dict = {k: dict() for k in m_dict_WHa.keys()}
+    for k1, v1 in m_dict_WHa.items():
+        m = ~(np.isnan(x) | np.isnan(y) | np.isnan(v1))
+        m_dict[k1] = dict(hDIG=v1 <= args.EW_hDIG,
+                          OLD=v1 < 6, YOUNG=v1 > 6,
+                          GV=(v1 > args.EW_hDIG) & (v1 <= args.EW_SF),
+                          SFc=v1 > args.EW_SF,)
+        for k2, v2 in m_dict[k1].items():
+            logt = y.loc[m & v2]
+            logt_mean = logt.mean()
+            logt_std = logt.std()
+            print('%s: %s: %.2f Gyr (sigma: %.2f)' % (k1, k2, 10**(logt_mean - 9), logt_std))
+            logt_dict[k1][k2] = logt
+    t = np.log10((10**logt_dict['cen']['YOUNG']).mean())
+    ax_sc.axhline(t, c='b', ls='--')
+    ax_sc.text(0.05, 0.77, '%.2f Gyr' % (10**(t - 9)), color='b', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+    t = np.log10((10**logt_dict['cen']['OLD']).mean())
+    ax_sc.axhline(t, c='r', ls='--')
+    ax_sc.text(0.05, 0.93, '%.2f Gyr' % (10**(t - 9)), color='r', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+    ## Using the SFMS for YOUNG mean age calculation
     SFRHa = elines['lSFR']
-    x_SF = x.loc[YOUNG]
-    y_SF = y.loc[YOUNG]
-    SFRHa_SF = SFRHa.loc[YOUNG]
-    XS_SF, YS_SF, SFRHaS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values, SFRHa_SF.values)
-    if interval is None:
-        interval = [8.3, 11.8, 7.5, 10.5]
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    SFRHaS_SF_c__r, N_c__r, sel_c, SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, clip=2, interval=interval)
+    for k_WHa, v in m_dict_WHa.items():
+        for k_SF in ['YOUNG', 'SFc']:
+            m = m_dict[k_WHa][k_SF]
+            logMass = x.loc[m]
+            logt = y.loc[m]
+            logSFRHa = SFRHa.loc[m]
+            XS, YS, ZS = xyz_clean_sort_interval(logMass.values, logt.values, logSFRHa.values)
+            if interval is None:
+                interval = [8.3, 11.8, 7.5, 10.5]
+            x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
+            ZS_c__r, N_c__r, sel_c, ZS__r, N__r, sel = redf_xy_bins_interval(XS, ZS, x_bins__r, clip=2, interval=interval)
+            p = np.ma.polyfit(x_bins_center__r, ZS_c__r, 1)
+            print(p)
+            print('\t%s: %s: %.2f Gyr - %.2f Gyr' % (k_WHa, k_SF, 10**(YS[sel].mean()-9), 10**(YS[sel_c].mean()-9)))
+    # ### SFG ###
+    # SFRHa = elines['lSFR']
+    # x_SF = x.loc[YOUNG]
+    # y_SF = y.loc[YOUNG]
+    # SFRHa_SF = SFRHa.loc[YOUNG]
+    # XS_SF, YS_SF, SFRHaS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values, SFRHa_SF.values)
+    # if interval is None:
+    #     interval = [8.3, 11.8, 7.5, 10.5]
+    # x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
+    # # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
+    # SFRHaS_SF_c__r, N_c__r, sel_c, SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, clip=2, interval=interval)
     # p = np.ma.polyfit(x_bins_center__r, SFRHaS_SF_c__r, 1)
+    # print(p)
     # print(10**(YS_SF[sel].mean()-9), 10**(YS_SF[sel_c].mean()-9))
-    mean_t_SF = YS_SF[sel_c].mean()
-    # ax_sc.axhline(mean_t_SF, xmin=0.9/(12.-8.), c='b', ls='--')
-    ax_sc.axhline(mean_t_SF, c='b', ls='--')
-    ax_sc.text(0.05, 0.77, '%.2f Gyr' % (10**(mean_t_SF - 9)), color='b', fontsize=args.fontsize, va='center', transform=ax.transAxes)
-    ### RG ###
-    x_hDIG = x.loc[OLD]
-    y_hDIG = y.loc[OLD]
-    SFRHa_hDIG = SFRHa.loc[OLD]
-    XS_hDIG, YS_hDIG, SFRHaS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values, SFRHa_hDIG.values)
-    if interval is None:
-        interval = [8.3, 11.8, 7.5, 10.5]
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, interval=interval)
-    SFRHaS_hDIG_c__r, N_c__r, sel_c, SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, clip=2, interval=interval)
-    # p = np.ma.polyfit(x_bins_center__r, SFRHaS_hDIG_c__r, 1)
-    # print(10**(YS_hDIG[sel].mean()-9), 10**(YS_hDIG[sel_c].mean()-9))
-    mean_t_hDIG = YS_hDIG[sel_c].mean()
-    # ax_sc.axhline(mean_t_hDIG, xmin=0.9/(12.-8.), c='r', ls='--')
-    ax_sc.axhline(mean_t_hDIG, c='r', ls='--')
-    ax_sc.text(0.05, 0.93, '%.2f Gyr' % (10**(mean_t_hDIG - 9)), color='r', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+    # mean_t_SF = YS_SF[sel].mean()
+    # # ax_sc.axhline(mean_t_SF, xmin=0.9/(12.-8.), c='b', ls='--')
+    # ax_sc.axhline(mean_t_SF, c='b', ls='--')
+    # ax_sc.text(0.05, 0.77, '%.2f Gyr' % (10**(mean_t_SF - 9)), color='b', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+    # ### RG ###
+    # # x_hDIG = x.loc[OLD]
+    # # y_hDIG = y.loc[OLD]
+    # # SFRHa_hDIG = SFRHa.loc[OLD]
+    # # XS_hDIG, YS_hDIG, SFRHaS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values, SFRHa_hDIG.values)
+    # # if interval is None:
+    # #     interval = [8.3, 11.8, 7.5, 10.5]
+    # # x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
+    # # # SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, interval=interval)
+    # # SFRHaS_hDIG_c__r, N_c__r, sel_c, SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, clip=2, interval=interval)
+    # # p = np.ma.polyfit(x_bins_center__r, SFRHaS_hDIG_c__r, 1)
+    # # print(p)
+    # # print(10**(YS_hDIG[sel].mean()-9), 10**(YS_hDIG[sel_c].mean()-9))
+    # # mean_t_hDIG = YS_hDIG[sel].mean()
+    # mean_t_hDIG = y_OLD_mean
+    # # # ax_sc.axhline(mean_t_hDIG, xmin=0.9/(12.-8.), c='r', ls='--')
+    # ax_sc.axhline(mean_t_hDIG, c='r', ls='--')
+    # ax_sc.text(0.05, 0.93, '%.2f Gyr' % (10**(mean_t_hDIG - 9)), color='r', fontsize=args.fontsize, va='center', transform=ax.transAxes)
 
-    m = ~(np.isnan(x) | np.isnan(y) | np.isnan(WHa_Re))
-    print('### WHa_Re ###')
-    hDIG = WHa_Re <= args.EW_hDIG
-    GV = (WHa_Re > args.EW_hDIG) & (WHa_Re <= args.EW_SF)
-    SFc = WHa_Re > args.EW_SF
-    y_SF_mean = y.loc[m & SFc].mean()
-    y_GV_mean = y.loc[m & GV].mean()
-    y_hDIG_mean = y.loc[m & hDIG].mean()
-    print('y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9))
-    print('y_GV_mean: %.2f Gyr' % 10**(y_GV_mean - 9))
-    print('y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9))
-    ############## using 6 A as limite between SF/RG
-    OLD = WHa < 6
-    YOUNG = WHa > 6
-    y_OLD_mean = y.loc[m & OLD].mean()
-    y_YOUNG_mean = y.loc[m & YOUNG].mean()
-    print('y_OLD_mean: %.2f Gyr' % 10**(y_OLD_mean - 9))
-    print('y_YOUNG_mean: %.2f Gyr' % 10**(y_YOUNG_mean - 9))
-    ### MSFS ###
-    ### SFG ###
-    SFRHa = elines['lSFR']
-    x_SF = x.loc[SFc]
-    y_SF = y.loc[SFc]
-    SFRHa_SF = SFRHa.loc[SFc]
-    XS_SF, YS_SF, SFRHaS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values, SFRHa_SF.values)
-    if interval is None:
-        interval = [8.3, 11.8, 7.5, 10.5]
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    SFRHaS_SF_c__r, N_c__r, sel_c, SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, clip=2, interval=interval)
-    # p = np.ma.polyfit(x_bins_center__r, SFRHaS_SF_c__r, 1)
-    print(10**(YS_SF[sel].mean()-9), 10**(YS_SF[sel_c].mean()-9))
-    mean_t_SF = YS_SF[sel_c].mean()
-    # ax_sc.axhline(mean_t_SF, xmin=0.9/(12.-8.), c='b', ls='--')
-    ### RG ###
-    x_hDIG = x.loc[hDIG]
-    y_hDIG = y.loc[hDIG]
-    SFRHa_hDIG = SFRHa.loc[hDIG]
-    XS_hDIG, YS_hDIG, SFRHaS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values, SFRHa_hDIG.values)
-    if interval is None:
-        interval = [8.3, 11.8, 7.5, 10.5]
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, interval=interval)
-    SFRHaS_hDIG_c__r, N_c__r, sel_c, SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, clip=2, interval=interval)
-    # p = np.ma.polyfit(x_bins_center__r, SFRHaS_hDIG_c__r, 1)
-    print(10**(YS_hDIG[sel].mean()-9), 10**(YS_hDIG[sel_c].mean()-9))
-
-    m = ~(np.isnan(x) | np.isnan(y) | np.isnan(WHa_ALL))
-    print('### WHa_ALL ###')
-    hDIG = WHa_ALL <= args.EW_hDIG
-    GV = (WHa_ALL > args.EW_hDIG) & (WHa_ALL <= args.EW_SF)
-    SFc = WHa_ALL > args.EW_SF
-    y_SF_mean = y.loc[m & SFc].mean()
-    y_GV_mean = y.loc[m & GV].mean()
-    y_hDIG_mean = y.loc[m & hDIG].mean()
-    print('y_SF_mean: %.2f Gyr' % 10**(y_SF_mean - 9))
-    print('y_GV_mean: %.2f Gyr' % 10**(y_GV_mean - 9))
-    print('y_hDIG_mean: %.2f Gyr' % 10**(y_hDIG_mean - 9))
-    OLD = WHa < 6
-    YOUNG = WHa > 6
-    y_OLD_mean = y.loc[m & OLD].mean()
-    y_YOUNG_mean = y.loc[m & YOUNG].mean()
-    print('y_OLD_mean: %.2f Gyr' % 10**(y_OLD_mean - 9))
-    print('y_YOUNG_mean: %.2f Gyr' % 10**(y_YOUNG_mean - 9))
-    ### MSFS ###
-    ### SFG ###
-    SFRHa = elines['lSFR']
-    x_SF = x.loc[SFc]
-    y_SF = y.loc[SFc]
-    SFRHa_SF = SFRHa.loc[SFc]
-    XS_SF, YS_SF, SFRHaS_SF = xyz_clean_sort_interval(x_SF.values, y_SF.values, SFRHa_SF.values)
-    if interval is None:
-        interval = [8.3, 11.8, 7.5, 10.5]
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, interval=interval)
-    SFRHaS_SF_c__r, N_c__r, sel_c, SFRHaS_SF__r, N__r, sel = redf_xy_bins_interval(XS_SF, SFRHaS_SF, x_bins__r, clip=2, interval=interval)
-    # p = np.ma.polyfit(x_bins_center__r, SFRHaS_SF_c__r, 1)
-    print(10**(YS_SF[sel].mean()-9), 10**(YS_SF[sel_c].mean()-9))
-    ### RG ###
-    x_hDIG = x.loc[hDIG]
-    y_hDIG = y.loc[hDIG]
-    SFRHa_hDIG = SFRHa.loc[hDIG]
-    XS_hDIG, YS_hDIG, SFRHaS_hDIG = xyz_clean_sort_interval(x_hDIG.values, y_hDIG.values, SFRHa_hDIG.values)
-    if interval is None:
-        interval = [8.3, 11.8, 7.5, 10.5]
-    x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], 0.1)
-    # SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, interval=interval)
-    SFRHaS_hDIG_c__r, N_c__r, sel_c, SFRHaS_hDIG__r, N__r, sel = redf_xy_bins_interval(XS_hDIG, SFRHaS_hDIG, x_bins__r, clip=2, interval=interval)
-    # p = np.ma.polyfit(x_bins_center__r, SFRHaS_hDIG_c__r, 1)
-    print(10**(YS_hDIG[sel].mean()-9), 10**(YS_hDIG[sel_c].mean()-9))
     return ax_sc
 
 
@@ -1764,6 +1700,26 @@ if __name__ == '__main__':
         ##################################
         ## CMD (CUBES) colored by EW_Ha ##
         ##################################
+        'fig_histo_CMD_gr_CUBES': [
+            elines.loc[m_redshift, 'Mabs_r'], r'${\rm M}_{\rm r}$ (mag)', 5, 2, None,
+            elines.loc[m_redshift, 'g_r'], r'g-r (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1],
+            m_redshift
+        ],
+        ##################################
+        #########################################
+        ## CMD (CUBES) NO CEN colored by EW_Ha ##
+        #########################################
+        'fig_histo_CMD_gr_CUBES_NC': [
+            elines.loc[m_redshift, 'Mabs_r_NC'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None,
+            elines.loc[m_redshift, 'g_r_NC'], r'g-r (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1],
+            m_redshift
+        ],
+        #########################################
+        ##################################
+        ## CMD (CUBES) colored by EW_Ha ##
+        ##################################
         'fig_histo_CMD_ur_CUBES': [
             elines.loc[m_redshift, 'Mabs_r'], r'${\rm M}_{\rm r}$ (mag)', 5, 2, None,
             elines.loc[m_redshift, 'u_r'], r'u-r (mag)', 3, 5, None,
@@ -1836,12 +1792,22 @@ if __name__ == '__main__':
         ],
         ##################################
         ##################################
+        ## sSFR vs g-r colored by EW_Ha ##
+        ##################################
+        'fig_histo_sSFR_gr': [
+            elines.loc[m_redshift, 'lSFR'] - elines.loc[m_redshift, 'log_Mass_corr'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
+            elines.loc[m_redshift, 'g_r'], r'g-r (mag)', 3, 5, None,
+            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 1],
+            m_redshift
+        ],
+        ##################################
+        ##################################
         ## sSFR vs u-r colored by EW_Ha ##
         ##################################
         'fig_histo_sSFR_ur': [
             elines.loc[m_redshift, 'sSFR'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
             elines.loc[m_redshift, 'u_r'], r'u-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 3.5],
+            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 1],
             m_redshift
         ],
         ##################################
@@ -2065,6 +2031,7 @@ if __name__ == '__main__':
         'fig_Morph_BV': ['B_V', [0, 1.], r'B-V (mag)', 3, 5],
         'fig_Morph_ui': ['u_i', [0, 3.5], r'u-i (mag)', 3, 5],
         'fig_Morph_ur': ['u_r', [0, 3.5], r'u-r (mag)', 3, 5],
+        'fig_Morph_gr': ['g_r', [0, 1], r'g-r (mag)', 3, 5],
     }
     for k, v in plots_dict.items():
         print('\n############################')
