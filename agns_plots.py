@@ -4,9 +4,10 @@ import sys
 import pickle
 import itertools
 import numpy as np
+import seaborn as sns
 import matplotlib as mpl
 from pytu.lines import Lines
-import seaborn as sns
+from scipy.stats import describe
 from pytu.plots import plot_text_ax
 from matplotlib.lines import Line2D
 from pytu.functions import debug_var
@@ -709,27 +710,36 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     mtIV = elines['AGN_FLAG'] == 4
     mtAGN = mtI | mtII
     mtallAGN = mtI | mtII | mtIII | mtIV
+
     y_AGNs_mean = y.loc[mtallAGN].mean()
+    y_AGNs_mean_st = (10**y.loc[mtallAGN]).mean()
     y_BF_AGNs_mean = y.loc[mtAGN].mean()
-    y_AGNs_std = y.loc[mtallAGN].std()
-    y_BF_AGNs_std = y.loc[mtAGN].std()
+    y_BF_AGNs_mean_st = (10**y.loc[mtAGN]).mean()
+    y_AGNs_tI_mean = y.loc[mtI].mean()
+    y_AGNs_tI_mean_st = (10**y.loc[mtI]).mean()
+    y_AGNs_tII_mean = y.loc[mtII].mean()
+    y_AGNs_tII_mean_st = (10**y.loc[mtII]).mean()
+    print('logstat: y_AGNs_mean: %.2f Gyr - %s' % (10**(y_AGNs_mean - 9), describe(y.loc[mtallAGN])))
+    print('y_AGNs_mean: %.2f Gyr - %s' % (y_AGNs_mean_st/1e9, describe(10**y.loc[mtallAGN])))
+    print('logstat: y_BF_AGNs_mean: %.2f Gyr - %s' % (10**(y_BF_AGNs_mean - 9), describe(y.loc[mtAGN])))
+    print('y_BF_AGNs_mean: %.2f Gyr - %s' % (y_BF_AGNs_mean_st/1e9, describe(10**y.loc[mtAGN])))
+    print('logstat: y_AGNs_tI_mean: %.2f Gyr - %s' % (10**(y_AGNs_tI_mean - 9), describe(y.loc[mtI])))
+    print('y_AGNs_tI_mean: %.2f Gyr - %s' % (y_AGNs_tI_mean_st/1e9, describe(10**y.loc[mtI])))
+    print('logstat: y_AGNs_tII_mean: %.2f Gyr - %s' % (10**(y_AGNs_tII_mean - 9), describe(y.loc[mtII])))
+    print('y_AGNs_tII_mean: %.2f Gyr - %s' % (y_AGNs_tII_mean_st/1e9, describe(10**y.loc[mtII])))
+
     ax_sc.axhline(y_BF_AGNs_mean, c='g', ls='--')
     ax_sc.text(0.05, 0.85, '%.2f Gyr' % (10**(y_BF_AGNs_mean - 9)), color='g', fontsize=args.fontsize, va='center', transform=ax.transAxes)
-    y_AGNs_tI_mean = y.loc[mtI].mean()
-    y_AGNs_tII_mean = y.loc[mtII].mean()
-    y_AGNs_tI_std = y.loc[mtI].std()
-    y_AGNs_tII_std = y.loc[mtII].std()
-    print('y_AGNs_mean: %.2f Gyr (sigma: %.2f)' % (10**(y_AGNs_mean - 9), y_AGNs_std))
-    print('y_BF_AGNs_mean: %.2f Gyr (sigma: %.2f)' % (10**(y_BF_AGNs_mean - 9), y_BF_AGNs_std))
-    print('y_AGNs_tI_mean: %.2f Gyr (sigma: %.2f)' % (10**(y_AGNs_tI_mean - 9), y_AGNs_tI_std))
-    print('y_AGNs_tII_mean: %.2f Gyr (sigma: %.2f)' % (10**(y_AGNs_tII_mean - 9), y_AGNs_tII_std))
     # print('y_AGNs_tIII_mean: %.2f Gyr' % 10**(y_AGNs_tIII_mean - 9))
+
     WHa = elines['EW_Ha_cen_mean']
     WHa_Re = elines['EW_Ha_Re']
     WHa_ALL = elines['EW_Ha_ALL']
+
     m_dict_WHa = dict(cen=WHa, Re=WHa_Re, ALL=WHa_ALL)
     m_dict = {k: dict() for k in m_dict_WHa.keys()}
     logt_dict = {k: dict() for k in m_dict_WHa.keys()}
+
     for k1, v1 in m_dict_WHa.items():
         m = ~(np.isnan(x) | np.isnan(y) | np.isnan(v1))
         m_dict[k1] = dict(hDIG=v1 <= args.EW_hDIG,
@@ -738,10 +748,14 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
                           SFc=v1 > args.EW_SF,)
         for k2, v2 in m_dict[k1].items():
             logt = y.loc[m & v2]
+            t = 10**y.loc[m & v2]
             logt_mean = logt.mean()
+            t_mean = t.mean()
             logt_std = logt.std()
-            print('%s: %s: %.2f Gyr (sigma: %.2f)' % (k1, k2, 10**(logt_mean - 9), logt_std))
+            print('logstat: %s: %s: %.2f Gyr - %s' % (k1, k2, 10**(logt_mean - 9), describe(logt)))
+            print('stat: %s: %s: %.2f Gyr - %s' % (k1, k2, t_mean/1e9, describe(t)))
             logt_dict[k1][k2] = logt
+
     t = np.log10((10**logt_dict['cen']['YOUNG']).mean())
     ax_sc.axhline(t, c='b', ls='--')
     ax_sc.text(0.05, 0.77, '%.2f Gyr' % (10**(t - 9)), color='b', fontsize=args.fontsize, va='center', transform=ax.transAxes)
@@ -812,17 +826,21 @@ if __name__ == '__main__':
 
     elines = pickled['df']
     ###############################################################
+
     bug = pickled['bug']
     EW_SF = pickled['EW_SF']
     EW_AGN = pickled['EW_AGN']
     EW_hDIG = pickled['EW_hDIG']
     EW_strong = pickled['EW_strong']
     EW_verystrong = pickled['EW_verystrong']
+    args.bug = bug
     args.EW_SF = EW_SF
     args.EW_AGN = EW_AGN
     args.EW_hDIG = EW_hDIG
     args.EW_strong = EW_strong
     args.EW_verystrong = EW_verystrong
+    debug_var(True, args=args)
+
     sel_NIIHa = pickled['sel_NIIHa']
     sel_OIIIHb = pickled['sel_OIIIHb']
     sel_SIIHa = pickled['sel_SIIHa']
@@ -1807,7 +1825,7 @@ if __name__ == '__main__':
         'fig_histo_sSFR_ur': [
             elines.loc[m_redshift, 'sSFR'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
             elines.loc[m_redshift, 'u_r'], r'u-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 1],
+            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 3.5],
             m_redshift
         ],
         ##################################
