@@ -582,8 +582,8 @@ def plot_morph_y_colored_by_EW(elines, args, y, ax_Hx, ax_Hy, ax_sc, ylabel=None
     ax_Hy_t.tick_params(**tick_params)
     ####################################
     sc = ax_sc.scatter(morph, y, **scatter_kwargs_EWmaxmin)
-    mALLAGN = (elines['AGN_FLAG'] > 0)
-    xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
+    # mALLAGN = (elines['AGN_FLAG'] > 0)
+    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     # ax_sc.scatter(morph[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(morph[mtII], y[mtII], **scatter_AGN_tII_kwargs)
@@ -756,10 +756,10 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
             print('stat: %s: %s: %.2f Gyr - %s' % (k1, k2, t_mean/1e9, describe(t)))
             logt_dict[k1][k2] = logt
 
-    t = np.log10((10**logt_dict['cen']['YOUNG']).mean())
+    t = logt_dict['Re']['SFc'].mean()
     ax_sc.axhline(t, c='b', ls='--')
     ax_sc.text(0.05, 0.77, '%.2f Gyr' % (10**(t - 9)), color='b', fontsize=args.fontsize, va='center', transform=ax.transAxes)
-    t = np.log10((10**logt_dict['cen']['OLD']).mean())
+    t = logt_dict['Re']['hDIG'].mean()
     ax_sc.axhline(t, c='r', ls='--')
     ax_sc.text(0.05, 0.93, '%.2f Gyr' % (10**(t - 9)), color='r', fontsize=args.fontsize, va='center', transform=ax.transAxes)
     ## Using the SFMS for YOUNG mean age calculation
@@ -1158,7 +1158,7 @@ if __name__ == '__main__':
         X = x.loc[v]
         Y = y.loc[v]
         p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_ALL':
+        if k == 'SFc_Re':
             p_SFc = p
             p_SFc_c = pc
             ax.plot(interval[0:2], np.polyval(p_SFc_c, interval[0:2]), c='k', label='SFG')
@@ -1223,7 +1223,7 @@ if __name__ == '__main__':
         X = x.loc[v]
         Y = y.loc[v]
         p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_ALL':
+        if k == 'SFc_Re':
             p_SFc = p
             p_SFc_c = pc
             ax.plot(interval[0:2], np.polyval(p_SFc_c, interval[0:2]), c='k', label='SFG')
@@ -1291,7 +1291,7 @@ if __name__ == '__main__':
         X = x.loc[v]
         Y = y.loc[v]
         p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_ALL':
+        if k == 'SFc_Re':
             p_SFc = p
             p_SFc_c = pc
             ax.plot(interval[0:2], np.polyval(p_SFc_c, interval[0:2]), c='k', label='SFG')
@@ -1358,7 +1358,7 @@ if __name__ == '__main__':
         X = x.loc[v]
         Y = y.loc[v]
         p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_ALL':
+        if k == 'SFc_Re':
             p_SFc = p
             p_SFc_c = pc
             ax.plot(interval[0:2], np.polyval(p_SFc_c, interval[0:2]), c='k', label='SFG')
@@ -1427,7 +1427,7 @@ if __name__ == '__main__':
         X = x.loc[v]
         Y = y.loc[v]
         p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_ALL':
+        if k == 'SFc_Re':
             p_SFc = p
             p_SFc_c = pc
             ax.plot(interval[0:2], np.polyval(p_SFc_c, interval[0:2]), c='k', label='SFG')
@@ -1495,7 +1495,7 @@ if __name__ == '__main__':
         X = x.loc[v]
         Y = y.loc[v]
         p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_ALL':
+        if k == 'SFc_Re':
             p_SFc = p
             p_SFc_c = pc
             ax.plot(interval[0:2], np.polyval(p_SFc_c, interval[0:2]), c='k', label='SFG')
