@@ -36,6 +36,7 @@ morph_name_ticks = ['', 'E', 'S0', 'S0a', 'Sa', 'Sab', 'Sb', 'Sbc', 'Sc', 'Scd',
 latex_ppi = 72.0
 latex_column_width_pt = 240.0
 latex_column_width = latex_column_width_pt/latex_ppi
+# latex_column_width = latex_column_width_pt/latex_ppi/1.4
 latex_text_width_pt = 504.0
 latex_text_width = latex_text_width_pt/latex_ppi
 golden_mean = 0.5 * (1. + 5**0.5)
@@ -321,7 +322,7 @@ def plot_WHAN(args, N2Ha, WHa, z=None, f=None, ax=None, extent=None, output_name
         return f, ax
 
 
-def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, output_name=None, markAGNs=False, f=None, ax=None, sc_kwargs=None):
+def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, output_name=None, markAGNs=False, f=None, ax=None, sc_kwargs=None, z_maxlocator=4):
     if zlabel is None:
         zlabel = r'$\log {\rm W}_{{\rm H}\alpha}$ (\AA)'
     if sc_kwargs is None:
@@ -330,6 +331,7 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
     mtII = elines['AGN_FLAG'] == 2
     # mtIII = elines['AGN_FLAG'] == 3
     mtAGN = mtI | mtII
+    # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
     if f is None:
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
@@ -352,7 +354,7 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
     cb_ax = f.add_axes([right, bottom, cb_width, top-bottom])
     cb = plt.colorbar(sc, cax=cb_ax)
     cb.set_label(zlabel, fontsize=args.fontsize+1)
-    cb.locator = MaxNLocator(4)
+    cb.locator = MaxNLocator(z_maxlocator)
     # cb_ax.minorticks_on()
     cb_ax.tick_params(which='both', direction='in')
     cb.update_ticks()
@@ -763,7 +765,7 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     ax_sc.axhline(t, c='r', ls='--')
     ax_sc.text(0.05, 0.93, '%.2f Gyr' % (10**(t - 9)), color='r', fontsize=args.fontsize, va='center', transform=ax.transAxes)
     ## Using the SFMS for YOUNG mean age calculation
-    SFRHa = elines['lSFR']
+    SFRHa = elines['log_SFR_SF']
     for k_WHa, v in m_dict_WHa.items():
         for k_SF in ['YOUNG', 'SFc']:
             m = m_dict[k_WHa][k_SF]
@@ -814,7 +816,79 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     # # # ax_sc.axhline(mean_t_hDIG, xmin=0.9/(12.-8.), c='r', ls='--')
     # ax_sc.axhline(mean_t_hDIG, c='r', ls='--')
     # ax_sc.text(0.05, 0.93, '%.2f Gyr' % (10**(mean_t_hDIG - 9)), color='r', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+    return ax_sc
 
+def plot_fig_histo_M_fgas(elines, args, x, y, ax, interval=None):
+    mtI = elines['AGN_FLAG'] == 1
+    mtII = elines['AGN_FLAG'] == 2
+    # mtIII = elines['AGN_FLAG'] == 3
+    mtAGN = mtI | mtII
+    WHa = elines['EW_Ha_cen_mean']
+    WHa_Re = elines['EW_Ha_Re']
+    WHa_ALL = elines['EW_Ha_ALL']
+    if interval is None:
+        interval = [9, 11.5, -5, 0]
+    XS, YS, ZS = xyz_clean_sort_interval(x.values, y.values, WHa_Re.values)
+    x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.5)
+    _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, interval)
+    print(y_mean, N_y_mean)
+    ax.plot(x_bincenter__r, y_mean, 'k--')
+    SFc = ZS > args.EW_SF
+    GV = (ZS > args.EW_hDIG) & (ZS <= args.EW_SF)
+    RG = ZS <= args.EW_hDIG
+    _, _, _, y_mean_SF, N_y_mean_SF, _ = redf_xy_bins_interval(XS[SFc], YS[SFc], x_bins__r, interval)
+    print(y_mean_SF, N_y_mean_SF)
+    p = np.ma.polyfit(x_bincenter__r, y_mean_SF, 1)
+    ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='b', label='SFG')
+    # _, _, _, y_mean_RG, N_y_mean_RG, _ = redf_xy_bins_interval(XS[RG], YS[RG], x_bins__r, interval)
+    # print(y_mean_RG, N_y_mean_RG)
+    # p = np.ma.polyfit(x_bincenter__r, y_mean_RG, 1)
+    # print(y_mean_RG, p)
+    # ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='r', label='RG')
+    ### above ###
+    N_y_tI = y[mtI].count()
+    N_y_tII = y[mtII].count()
+    # N_y_tIII = y[mtIII].count()
+    N_y_tAGN = y[mtAGN].count()
+    N_y_tI_above = count_y_above_mean(x.loc[mtI].values, y.loc[mtI].values, y_mean, x_bins__r, interval=interval)
+    N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r, interval=interval)
+    # N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r, interval=interval)
+    N_y_tAGN_above = count_y_above_mean(x.loc[mtAGN].values, y.loc[mtAGN].values, y_mean, x_bins__r, interval=interval)
+    print('# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
+    print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
+    # print('# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
+    print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
+    return ax_sc
+
+
+def plot_fig_histo_M_SFE(elines, args, x, y, ax, interval=None):
+    mtI = elines['AGN_FLAG'] == 1
+    mtII = elines['AGN_FLAG'] == 2
+    # mtIII = elines['AGN_FLAG'] == 3
+    mtAGN = mtI | mtII
+    WHa = elines['EW_Ha_cen_mean']
+    WHa_Re = elines['EW_Ha_Re']
+    WHa_ALL = elines['EW_Ha_ALL']
+    if interval is None:
+        interval = [9, 11.5, -11, -6]
+    XS, YS, ZS = xyz_clean_sort_interval(x.values, y.values, WHa_Re.values)
+    x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.5)
+    _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, interval)
+    print(y_mean, N_y_mean)
+    ax.plot(x_bincenter__r, y_mean, 'k--')
+    ### above ###
+    N_y_tI = y[mtI].count()
+    N_y_tII = y[mtII].count()
+    # N_y_tIII = y[mtIII].count()
+    N_y_tAGN = y[mtAGN].count()
+    N_y_tI_above = count_y_above_mean(x.loc[mtI].values, y.loc[mtI].values, y_mean, x_bins__r, interval=interval)
+    N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r, interval=interval)
+    # N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r, interval=interval)
+    N_y_tAGN_above = count_y_above_mean(x.loc[mtAGN].values, y.loc[mtAGN].values, y_mean, x_bins__r, interval=interval)
+    print('# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
+    print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
+    # print('# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
+    print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
     return ax_sc
 
 
@@ -933,6 +1007,12 @@ if __name__ == '__main__':
         Line2D([0], [0], marker=marker_AGN_tIII, alpha=alpha_AGN_tIII, markeredgecolor=color_AGN_tIII, label=r'by [NII]/H$\alpha$ and other (+%d)' % N_AGN_tIII, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
         Line2D([0], [0], marker=marker_AGN_tIV, alpha=alpha_AGN_tIV, markeredgecolor=color_AGN_tIV, label=r'by [NII]/H$\alpha$ (+%d)' % N_AGN_tIV, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
     ]
+
+    sSFR_SF = elines['log_SFR_SF'] - elines['log_Mass_corr']
+    sSFR = elines['lSFR'] - elines['log_Mass_corr']
+    sSFR_ssp = elines['log_SFR_ssp'] - elines['log_Mass_corr']
+    Mrat = 10**(elines['log_Mass_corr'] - elines['log_Mass_gas_Av_gas_rad'])
+    fgas = 1 / (1 + Mrat)
 
     ##########################
     ## BPT colored by EW_Ha ##
@@ -1263,6 +1343,7 @@ if __name__ == '__main__':
     n_bins_min_y = 2
     prune_x = None
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
     N_rows, N_cols = 1, 1
     gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
@@ -1673,6 +1754,146 @@ if __name__ == '__main__':
     print('#############################')
     ##########################
 
+    #############################
+    ## M-fgas colored by EW_Ha ##
+    #############################
+    print('\n#############################')
+    print('## M-fgas colored by EW_Ha ##')
+    print('#############################')
+    x = elines['log_Mass_corr']
+    y = fgas.apply(np.log10)
+    n_bins_min_x = 5
+    n_bins_maj_y = 5
+    n_bins_min_y = 2
+    z = EW_Ha_cen.apply(np.log10)
+    zlabel = r'$\log {\rm W}_{{\rm H}\alpha}$ (\AA)'
+    output_name = '%s/fig_M_fgas.%s' % (args.figs_dir, args.img_suffix)
+    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+    N_rows, N_cols = 1, 1
+    # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
+    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+    ax = plt.subplot(gs[0])
+    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
+                              ylabel=r'$\log\ f_{\rm gas}$',
+                              xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
+                              extent=[8, 12, -5, 0], markAGNs=True,
+                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                              n_bins_maj_x=4, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
+    mtAGN = mtI | mtII
+    WHa = elines['EW_Ha_cen_mean']
+    WHa_Re = elines['EW_Ha_Re']
+    WHa_ALL = elines['EW_Ha_ALL']
+    if interval is None:
+        interval = [9, 11.5, -5, 0]
+    XS, YS, ZS = xyz_clean_sort_interval(x.values, y.values, WHa_Re.values)
+    x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.5)
+    _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, interval)
+    # print(y_mean, N_y_mean)
+    # ax.plot(x_bincenter__r, y_mean, 'k--')
+    SFc = ZS > args.EW_SF
+    GV = (ZS > args.EW_hDIG) & (ZS <= args.EW_SF)
+    RG = ZS <= args.EW_hDIG
+    _, _, _, y_mean_SF, N_y_mean_SF, _ = redf_xy_bins_interval(XS[SFc], YS[SFc], x_bins__r, interval)
+    # print(y_mean_SF, N_y_mean_SF)
+    p = np.ma.polyfit(x_bincenter__r, y_mean_SF, 1)
+    ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='k', ls='--', label='SFG')
+    # _, _, _, y_mean_RG, N_y_mean_RG, _ = redf_xy_bins_interval(XS[RG], YS[RG], x_bins__r, interval)
+    # print(y_mean_RG, N_y_mean_RG)
+    # p = np.ma.polyfit(x_bincenter__r, y_mean_RG, 1)
+    # print(y_mean_RG, p)
+    # ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='r', label='RG')
+    ### above ###
+    N_y_tI = y[mtI].count()
+    N_y_tII = y[mtII].count()
+    # N_y_tIII = y[mtIII].count()
+    N_y_tAGN = y[mtAGN].count()
+    N_y_tI_above = count_y_above_mean(x.loc[mtI].values, y.loc[mtI].values, y_mean, x_bins__r, interval=interval)
+    N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r, interval=interval)
+    # N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r, interval=interval)
+    N_y_tAGN_above = count_y_above_mean(x.loc[mtAGN].values, y.loc[mtAGN].values, y_mean, x_bins__r, interval=interval)
+    print('# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
+    print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
+    # print('# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
+    print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
+    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
+    print('#############################')
+    ##########################
+
+
+    ############################
+    ## M-SFE colored by EW_Ha ##
+    ############################
+    print('\n############################')
+    print('## M-SFE colored by EW_Ha ##')
+    print('############################')
+    x = elines['log_Mass_corr']
+    y = elines['log_SFR_SF'] - elines['log_Mass_gas_Av_gas_rad']
+    n_bins_min_x = 5
+    n_bins_maj_y = 3
+    n_bins_min_y = 4
+    # z = fgas.apply(np.log10)
+    # zlabel = r'$\log\ f_{\rm gas}$'
+    z = EW_Ha_cen.apply(np.log10)
+    zlabel = r'$\log {\rm W}_{{\rm H}\alpha}$ (\AA)'
+    output_name = '%s/fig_M_SFE.%s' % (args.figs_dir, args.img_suffix)
+    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+    N_rows, N_cols = 1, 1
+    # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
+    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+    ax = plt.subplot(gs[0])
+    sc_kwargs = dict(s=1, vmax=0, vmin=-3, cmap='viridis_r', marker='o', edgecolor='none', alpha=1)
+    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
+                              ylabel=r'$\log$ (SFE/yr)',
+                              xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
+                              extent=[8, 12, -11, -6], markAGNs=True,
+                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+                              n_bins_maj_x=4, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel) #,
+                              # sc_kwargs=sc_kwargs, z_maxlocator=3)
+    mtAGN = mtI | mtII
+    WHa = elines['EW_Ha_cen_mean']
+    WHa_Re = elines['EW_Ha_Re']
+    WHa_ALL = elines['EW_Ha_ALL']
+    if interval is None:
+        interval = [9, 11.5, -5, 0]
+    XS, YS, ZS = xyz_clean_sort_interval(x.values, y.values, WHa_Re.values)
+    x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.5)
+    _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, interval)
+    # print(y_mean, N_y_mean)
+    # ax.plot(x_bincenter__r, y_mean, 'k--')
+    SFc = ZS > args.EW_SF
+    GV = (ZS > args.EW_hDIG) & (ZS <= args.EW_SF)
+    RG = ZS <= args.EW_hDIG
+    _, _, _, y_mean_SF, N_y_mean_SF, _ = redf_xy_bins_interval(XS[SFc], YS[SFc], x_bins__r, interval)
+    # print(y_mean_SF, N_y_mean_SF)
+    p = np.ma.polyfit(x_bincenter__r, y_mean_SF, 1)
+    ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='k', ls='--', label='SFG')
+    # _, _, _, y_mean_RG, N_y_mean_RG, _ = redf_xy_bins_interval(XS[RG], YS[RG], x_bins__r, interval)
+    # print(y_mean_RG, N_y_mean_RG)
+    # p = np.ma.polyfit(x_bincenter__r, y_mean_RG, 1)
+    # print(y_mean_RG, p)
+    # ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='r', label='RG')
+    ### above ###
+    N_y_tI = y[mtI].count()
+    N_y_tII = y[mtII].count()
+    # N_y_tIII = y[mtIII].count()
+    N_y_tAGN = y[mtAGN].count()
+    N_y_tI_above = count_y_above_mean(x.loc[mtI].values, y.loc[mtI].values, y_mean, x_bins__r, interval=interval)
+    N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r, interval=interval)
+    # N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r, interval=interval)
+    N_y_tAGN_above = count_y_above_mean(x.loc[mtAGN].values, y.loc[mtAGN].values, y_mean, x_bins__r, interval=interval)
+    print('# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
+    print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
+    # print('# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
+    print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
+    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
+    print('#############################')
+    ##########################
+
+
     ################################
     ################################
     ## X Y histo colored by EW_Ha ##
@@ -1695,6 +1916,24 @@ if __name__ == '__main__':
     #   y, ylabel, n_bins_maj_y, n_bins_min_y, prune_y
     #   z, extent, aux_mask
     plot_histo_xy_dict = {
+        ####################################
+        ## Mstar vs fgas colored by EW_Ha ##
+        ####################################
+        'fig_histo_M_fgas': [
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            fgas.apply(np.log10), r'$\log\ f_{\rm gas}$', 5, 2, None,
+            EW_Ha_cen_zcut.apply(np.log10), [8, 12, -5, 0],
+        ],
+        ##################################
+        ####################################
+        ## Mstar vs SFE colored by EW_Ha ##
+        ####################################
+        'fig_histo_M_SFE': [
+            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
+            elines['log_SFR_SF'] - elines['log_Mass_gas_Av_gas_rad'], r'$\log$ (SFE/yr)', 3, 4, None,
+            EW_Ha_cen_zcut.apply(np.log10), [8, 12, -11, -6],
+        ],
+        ##################################
         ##################################
         ## CMD (CUBES) colored by EW_Ha ##
         ##################################
@@ -1975,6 +2214,7 @@ if __name__ == '__main__':
         output_name = '%s/%s.%s' % (args.figs_dir, k, args.img_suffix)
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+        # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
         gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax_Hx = plt.subplot(gs[-1, 1:])
         ax_Hy = plt.subplot(gs[0:3, 0])
@@ -1996,6 +2236,10 @@ if __name__ == '__main__':
             ax_sc = plot_fig_histo_M_ZHMW(elines, args, x, y, ax_sc)
         if k == 'fig_histo_M_tLW' or k == 'fig_histo_M_tMW':
             ax_sc = plot_fig_histo_M_t(elines, args, x, y, ax_sc)
+        if k == 'fig_histo_M_fgas':
+            ax_sc = plot_fig_histo_M_fgas(elines, args, x, y, ax_sc)
+        if k == 'fig_histo_M_SFE':
+            ax_sc = plot_fig_histo_M_SFE(elines, args, x, y, ax_sc, [9, 11.5, -11, -6])
         if k == 'fig_histo_CMD_BR_CUBES_NC':
             plot_text_ax(ax_sc, 'NOCEN', 0.96, 0.95, fs+2, 'top', 'right', 'k')
         if k == 'fig_histo_SFMS_NC':

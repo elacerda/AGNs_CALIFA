@@ -1,11 +1,10 @@
 #!/bin/bash
 
-if [ $# -lt 2 ]
+if [ $# -lt 3 ]
 then
-	echo "Usage: $0 EWAGN BUG"
+	echo "Usage: $0 EWAGN BUG IMGSUFFIX"
 	exit 1
 fi
-
 WORKPATH=${HOME}/dev/astro/AGNs_CALIFA
 FIGSPATH=${WORKPATH}/figs
 DATAPATH=${WORKPATH}/data
@@ -37,12 +36,13 @@ echo -e "\n"
 echo "######################"
 echo "## Generating plots ##"
 echo "######################"
-OUTPUTFIGSDIR=${FIGSPATH}/${RUNTAG}
+IMGSUFFIX=$3
+OUTPUTFIGSDIR=${FIGSPATH}/${RUNTAG}_${IMGSUFFIX}
 if [ ! -d "${OUTPUTFIGSDIR}" ]
 then
     mkdir "${OUTPUTFIGSDIR}" --
 fi
-PLOTSARGS="-I ${OUTPUTFILE} --figs_dir=${OUTPUTFIGSDIR} -vv"
+PLOTSARGS="-I ${OUTPUTFILE} --figs_dir=${OUTPUTFIGSDIR} -vv --img_suffix=${IMGSUFFIX}"
 echo "$0: running python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS}"
 python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS}
 echo "#########"
