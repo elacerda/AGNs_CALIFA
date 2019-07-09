@@ -205,6 +205,10 @@ df['elines']['Mass_cen'] = 10**df['elines']['Sigma_Mass_cen'] * spaxel_size_pc(r
 df['elines']['log_Mass_corr_NC'] = np.log10(10**df['elines']['log_Mass_corr'] - df['elines']['Mass_cen'])
 df['elines']['sSFR'] = df['elines']['lSFR'] - df['elines']['log_Mass_corr']
 df['elines']['sSFR_NC'] = df['elines']['lSFR_NC'] - df['elines']['log_Mass_corr_NC']
+df['elines']['sSFR_SF'] = df['elines']['log_SFR_SF'] - df['elines']['log_Mass_corr']
+df['elines']['sSFR_ssp'] = df['elines']['log_SFR_ssp'] - df['elines']['log_Mass_corr']
+df['elines']['sSFR_ssp_10Myr'] = df['elines']['log_SFR_ssp_10Myr'] - df['elines']['log_Mass_corr']
+df['elines']['sSFR_ssp_100Myr'] = df['elines']['log_SFR_ssp_100Myr'] - df['elines']['log_Mass_corr']
 
 # R. A. Calette volume correction
 df['elines']['weights'] = df['weights']['w_califa']
