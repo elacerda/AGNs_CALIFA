@@ -1917,6 +1917,11 @@ if __name__ == '__main__':
             ax.xaxis.set_minor_locator(AutoMinorLocator(x_minloc))
             ax.yaxis.set_major_locator(MaxNLocator(y_majloc, prune='lower'))
             ax.yaxis.set_minor_locator(AutoMinorLocator(y_minloc))
+            ax.axvline(x=-11.8, c='k', ls='--')
+            ax.axvline(x=-10.8, c='k', ls='--')
+            if y_key == 'NUV_r_SDSS':
+                ax.axhline(y=4, c='k', ls='--')
+                ax.axhline(y=5, c='k', ls='--')
             if row == 0:
                 plot_text_ax(ax, '%d' % mask.astype('int').sum(), 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
             row = row + 1
