@@ -178,8 +178,11 @@ df['elines']['Ha_narrow'] = df['broad_fit']['Ha_narrow']
 df['elines']['NII_6583'] = df['broad_fit']['NII_6583']
 df['elines']['NII_6548'] = df['broad_fit']['NII_6548']
 df['elines']['EW_Ha_cen_mean'] = df['elines']['EW_Ha_cen_mean'].apply(np.abs)
+df['elines']['log_EW_Ha_cen_mean'] = df['elines']['EW_Ha_cen_mean'].apply(np.log10)
 df['elines']['EW_Ha_ALL'] = df['elines']['EW_Ha_ALL'].apply(np.abs)
+df['elines']['log_EW_Ha_ALL'] = df['elines']['EW_Ha_ALL'].apply(np.log10)
 df['elines']['EW_Ha_Re'] = df['elines']['EW_Ha_Re'].apply(np.abs)
+df['elines']['log_EW_Ha_Re'] = df['elines']['EW_Ha_Re'].apply(np.log10)
 df['elines'].loc[df['elines']['SN_broad'] <= 0, 'SN_broad'] = 0.
 df['elines'].loc[df['elines']['log_Mass'] < 0, 'log_Mass'] = np.nan
 df['elines'].loc[df['elines']['lSFR'] < -10, 'lSFR'] = np.nan
@@ -209,6 +212,12 @@ df['elines']['sSFR_SF'] = df['elines']['log_SFR_SF'] - df['elines']['log_Mass_co
 df['elines']['sSFR_ssp'] = df['elines']['log_SFR_ssp'] - df['elines']['log_Mass_corr']
 df['elines']['sSFR_ssp_10Myr'] = df['elines']['log_SFR_ssp_10Myr'] - df['elines']['log_Mass_corr']
 df['elines']['sSFR_ssp_100Myr'] = df['elines']['log_SFR_ssp_100Myr'] - df['elines']['log_Mass_corr']
+df['elines']['SFE'] = df['elines']['lSFR'] - df['elines']['log_Mass_gas_Av_gas_rad']
+df['elines']['SFE_SF'] = df['elines']['log_SFR_SF'] - df['elines']['log_Mass_gas_Av_gas_rad']
+df['elines']['SFE_ssp'] = df['elines']['log_SFR_ssp'] - df['elines']['log_Mass_gas_Av_gas_rad']
+df['elines']['Mrat'] = 10**(df['elines']['log_Mass_corr'] - df['elines']['log_Mass_gas_Av_gas_rad'])
+df['elines']['fgas'] = 1 / (1 + df['elines']['Mrat'])
+df['elines']['log_fgas'] = df['elines']['fgas'].apply(np.log10)
 
 # R. A. Calette volume correction
 df['elines']['weights'] = df['weights']['w_califa']
@@ -217,7 +226,8 @@ filters = ['u', 'g', 'r', 'i']
 for f1, f2 in itertools.combinations(filters, 2):
     df['elines']['%s_%s' % (f1, f2)] = df['elines']['%s' % f1] - df['elines']['%s' % f2]
     df['elines']['%s_%s_NC' % (f1, f2)] = df['elines']['%s_NC' % f1] - df['elines']['%s_NC' % f2]
-
+df['elines']['NUV_r_SDSS'] = df['elines']['GALEX NUV [mag]'] - df['elines']['SDSS r [mag]']
+df['elines']['NUV_r_CUBES'] = df['elines']['GALEX NUV [mag]'] - df['elines']['r']
 
 for g in df['new_morph'].index:
     df['elines'].loc[g, 'morph'] = np.floor(df['new_morph'].loc[g, 'Average'])
@@ -227,6 +237,11 @@ for i in df['elines'].index:
     if df['elines'].loc[i, 'morph'] >= 0:
         df['elines'].loc[i, 'Morph'] = morph_name[df['elines'].loc[i, 'morph'].astype('int')]
 df['elines']['Morph'] = df['elines']['Morph'].fillna('')
+
+for c in df['elines'].columns:
+    # mask inf and -inf elements in all numerical arrays
+    if df['elines'][c].dtype.name[-2:] == '64':
+        df['elines'][c] = df['elines'][c].mask(df['elines'][c].apply(np.isinf))
 
 # Output pickled dataframe to args.output
 with open(args.output, 'wb') as f:

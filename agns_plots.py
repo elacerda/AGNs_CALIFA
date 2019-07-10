@@ -52,6 +52,7 @@ marker_AGN_tIV = 'X'
 alpha_AGN_tIII = 1
 alpha_AGN_tIV = 1
 scatter_kwargs = dict(s=5, cmap='viridis_r', marker='o', edgecolor='none', alpha=0.6)
+# scatter_kwargs = dict(s=5, cmap='viridis_r', vmax=14, vmin=3, marker='o', edgecolor='none', alpha=0.6)
 scatter_kwargs_EWmaxmin = dict(s=5, vmax=2.5, vmin=-1, cmap='viridis_r', marker='o', edgecolor='none', alpha=0.6)
 #scatter_kwargs_EWmaxmin = dict(c=EW_color.apply(np.log10), s=2, vmax=2.5, vmin=-1, cmap='viridis_r', marker='o', edgecolor='none')
 scatter_AGN_tIV_kwargs = dict(s=35, alpha=alpha_AGN_tIV, linewidth=0.5, marker=marker_AGN_tIV, facecolor='none', edgecolor=color_AGN_tIV)
@@ -60,6 +61,61 @@ scatter_AGN_tII_kwargs = dict(s=35, linewidth=0.5, marker=marker_AGN_tII, faceco
 scatter_AGN_tI_kwargs = dict(s=35, linewidth=0.5, marker=marker_AGN_tI, facecolor='none', edgecolor=color_AGN_tI)
 n_levels_kdeplot = 4
 
+# prop_conf = dict(label=None, extent=None, majloc=None, minloc=None)
+props = {
+    'log_NII_Ha_cen': dict(fname='logNIIHa_cen', label=r'$\log\ ({\rm [NII]}/{\rm H\alpha})$', extent=[-1.6, 0.8], majloc=3, minloc=5),
+    'log_SII_Ha_cen_mean': dict(fname='logSIIHa_cen', label=r'$\log\ ({\rm [SII]}/{\rm H\alpha})$', extent=[-1.6, 0.8], majloc=3, minloc=5),
+    'log_OI_Ha_cen_mean': dict(fname='logOIHa_cen', label=r'$\log\ ({\rm [OI]}/{\rm H\alpha})$', extent=[-3, 0.8], majloc=4, minloc=5),
+    'log_OIII_Hb_cen_mean': dict(fname='logOIIIHb_cen', label= r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', extent=[-1.2, 1.5], majloc=3, minloc=5),
+    'EW_Ha_cen_mean': dict(fname='WHa_cen', label=r'${\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[3, 10], majloc=4, minloc=2),
+    'EW_Ha_Re': dict(fname='WHa_Re', label=r'${\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[3, 10], majloc=4, minloc=2),
+    'log_EW_Ha_cen_mean': dict(fname='logWHa_cen', label=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[-1, 2.5], majloc=4, minloc=2),
+    'log_EW_Ha_Re': dict(fname='logWHa_Re', label=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm Re}$ (\AA)', extent=[-1, 2.5], majloc=4, minloc=2),
+    'C': dict(fname='C', label=r'${\rm R}90/{\rm R}50$', extent=[0.5, 5.5], majloc=6, minloc=2),
+    'log_Mass_corr': dict(fname='M', label=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', extent=[8, 12], majloc=4, minloc=5),
+    'log_Mass_corr_NC': dict(fname='M_NC', label=r'$\log ({\rm M}_\star^{\rm NC}/{\rm M}_{\odot})$', extent=[8, 12], majloc=4, minloc=5),
+    'log_Mass_gas_Av_gas_rad': dict(fname='Mgas', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[4.8, 10.2], majloc=6, minloc=5),
+    'lSFR': dict(fname='SFRHa', label=r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=2),
+    'lSFR_NC': dict(fname='SFRHa_NC', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm NC}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=2),
+    'log_SFR_SF': dict(fname='SFRHaSF', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm SF}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=2),
+    'log_SFR_ssp': dict(fname='SFRssp', label=r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=2),
+    'sSFR': dict(fname='sSFRHa', label=r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$', extent=[-13.5, -8.5], majloc=5, minloc=2),
+    'sSFR_SF': dict(fname='sSFRHaSF', label=r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$', extent=[-14.5, -8.5], majloc=6, minloc=2),
+    'sSFR_ssp': dict(fname='sSFRssp', label=r'$\log ({\rm sSFR}_\star/{\rm yr})$', extent=[-12.5, -8.5], majloc=4, minloc=2),
+    'SFE': dict(fname='SFEHa', label=r'$\log$ (${\rm SFE}_{\rm H\alpha}$/yr)', extent=[-10, -5], majloc=3, minloc=4),
+    'SFE_SF': dict(fname='SFEHaSF', label=r'$\log$ (${\rm SFE}_{\rm SF}$/yr)', extent=[-11, -6], majloc=3, minloc=4),
+    'SFE_ssp': dict(fname='SFEssp', label=r'$\log$ (${\rm SFE}_\star$/yr)', extent=[-10, -5], majloc=3, minloc=4),
+    'log_fgas': dict(fname='logfgas', label=r'$\log\ f_{\rm gas}$', extent=[-5, 0], majloc=5, minloc=2),
+    'g_r': dict(fname='gr', label=r'g-r (mag)', extent=[0, 1], majloc=5, minloc=2),
+    'g_r_NC': dict(fname='gr_NC', label=r'${\rm g-r}^{\rm NC}$ (mag)', extent=[0, 1], majloc=5, minloc=2),
+    'u_r': dict(fname='ur', label=r'u-r (mag)', extent=[0, 3.5], majloc=3, minloc=2),
+    'u_r_NC': dict(fname='ur_NC', label=r'${\rm u-r}^{\rm NC}$ (mag)', extent=[0, 3.5], majloc=3, minloc=2),
+    'u_i': dict(fname='ui', label=r'u-i (mag)', extent=[0, 3.5], majloc=3, minloc=2),
+    'u_i_NC': dict(fname='ui_NC', label=r'${\rm u-i}^{\rm NC}$ (mag)', extent=[0, 3.5], majloc=3, minloc=2),
+    'B_R': dict(fname='BR', label=r'B-R (mag)', extent=[0, 1.5], majloc=3, minloc=5),
+    'B_R_NC': dict(fname='BR_NC', label=r'${\rm B-R}^{\rm NC}$ (mag)', extent=[0, 1.5], majloc=3, minloc=5),
+    'B_V': dict(fname='BV', label=r'B-V (mag)', extent=[0, 1], majloc=5, minloc=2),
+    'B_V_NC': dict(fname='BV_NC', label=r'${\rm B-V}^{\rm NC}$ (mag)', extent=[0, 1], majloc=5, minloc=2),
+    'Mabs_r': dict(fname='Mr', label=r'${\rm M}_{\rm r}$ (mag)', extent=[-24, -15], majloc=5, minloc=2),
+    'Mabs_r_NC': dict(fname='Mr_NC', label=r'${\rm M}_{\rm r}^{\rm NC}$ (mag)', extent=[-24, -15], majloc=5, minloc=2),
+    'Mabs_i': dict(fname='Mi', label=r'${\rm M}_{\rm i}$ (mag)', extent=[-24, -15], majloc=5, minloc=2),
+    'Mabs_i_NC': dict(fname='Mi_NC', label=r'${\rm M}_{\rm i}^{\rm NC}$ (mag)', extent=[-24, -15], majloc=5, minloc=2),
+    'Mabs_R': dict(fname='MR', label=r'${\rm M}_{\rm R}$ (mag)', extent=[-24, -15], majloc=5, minloc=2),
+    'Mabs_R_NC': dict(fname='MR_NC', label=r'${\rm M}_{\rm R}^{\rm NC}$ (mag)', extent=[-24, -15], majloc=5, minloc=2),
+    'Mabs_V': dict(fname='MV', label=r'${\rm M}_{\rm V}$ (mag)', extent=[-24, -15], majloc=5, minloc=2),
+    'Mabs_V_NC': dict(fname='MV_NC', label=r'${\rm M}_{\rm V}^{\rm NC}$ (mag)', extent=[-24, -15], majloc=5, minloc=2),
+    'ZH_MW_Re_fit': dict(fname='ZHMW', label=r'[Z/H] MW', extent=[-0.7, 0.3], majloc=3, minloc=3),
+    'ZH_LW_Re_fit': dict(fname='ZHLW', label=r'[Z/H] LW', extent=[-0.7, 0.3], majloc=3, minloc=3),
+    'OH_Re_fit_t2': dict(fname='OHt2', label= r'$12 + \log (O/H)$ t2', extent=[8.3, 9.1], majloc=4, minloc=2),
+    'Age_LW_Re_fit': dict(fname='tLW', label=r'$\log({\rm age/yr})$ LW', extent=[7.5, 10.5], majloc=3, minloc=5),
+    'Age_MW_Re_fit': dict(fname='tMW', label=r'$\log({\rm age/yr})$ MW', extent=[8.8, 10.2], majloc=3, minloc=5),
+    'NUV_r_SDSS': dict(fname='NUV_r_SDSS', label=r'NUV-r (mag) SDSS', extent=[0, 7], majloc=7, minloc=2),
+    'NUV_r_CUBES': dict(fname='NUV_r_CUBES', label=r'NUV-r (mag) CUBES', extent=[0, 7], majloc=3, minloc=2),
+    'Sigma_Mass_cen': dict(fname='mu_cen', label=r'$\log (\Sigma_\star^{\rm cen}/{\rm M}_{\odot}/{\rm pc}^2)$', extent=[1, 5], majloc=4, minloc=2),
+    'bar': dict(fname='bar', label='bar presence', extent=[-0.2, 2.2], majloc=3, minloc=1),
+    'rat_vel_sigma': dict(fname='vsigma', label=r'${\rm V}/\sigma\ ({\rm R} < {\rm Re})$', extent=[0, 1], majloc=2, minloc=5),
+    'Re_kpc': dict(fname='Re', label=r'${\rm Re}/{\rm kpc}$', extent=[0, 25], majloc=6, minloc=2),
+}
 
 def parser_args(default_args_file='args/default_plots.args'):
     """
@@ -221,6 +277,8 @@ def linear_regression_mean(x, y, interval, step=None, clip=None):
         sigma_dev = (y - np.polyval(pc, x)).std()
         print('sigma dev = {:.5f}'.format(sigma_dev))
         xm, ym = ma_mask_xyz(XS[sel_c], YS[sel_c])
+        c_p_c = pearsonr(xm.compressed(), ym.compressed())[0]
+        c_r_c = spearmanr(xm.compressed(), ym.compressed())[0]
         print('pearsonr:%.2f spearmanr:%.2f' % (pearsonr(xm.compressed(), ym.compressed())[0], spearmanr(xm.compressed(), ym.compressed())[0]))
     xm, ym = ma_mask_xyz(x_bins_center__r, YS__r)
     p = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
@@ -229,8 +287,10 @@ def linear_regression_mean(x, y, interval, step=None, clip=None):
     sigma_dev = (y - np.polyval(p, x)).std()
     print('sigma dev = {:.5f}'.format(sigma_dev))
     xm, ym = ma_mask_xyz(XS, YS)
-    print('pearsonr:%.2f spearmanr:%.2f' % (pearsonr(xm.compressed(), ym.compressed())[0], spearmanr(xm.compressed(), ym.compressed())[0]))
-    return p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel
+    c_p = pearsonr(xm.compressed(), ym.compressed())[0]
+    c_r = spearmanr(xm.compressed(), ym.compressed())[0]
+    print('pearsonr:%.2f spearmanr:%.2f' % (c_p, c_r))
+    return p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c
 
 
 def plot_setup(width, aspect, fignum=None, dpi=300, cmap=None):
@@ -335,11 +395,13 @@ def plot_WHAN(args, N2Ha, WHa, z=None, f=None, ax=None, extent=None, output_name
         return f, ax
 
 
-def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, output_name=None, markAGNs=False, f=None, ax=None, sc_kwargs=None, z_maxlocator=4):
+def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, output_name=None, markAGNs=False, f=None, ax=None, sc_kwargs=None, z_maxlocator=4, zextent=None):
+    if zextent is None:
+        zextent = [-1, 2.5]
     if zlabel is None:
         zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
     if sc_kwargs is None:
-        sc_kwargs = scatter_kwargs_EWmaxmin
+        sc_kwargs = scatter_kwargs
     mtI = elines['AGN_FLAG'] == 1
     mtII = elines['AGN_FLAG'] == 2
     # mtIII = elines['AGN_FLAG'] == 3
@@ -353,7 +415,9 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
         N_rows, N_cols = 1, 1
         gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax = plt.subplot(gs[0])
-    sc = ax.scatter(x, y, c=z, **sc_kwargs)
+    txt = '%d:%d:%d' % (mXYZ.astype('int').sum(), (mXYZ & mtI).astype('int').sum(), (mXYZ & mtII).astype('int').sum())
+    plot_text_ax(ax, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
+    sc = ax.scatter(x, y, c=z, vmin=zextent[0], vmax=zextent[1], **sc_kwargs)
     # mALLAGN = (elines['AGN_FLAG'] > 0)
     xm, ym = ma_mask_xyz(x, y, mask=~mtAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
@@ -368,6 +432,7 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
     cb_width = 0.05
     cb_ax = f.add_axes([right, bottom, cb_width, top-bottom])
     cb = plt.colorbar(sc, cax=cb_ax)
+    cb.solids.set(alpha=1)
     cb.set_label(zlabel, fontsize=args.fontsize+1)
     cb.locator = MaxNLocator(z_maxlocator)
     # cb_ax.minorticks_on()
@@ -377,8 +442,8 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
         ax.set_xlim(extent[0:2])
         ax.set_ylim(extent[2:4])
     ax.xaxis.set_major_locator(MaxNLocator(n_bins_maj_x, prune=prune_x))
-    ax.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
     ax.xaxis.set_minor_locator(AutoMinorLocator(n_bins_min_x))
+    ax.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_x))
     ax.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
     tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
     ax.tick_params(**tick_params)
@@ -416,7 +481,9 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
     return f, ax
 
 
-def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, aux_mask=None, zlabel=None):
+def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, aux_mask=None, zlabel=None, zextent=None):
+    if zextent is None:
+        zextent = [-1, 2.5]
     if zlabel is None:
         zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
     if aux_mask is not None:
@@ -426,6 +493,8 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     mtAGN = mtI | mtII
     # mtIII = elines['AGN_FLAG'] == 3
     mXYZ = (x.notna() & y.notna() & z.notna())
+    txt = '%d:%d:%d' % (mXYZ.astype('int').sum(), (mXYZ & mtI).astype('int').sum(), (mXYZ & mtII).astype('int').sum())
+    plot_text_ax(ax_sc, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
     print('x:%s:%d  y:%s:%d  z:%s:%d  all:%d  tIAGN:%d  tIIAGN:%d  AGN:%d' % (x.name, x.notna().sum(), y.name, y.notna().sum(), z.name, z.notna().sum(), mXYZ.sum(), (mXYZ & mtI).sum(), (mXYZ & mtII).sum(), (mXYZ & mtAGN).sum()))
     Nbins = 20
     ax_Hx_t = ax_Hx.twinx()
@@ -465,7 +534,7 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     # print(len(x), len(y), len(mtAGN))
     # xm, ym = ma_mask_xyz(x, y, mask=~mtAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
-    sc = ax_sc.scatter(x, y, c=z, **scatter_kwargs_EWmaxmin)
+    sc = ax_sc.scatter(x, y, c=z, vmin=zextent[0], vmax=zextent[1], **scatter_kwargs)
     # ax_sc.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax_sc.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
@@ -482,6 +551,7 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     cb_width = 0.05
     cb_ax = f.add_axes([pos.x1, pos.y0, cb_width, pos.y1-pos.y0])
     cb = plt.colorbar(sc, cax=cb_ax)
+    cb.solids.set(alpha=1)
     cb.set_label(zlabel, fontsize=args.fontsize+2)
     cb.locator = MaxNLocator(4)
     # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
@@ -561,7 +631,9 @@ def plot_x_morph(elines, args, ax):
     return ax
 
 
-def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, zlabel=None):
+def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, zlabel=None, zextent=None):
+    if zextent is None:
+        zextent = [-1, 2.5]
     if zlabel is None:
         zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
     # EW_color = elines['EW_Ha_cen_mean'].apply(np.abs)
@@ -572,6 +644,8 @@ def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=No
     mtAGN = mtI | mtII
     morph = elines['morph'].apply(morph_adjust)
     mXYZ = (morph.notna() & y.notna() & z.notna())
+    txt = '%d:%d:%d' % (mXYZ.astype('int').sum(), (mXYZ & mtI).astype('int').sum(), (mXYZ & mtII).astype('int').sum())
+    plot_text_ax(ax, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
     print('x:morph:%d  y:%s:%d  z:%s:%d  all:%d  tIAGN:%d  tIIAGN:%d  AGN:%d' % (morph.notna().sum(), y.name, y.notna().sum(), z.name, z.notna().sum(), mXYZ.sum(), (mXYZ & mtI).sum(), (mXYZ & mtII).sum(), (mXYZ & mtAGN).sum()))
     m = np.linspace(7, 19, 13).astype('int')
     y_mean = np.array([y.loc[morph == mt].mean() for mt in m])
@@ -604,7 +678,7 @@ def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=No
     ax_Hy.tick_params(**tick_params)
     ax_Hy_t.tick_params(**tick_params)
     ####################################
-    sc = ax_sc.scatter(morph, y, c=z, **scatter_kwargs_EWmaxmin)
+    sc = ax_sc.scatter(morph, y, c=z, vmin=zextent[0], vmax=zextent[1], **scatter_kwargs)
     # mALLAGN = (elines['AGN_FLAG'] > 0)
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
@@ -625,6 +699,7 @@ def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=No
     cb_width = 0.05
     cb_ax = f.add_axes([pos.x1, pos.y0, cb_width, pos.y1-pos.y0])
     cb = plt.colorbar(sc, cax=cb_ax)
+    cb.solids.set(alpha=1)
     cb.set_label(zlabel, fontsize=args.fontsize+2)
     cb.locator = MaxNLocator(4)
     # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
@@ -1075,16 +1150,16 @@ if __name__ == '__main__':
     legend_elements = [
         Line2D([0], [0], marker=marker_AGN_tI, markeredgecolor=color_AGN_tI, label='Type-I (%d)' % N_AGN_tI, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
         Line2D([0], [0], marker=marker_AGN_tII, markeredgecolor=color_AGN_tII, label='Type-II (%d)' % N_AGN_tII, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
-        Line2D([0], [0], marker=marker_AGN_tIII, alpha=alpha_AGN_tIII, markeredgecolor=color_AGN_tIII, label=r'by [NII]/H$\alpha$ and other (+%d)' % N_AGN_tIII, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
-        Line2D([0], [0], marker=marker_AGN_tIV, alpha=alpha_AGN_tIV, markeredgecolor=color_AGN_tIV, label=r'by [NII]/H$\alpha$ (+%d)' % N_AGN_tIV, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
+        # Line2D([0], [0], marker=marker_AGN_tIII, alpha=alpha_AGN_tIII, markeredgecolor=color_AGN_tIII, label=r'by [NII]/H$\alpha$ and other (+%d)' % N_AGN_tIII, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
+        # Line2D([0], [0], marker=marker_AGN_tIV, alpha=alpha_AGN_tIV, markeredgecolor=color_AGN_tIV, label=r'by [NII]/H$\alpha$ (+%d)' % N_AGN_tIV, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
     ]
 
-    sSFR_SF = elines['log_SFR_SF'] - elines['log_Mass_corr']
-    sSFR = elines['lSFR'] - elines['log_Mass_corr']
-    sSFR_ssp = elines['log_SFR_ssp'] - elines['log_Mass_corr']
-    Mrat = 10**(elines['log_Mass_corr'] - elines['log_Mass_gas_Av_gas_rad'])
-    fgas = 1 / (1 + Mrat)
-
+    # sSFR_SF = elines['log_SFR_SF'] - elines['log_Mass_corr']
+    # sSFR = elines['lSFR'] - elines['log_Mass_corr']
+    # sSFR_ssp = elines['log_SFR_ssp'] - elines['log_Mass_corr']
+    # Mrat = 10**(elines['log_Mass_corr'] - elines['log_Mass_gas_Av_gas_rad'])
+    # fgas = 1 / (1 + Mrat)
+    #
     ##########################
     ## BPT colored by EW_Ha ##
     ##########################
@@ -1108,9 +1183,9 @@ if __name__ == '__main__':
     ax = ax0
     x = log_NII_Ha_cen
     extent = [-1.6, 0.8, -1.2, 1.5]
-    sc = ax.scatter(x, y, c=EW_Ha_cen.apply(np.log10), **scatter_kwargs_EWmaxmin)
-    ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
-    ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
+    sc = ax.scatter(x, y, c=elines['log_EW_Ha_cen_mean'], **scatter_kwargs_EWmaxmin)
+    # ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
+    # ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
     ax.scatter(x.loc[mtII], y.loc[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(x.loc[mtI], y.loc[mtI], **scatter_AGN_tI_kwargs)
     ax.plot(L.x['K01'], L.y['K01'], 'k--')
@@ -1138,9 +1213,9 @@ if __name__ == '__main__':
     ax = ax1
     x = log_SII_Ha_cen
     extent = [-1.6, 0.8, -1.2, 1.5]
-    sc = ax.scatter(x, y, c=EW_Ha_cen.apply(np.log10), **scatter_kwargs_EWmaxmin)
-    ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
-    ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
+    sc = ax.scatter(x, y, c=elines['log_EW_Ha_cen_mean'], **scatter_kwargs_EWmaxmin)
+    # ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
+    # ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
     ax.scatter(x.loc[mtII], y.loc[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(x.loc[mtI], y.loc[mtI], **scatter_AGN_tI_kwargs)
     ax.set_xlabel(r'$\log\ ({\rm [SII]}/{\rm H\alpha})$', fontsize=fs+4)
@@ -1168,9 +1243,9 @@ if __name__ == '__main__':
     ax = ax2
     x = log_OI_Ha_cen
     extent = [-3, 0.8, -1.2, 1.5]
-    sc = ax.scatter(x, y, c=EW_Ha_cen.apply(np.log10), **scatter_kwargs_EWmaxmin)
-    ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
-    ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
+    sc = ax.scatter(x, y, c=elines['log_EW_Ha_cen_mean'], **scatter_kwargs_EWmaxmin)
+    # ax.scatter(x.loc[mtIV], y.loc[mtIV], **scatter_AGN_tIV_kwargs)
+    # ax.scatter(x.loc[mtIII], y.loc[mtIII], **scatter_AGN_tIII_kwargs)
     ax.scatter(x.loc[mtII], y.loc[mtII], **scatter_AGN_tII_kwargs)
     ax.scatter(x.loc[mtI], y.loc[mtI], **scatter_AGN_tI_kwargs)
     ax.set_xlabel(r'$\log\ ({\rm [OI]}/{\rm H\alpha})$', fontsize=fs+4)
@@ -1209,7 +1284,7 @@ if __name__ == '__main__':
     print('## WHAN colored by [OIII]/Hbeta ##')
     print('##################################')
     x = log_NII_Ha_cen
-    y = EW_Ha_cen
+    y = elines['EW_Ha_cen_mean']
     z = log_OIII_Hb_cen
     extent = [-2, 1.5, -1, 3]
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
@@ -1221,7 +1296,7 @@ if __name__ == '__main__':
                       z=z.values, z_label=r'$\log\ ({\rm [OIII]}/{\rm H\beta})$',
                       cmap='viridis_r', mask=None,
                       vmax=1, vmin=-1)
-    y = EW_Ha_cen.apply(np.log10)
+    y = elines['log_EW_Ha_cen_mean']
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
     # sns.kdeplot(x.loc[mtI], y.loc[mtI], ax=plt.gca(), color='red', n_levels=n_levels_kdeplot, alpha=0.4)
@@ -1264,996 +1339,356 @@ if __name__ == '__main__':
     print('##################################')
     ##################################
 
-    z = EW_Ha_Re.apply(np.log10)
-    zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm Re}$ (\AA)'
-    # z = EW_Ha_cen.apply(np.log10)
-    # zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
-    ###################################
-    ## SFMS colored by central EW_Ha ##
-    ###################################
-    print('\n########################################')
-    print('## SFMS (Ha) colored by central EW_Ha ##')
-    print('########################################')
-    x = elines['log_Mass_corr']
-    y = elines['lSFR']
-    xlabel = r'$\log ({\rm M}_/{\rm M}_{\odot})$'
-    extent = [7.5, 12, -4.5, 2.5]
-    n_bins_min_x = 5
-    n_bins_maj_y = 4
-    n_bins_min_y = 2
-    prune_x = None
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR_{\rm H\alpha}}/{\rm M}_{\odot}/{\rm yr})$',
-                      xlabel=xlabel, extent=extent,
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel,
-                      f=f, ax=ax)
-    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
-    WHa = EW_Ha_cen
-    WHa_Re = elines['EW_Ha_Re']
-    WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
-    SFc = sel_EW_cen & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
-    interval = [8.3, 11.8, 7.5, 10.5]
-    dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
-    for k, v in dict_masks.items():
-        print('{}:'.format(k))
-        X = x.loc[v]
-        Y = y.loc[v]
-        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_Re':
-            p_SFc = p
-            p_SFc_c = pc
-            ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-            ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-        # if k == 'hDIG':
-        #     p_hDIG = p
-        #     p_hDIG_c = pc
-        #     ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
-        #     ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    ###########################
-    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
-    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
-    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
-    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
-    print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
-    print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
-    print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
-    print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
-    ###########################
-    output_name = '%s/fig_SFMS_cWHa.%s' % (args.figs_dir, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('##############')
-    print('## (NO CEN) ##')
-    print('##############')
-    x = elines['log_Mass_corr_NC']
-    y = elines['lSFR_NC']
-    xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
-    extent = [7.5, 12, -4.5, 2.5]
-    n_bins_min_x = 5
-    n_bins_maj_y = 4
-    n_bins_min_y = 2
-    prune_x = None
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR_{\rm H\alpha}}/{\rm M}_{\odot}/{\rm yr})$',
-                      xlabel=xlabel, extent=extent,
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel,
-                      f=f, ax=ax)
-    plot_text_ax(ax, 'NOCEN', 0.04, 0.95, fs+2, 'top', 'left', 'k')
-    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
-    WHa = EW_Ha_cen
-    WHa_Re = elines['EW_Ha_Re']
-    WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
-    SFc = sel_EW_cen & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
-    interval = [8.3, 11.8, 7.5, 10.5]
-    dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
-    for k, v in dict_masks.items():
-        print('{}:'.format(k))
-        X = x.loc[v]
-        Y = y.loc[v]
-        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_Re':
-            p_SFc = p
-            p_SFc_c = pc
-            ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-            ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-        # if k == 'hDIG':
-        #     p_hDIG = p
-        #     p_hDIG_c = pc
-        #     ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
-        #     ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    ###########################
-    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
-    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
-    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
-    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
-    print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
-    print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
-    print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
-    print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
-    ###########################
-    output_name = '%s/fig_SFMS_NC_cWHa.%s' % (args.figs_dir, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('########################################')
-    ########################################
-    ######################################
-    ## SFMS SF colored by central EW_Ha ##
-    ######################################
-    print('###########################################')
-    print('## SFMS SF (Ha) colored by central EW_Ha ##')
-    print('###########################################')
-    x = elines['log_Mass_corr']
-    y = elines['log_SFR_SF']
-    xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
-    extent = [7.5, 12, -4.5, 2.5]
-    n_bins_min_x = 5
-    n_bins_maj_y = 4
-    n_bins_min_y = 2
-    prune_x = None
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm SF}/{\rm M}_{\odot}/{\rm yr})$',
-                      xlabel=xlabel, extent=extent,
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel,
-                      f=f, ax=ax)
-    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
-    WHa = EW_Ha_cen
-    WHa_Re = elines['EW_Ha_Re']
-    WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
-    SFc = sel_EW_cen & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
-    interval = [8.3, 11.8, 7.5, 10.5]
-    dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
-    for k, v in dict_masks.items():
-        print('{}:'.format(k))
-        X = x.loc[v]
-        Y = y.loc[v]
-        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_Re':
-            p_SFc = p
-            p_SFc_c = pc
-            ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-            ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-        # if k == 'hDIG':
-        #     p_hDIG = p
-        #     p_hDIG_c = pc
-        #     ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
-        #     ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    ###########################
-    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
-    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
-    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
-    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
-    print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
-    print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
-    print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
-    print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
-    ###########################
-    output_name = '%s/fig_SFMS_SF_cWHa.%s' % (args.figs_dir, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    ###############################################
-    ## SFMS SSP (10Myr) colored by central EW_Ha ##
-    ###############################################
-    print('###############################################')
-    print('## SFMS (SSP-10Myr) colored by central EW_Ha ##')
-    print('###############################################')
-    x = elines['log_Mass_corr']
-    y = elines['log_SFR_ssp_10Myr']
+    ###############################
+    # ALL plots use the same z-axis
+    ###############################
+    z_key = 'log_EW_Ha_Re'
+    # z_key = 'EW_Ha_Re'
+    # z_key = 'log_EW_Ha_cen_mean'
+    z = elines[z_key]
+    z_label = props[z_key]['label']
+    z_extent = props[z_key]['extent']
+    ###############################
+    ###############################
+    y_key_list = ['lSFR', 'lSFR_NC', 'log_SFR_SF', 'log_SFR_ssp', 'log_fgas', 'SFE', 'SFE_SF', 'SFE_ssp']
+    for y_key in y_key_list:
+        print('\n###################################')
+        x_key = 'log_Mass_corr'
+        if y_key[-3::] == '_NC':
+            x_key = 'log_Mass_corr_NC'
+        x = elines[x_key]
+        x_label = props[x_key]['label']
+        x_extent = props[x_key]['extent']
+        x_majloc = props[x_key]['majloc']
+        x_minloc = props[x_key]['minloc']
+        k = '%s_%s' % (props[x_key]['fname'], props[y_key]['fname'])
+        fname = 'fig_%s' % k
+        print('# %s' % fname)
+        print('###################################')
+        y = elines[y_key]
+        y_label = props[y_key]['label']
+        y_extent = props[y_key]['extent']
+        y_majloc = props[y_key]['majloc']
+        y_minloc = props[y_key]['minloc']
+        extent = x_extent + y_extent
+        bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+        f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+        N_rows, N_cols = 1, 1
+        gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+        ax = plt.subplot(gs[0])
+        plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
+                          xlabel=x_label, ylabel=y_label, extent=extent,
+                          n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
+                          n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
+                          prune_x=None, zlabel=z_label, zextent=z_extent,
+                          f=f, ax=ax)
+        if y_key[-3::] == '_NC':
+            plot_text_ax(ax, 'NOCEN', 0.04, 0.95, args.fontsize+2, 'top', 'left', 'k')
+        # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
+        # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
+        WHa = EW_Ha_cen
+        WHa_Re = elines['EW_Ha_Re']
+        WHa_ALL = elines['EW_Ha_ALL']
+        hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
+        SFc = sel_EW_cen & (WHa > args.EW_SF)
+        hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
+        SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
+        hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
+        SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
+        interval = [8.3, 11.8, 7.5, 10.5]
+        dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
+        for k, v in dict_masks.items():
+            print('{}:'.format(k))
+            X = x.loc[v]
+            Y = y.loc[v]
+            p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
+            if k == 'SFc_Re':
+                p_SFc = pc
+                ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', ls='--', label='SFG')
+                # ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
+            # if k == 'hDIG':
+            #     p_hDIG = p
+            #     p_hDIG_c = pc
+            #     ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
+            #     ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
+        ###########################
+        N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
+        N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
+        N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
+        N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
+        print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
+        print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
+        print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
+        print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
+        ###########################
+        output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+        f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+        plt.close(f)
 
-    xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
-    extent = [7.5, 12, -3.5, 2.5]
-    n_bins_min_x = 5
-    n_bins_maj_y = 4
-    n_bins_min_y = 5
-    prune_x = None
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR}_\star^{10}/{\rm M}_{\odot}/{\rm yr})$',
-                      xlabel=xlabel, extent=extent,
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel,
-                      f=f, ax=ax)
-    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
-    WHa = EW_Ha_cen
-    WHa_Re = elines['EW_Ha_Re']
-    WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
-    SFc = sel_EW_cen & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
-    interval = [8.3, 11.8, 7.5, 10.5]
-    dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
-    for k, v in dict_masks.items():
-        print('{}:'.format(k))
-        X = x.loc[v]
-        Y = y.loc[v]
-        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_Re':
-            p_SFc = p
-            p_SFc_c = pc
-            ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-            ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-        # if k == 'hDIG':
-        #     p_hDIG = p
-        #     p_hDIG_c = pc
-        #     ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
-        #     ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    ########################################
-    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
-    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
-    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
-    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
-    print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
-    print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
-    print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
-    print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
-    ########################################
-    output_name = '%s/fig_SFMS_ssp10_cWHa.%s' % (args.figs_dir, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('###############################################')
-    ###############################################
-    ###############################################
-    ## SFMS SSP (32Myr) colored by central EW_Ha ##
-    ###############################################
-    print('###############################################')
-    print('## SFMS (SSP-32Myr) colored by central EW_Ha ##')
-    print('###############################################')
-    x = elines['log_Mass_corr']
-    y = elines['log_SFR_ssp']
-    xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
-    extent = [7.5, 12, -4.5, 2.5]
-    n_bins_min_x = 5
-    n_bins_maj_y = 4
-    n_bins_min_y = 2
-    prune_x = None
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$',
-                      xlabel=xlabel, extent=extent,
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel,
-                      f=f, ax=ax)
-    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
-    WHa = EW_Ha_cen
-    WHa_Re = elines['EW_Ha_Re']
-    WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
-    SFc = sel_EW_cen & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
-    interval = [8.3, 11.8, 7.5, 10.5]
-    dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
-    for k, v in dict_masks.items():
-        print('{}:'.format(k))
-        X = x.loc[v]
-        Y = y.loc[v]
-        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_Re':
-            p_SFc = p
-            p_SFc_c = pc
-            ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-            ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-        # if k == 'hDIG':
-        #     p_hDIG = p
-        #     p_hDIG_c = pc
-        #     ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
-        #     ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    ########################################
-    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
-    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
-    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
-    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
-    print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
-    print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
-    print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
-    print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
-    ########################################
-    output_name = '%s/fig_SFMS_ssp_cWHa.%s' % (args.figs_dir, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('###############################################')
-    ################################################
-    ## SFMS SSP (100Myr) colored by central EW_Ha ##
-    ################################################
-    print('################################################')
-    print('## SFMS (SSP-100Myr) colored by central EW_Ha ##')
-    print('################################################')
-    x = elines['log_Mass_corr']
-    y = elines['log_SFR_ssp_100Myr']
-    xlabel = r'$\log ({\rm M}_\star/{\rm M}_{\odot})$'
-    extent = [7.5, 12, -3.5, 2.5]
-    n_bins_min_x = 5
-    n_bins_maj_y = 4
-    n_bins_min_y = 5
-    prune_x = None
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR}_\star^{100}/{\rm M}_{\odot}/{\rm yr})$',
-                      xlabel=xlabel, extent=extent,
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel,
-                      f=f, ax=ax)
-    # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
-    # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
-    WHa = EW_Ha_cen
-    WHa_Re = elines['EW_Ha_Re']
-    WHa_ALL = elines['EW_Ha_ALL']
-    hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
-    SFc = sel_EW_cen & (WHa > args.EW_SF)
-    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
-    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-    hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
-    SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
-    interval = [8.3, 11.8, 7.5, 10.5]
-    dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
-    for k, v in dict_masks.items():
-        print('{}:'.format(k))
-        X = x.loc[v]
-        Y = y.loc[v]
-        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-        if k == 'SFc_Re':
-            p_SFc = p
-            p_SFc_c = pc
-            ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', label='SFG')
-            ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-        # if k == 'hDIG':
-        #     p_hDIG = p
-        #     p_hDIG_c = pc
-        #     ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
-        #     ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    ########################################
-    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
-    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
-    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
-    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
-    print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
-    print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
-    print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
-    print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
-    ########################################
-    output_name = '%s/fig_SFMS_ssp100_cWHa.%s' % (args.figs_dir, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('########################################')
-    ########################################
+    x_key = 'log_Mass_gas_Av_gas_rad'
+    x = elines[x_key]
+    x_label = props[x_key]['label']
+    x_extent = props[x_key]['extent']
+    x_majloc = props[x_key]['majloc']
+    x_minloc = props[x_key]['minloc']
+    y_key_list = ['lSFR', 'log_SFR_SF', 'log_SFR_ssp']
+    for y_key in y_key_list:
+        print('\n##################################')
+        k = '%s_%s' % (props[x_key]['fname'], props[y_key]['fname'])
+        fname = 'fig_%s' % k
+        print('# %s' % fname)
+        print('##################################')
+        y = elines[y_key]
+        y_label = props[y_key]['label']
+        y_extent = props[y_key]['extent']
+        y_majloc = props[y_key]['majloc']
+        y_minloc = props[y_key]['minloc']
+        extent = x_extent + y_extent
+        prune_x = None
+        bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+        f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+        N_rows, N_cols = 1, 1
+        gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+        ax = plt.subplot(gs[0])
+        plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
+                          xlabel=x_label, ylabel=y_label, zlabel=z_label,
+                          n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
+                          n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
+                          extent=extent, zextent=z_extent, f=f, ax=ax)
+        WHa_Re = elines['EW_Ha_Re']
+        SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
+        X = x
+        Y = y
+        # Z = z.loc[SFc_Re]
+        # XS, YS, ZS = xyz_clean_sort_interval(X.values, Y.values, Z.values)
+        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
+        mod_SFR = np.polyval(p, np.array(extent[0:2]) + np.array([0.5, -0.5]))
+        ax.plot(np.array(extent[0:2]) + np.array([0.5, -0.5]), mod_SFR, c='k', ls='--')
+        # x_bins__r, x_bincenter__r, nbins = create_bins(np.array(extent[0:2]) + np.array([0.5, -0.5]), 0.5)
+        # _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, extent)
+        # print(y_mean, N_y_mean)
+        # ax.plot(x_bincenter__r, y_mean, 'k--')
+        # print('p:%.2f s:%.2f' % (pearsonr(X, Y)[0], spearmanr(X, Y)[0]))
+        ########################################
+        N_AGN_tI_under_bestfit = ((y[mtI] - np.polyval(p, x[mtI])) <= 0).astype('int').sum()
+        N_AGN_tII_under_bestfit = ((y[mtII] - np.polyval(p, x[mtII])) <= 0).astype('int').sum()
+        N_BFAGN_under_bestfit = ((y[mBFAGN] - np.polyval(p, x[mBFAGN])) <= 0).astype('int').sum()
+        N_ALLAGN_under_bestfit = ((y[mALLAGN] - np.polyval(p, x[mALLAGN])) <= 0).astype('int').sum()
+        print('# B.F. Type-I AGN under bestfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_bestfit, N_AGN_tI, 100.*N_AGN_tI_under_bestfit/N_AGN_tI))
+        print('# B.F. Type-II AGN under bestfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_bestfit, N_AGN_tII, 100.*N_AGN_tII_under_bestfit/N_AGN_tII))
+        print('# B.F. AGN under bestfit: %d/%d (%.1f%%)' % (N_BFAGN_under_bestfit, N_BFAGN, 100.*N_BFAGN_under_bestfit/N_BFAGN))
+        print('# ALL AGN under bestfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_bestfit, N_ALLAGN, 100.*N_ALLAGN_under_bestfit/N_ALLAGN))
+        ########################################
+        output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+        f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+        plt.close(f)
+        print('###############################')
+        ###############################
 
-    ###############################
-    ## Mgas-SFR colored by EW_Ha ##
-    ###############################
-    print('\n###############################')
-    print('## Mgas-SFR colored by EW_Ha ##')
-    print('###############################')
-    x = elines['log_Mass_gas_Av_gas_rad']
-    y = elines['lSFR']
-    xlabel = r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$'
-    extent = [4.8, 10.2, -4.5, 2.5]
-    n_bins_maj_x = 6
-    n_bins_min_x = 5
-    n_bins_maj_y = 4
-    n_bins_min_y = 4
-    prune_x = None
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    plot_colored_by_z(elines=elines, args=args, x=x, y=y, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$',
-                      xlabel=xlabel, extent=extent,
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                      z=z, zlabel=zlabel,
-                      f=f, ax=ax)
-    WHa_Re = elines['EW_Ha_Re']
-    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-    X = x
-    Y = y
-    # Z = z.loc[SFc_Re]
-    # XS, YS, ZS = xyz_clean_sort_interval(X.values, Y.values, Z.values)
-    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
-    mod_SFR = np.polyval(p, np.array(extent[0:2]) + np.array([0.5, -0.5]))
-    ax.plot(np.array(extent[0:2]) + np.array([0.5, -0.5]), mod_SFR, c='k', ls='--')
-    # x_bins__r, x_bincenter__r, nbins = create_bins(np.array(extent[0:2]) + np.array([0.5, -0.5]), 0.5)
-    # _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, extent)
-    # print(y_mean, N_y_mean)
-    # ax.plot(x_bincenter__r, y_mean, 'k--')
-    # print('p:%.2f s:%.2f' % (pearsonr(X, Y)[0], spearmanr(X, Y)[0]))
-    ########################################
-    N_AGN_tI_under_bestfit = ((y[mtI] - np.polyval(p, x[mtI])) <= 0).astype('int').sum()
-    N_AGN_tII_under_bestfit = ((y[mtII] - np.polyval(p, x[mtII])) <= 0).astype('int').sum()
-    N_BFAGN_under_bestfit = ((y[mBFAGN] - np.polyval(p, x[mBFAGN])) <= 0).astype('int').sum()
-    N_ALLAGN_under_bestfit = ((y[mALLAGN] - np.polyval(p, x[mALLAGN])) <= 0).astype('int').sum()
-    print('# B.F. Type-I AGN under bestfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_bestfit, N_AGN_tI, 100.*N_AGN_tI_under_bestfit/N_AGN_tI))
-    print('# B.F. Type-II AGN under bestfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_bestfit, N_AGN_tII, 100.*N_AGN_tII_under_bestfit/N_AGN_tII))
-    print('# B.F. AGN under bestfit: %d/%d (%.1f%%)' % (N_BFAGN_under_bestfit, N_BFAGN, 100.*N_BFAGN_under_bestfit/N_BFAGN))
-    print('# ALL AGN under bestfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_bestfit, N_ALLAGN, 100.*N_ALLAGN_under_bestfit/N_ALLAGN))
-    ########################################
-    output_name = '%s/fig_Mgas_SFR.%s' % (args.figs_dir, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('###############################')
-    ###############################
-
-    ##################################
-    ## Mgas-SFR_SF colored by EW_Ha ##
-    ##################################
-    print('\n##################################')
-    print('## Mgas-SFR_SF colored by EW_Ha ##')
-    print('##################################')
-    x = elines['log_Mass_gas_Av_gas_rad']
-    y = elines['log_SFR_SF']
-    xlabel = r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$'
-    extent = [4.8, 10.2, -4.5, 2.5]
-    n_bins_maj_x = 6
-    n_bins_min_x = 5
-    n_bins_maj_y = 4
-    n_bins_min_y = 4
-    prune_x = None
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    plot_colored_by_z(elines=elines, args=args, x=x, y=y, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm SF}/{\rm M}_{\odot}/{\rm yr})$',
-                      xlabel=xlabel, extent=extent,
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                      z=z, zlabel=zlabel,
-                      f=f, ax=ax)
-    WHa_Re = elines['EW_Ha_Re']
-    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-    X = x
-    Y = y
-    # Z = z.loc[SFc_Re]
-    # XS, YS, ZS = xyz_clean_sort_interval(X.values, Y.values, Z.values)
-    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
-    mod_SFR = np.polyval(p, np.array(extent[0:2]) + np.array([0.5, -0.5]))
-    ax.plot(np.array(extent[0:2]) + np.array([0.5, -0.5]), mod_SFR, c='k', ls='--')
-    # x_bins__r, x_bincenter__r, nbins = create_bins(np.array(extent[0:2]) + np.array([0.5, -0.5]), 0.5)
-    # _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, extent)
-    # print(y_mean, N_y_mean)
-    # ax.plot(x_bincenter__r, y_mean, 'k--')
-    # print('p:%.2f s:%.2f' % (pearsonr(X, Y)[0], spearmanr(X, Y)[0]))
-    ########################################
-    N_AGN_tI_under_bestfit = ((y[mtI] - np.polyval(p, x[mtI])) <= 0).astype('int').sum()
-    N_AGN_tII_under_bestfit = ((y[mtII] - np.polyval(p, x[mtII])) <= 0).astype('int').sum()
-    N_BFAGN_under_bestfit = ((y[mBFAGN] - np.polyval(p, x[mBFAGN])) <= 0).astype('int').sum()
-    N_ALLAGN_under_bestfit = ((y[mALLAGN] - np.polyval(p, x[mALLAGN])) <= 0).astype('int').sum()
-    print('# B.F. Type-I AGN under bestfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_bestfit, N_AGN_tI, 100.*N_AGN_tI_under_bestfit/N_AGN_tI))
-    print('# B.F. Type-II AGN under bestfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_bestfit, N_AGN_tII, 100.*N_AGN_tII_under_bestfit/N_AGN_tII))
-    print('# B.F. AGN under bestfit: %d/%d (%.1f%%)' % (N_BFAGN_under_bestfit, N_BFAGN, 100.*N_BFAGN_under_bestfit/N_BFAGN))
-    print('# ALL AGN under bestfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_bestfit, N_ALLAGN, 100.*N_ALLAGN_under_bestfit/N_ALLAGN))
-    ########################################
-    output_name = '%s/fig_Mgas_SFRSF.%s' % (args.figs_dir, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('##################################')
-    ###############################
+    plots_props_list = [
+        ['log_Mass_corr', 'log_Mass_gas_Av_gas_rad'],
+        ['log_Mass_corr', 'C'],
+    ]
+    for plot_element in plots_props_list:
+        print('\n#############################')
+        x_key = plot_element[0]
+        y_key = plot_element[1]
+        x_key, y_key = 'log_Mass_corr', 'log_Mass_gas_Av_gas_rad'
+        k = '%s_%s' % (props[x_key]['fname'], props[y_key]['fname'])
+        fname = 'fig_%s' % k
+        print('# %s' % fname)
+        print('#############################')
+        output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+        plot_colored_by_z(elines=elines, args=args, markAGNs=True,
+                          x=elines[x_key], y=elines[y_key], z=z,
+                          xlabel=props[x_key]['label'], ylabel=props[y_key]['label'], zlabel=z_label,
+                          extent=props[x_key]['extent'] + props[y_key]['extent'], zextent=z_extent,
+                          n_bins_maj_x=props[x_key]['majloc'], n_bins_min_x=props[x_key]['minloc'],
+                          n_bins_maj_y=props[y_key]['majloc'], n_bins_min_y=props[y_key]['minloc'],
+                          prune_x=None, output_name=output_name)
+        print('#############################')
 
     ###################################
-    ## Mgas-SFR_ssp colored by EW_Ha ##
+    x_key = 'log_Mass_corr'
+    x = elines[x_key]
+    x_label = props[x_key]['label']
+    x_extent = props[x_key]['extent']
+    x_majloc = props[x_key]['majloc']
+    x_minloc = props[x_key]['minloc']
     ###################################
-    print('\n###################################')
-    print('## Mgas-SFR_ssp colored by EW_Ha ##')
-    print('###################################')
-    x = elines['log_Mass_gas_Av_gas_rad']
-    y = elines['log_SFR_ssp']
-    xlabel = r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$'
-    extent = [4.8, 10.2, -4.5, 2.5]
-    n_bins_maj_x = 6
-    n_bins_min_x = 5
-    n_bins_maj_y = 4
-    n_bins_min_y = 2
-    prune_x = None
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    plot_colored_by_z(elines=elines, args=args, x=x, y=y, markAGNs=True,
-                      ylabel=r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$',
-                      xlabel=xlabel, extent=extent,
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                      z=z, zlabel=zlabel,
-                      f=f, ax=ax)
-    WHa_Re = elines['EW_Ha_Re']
-    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-    X = x
-    Y = y
-    # Z = z.loc[SFc_Re]
-    # XS, YS, ZS = xyz_clean_sort_interval(X.values, Y.values, Z.values)
-    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
-    mod_SFR = np.polyval(p, np.array(extent[0:2]) + np.array([0.5, -0.5]))
-    ax.plot(np.array(extent[0:2]) + np.array([0.5, -0.5]), mod_SFR, c='k', ls='--')
-    # x_bins__r, x_bincenter__r, nbins = create_bins(np.array(extent[0:2]) + np.array([0.5, -0.5]), 0.5)
-    # _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, extent)
-    # print(y_mean, N_y_mean)
-    # ax.plot(x_bincenter__r, y_mean, 'k--')
-    # print('p:%.2f s:%.2f' % (pearsonr(X, Y)[0], spearmanr(X, Y)[0]))
-    ########################################
-    N_AGN_tI_under_bestfit = ((y[mtI] - np.polyval(p, x[mtI])) <= 0).astype('int').sum()
-    N_AGN_tII_under_bestfit = ((y[mtII] - np.polyval(p, x[mtII])) <= 0).astype('int').sum()
-    N_BFAGN_under_bestfit = ((y[mBFAGN] - np.polyval(p, x[mBFAGN])) <= 0).astype('int').sum()
-    N_ALLAGN_under_bestfit = ((y[mALLAGN] - np.polyval(p, x[mALLAGN])) <= 0).astype('int').sum()
-    print('# B.F. Type-I AGN under bestfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_bestfit, N_AGN_tI, 100.*N_AGN_tI_under_bestfit/N_AGN_tI))
-    print('# B.F. Type-II AGN under bestfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_bestfit, N_AGN_tII, 100.*N_AGN_tII_under_bestfit/N_AGN_tII))
-    print('# B.F. AGN under bestfit: %d/%d (%.1f%%)' % (N_BFAGN_under_bestfit, N_BFAGN, 100.*N_BFAGN_under_bestfit/N_BFAGN))
-    print('# ALL AGN under bestfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_bestfit, N_ALLAGN, 100.*N_ALLAGN_under_bestfit/N_ALLAGN))
-    ########################################
-    output_name = '%s/fig_Mgas_SFRssp.%s' % (args.figs_dir, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('###################################')
-    ###############################
+    for y_key in ['sSFR', 'sSFR_SF', 'sSFR_ssp']:
+        k = '%s_%s' % (props[x_key]['fname'], props[y_key]['fname'])
+        fname = 'fig_%s' % k
+        print('# %s' % fname)
+        print('###################################')
+        y = elines[y_key]
+        y_label = props[y_key]['label']
+        y_extent = props[y_key]['extent']
+        y_majloc = props[y_key]['majloc']
+        y_minloc = props[y_key]['minloc']
+        extent = x_extent + y_extent
+        f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+        N_rows, N_cols = 1, 1
+        bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+        gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+        ax = plt.subplot(gs[0])
+        plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
+                          xlabel=x_label, ylabel=y_label, zlabel=z_label,
+                          zextent=z_extent, extent=extent,
+                          n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
+                          n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
+                          prune_x=None, f=f, ax=ax)
+        ax.axhline(y=-11.8, c='k', ls='--')
+        ax.axhline(y=-10.8, c='k', ls='--')
+        N_GV = ((y <= -10.8) & (y > -11.8)).astype('int').sum()
+        N_AGN_tI_GV = ((y[mtI] <= -10.8) & (y[mtI] > -11.8)).astype('int').sum()
+        N_AGN_tII_GV = ((y[mtII] <= -10.8) & (y[mtII] > -11.8)).astype('int').sum()
+        N_BFAGN_GV = ((y[mBFAGN] <= -10.8) & (y[mBFAGN] > -11.8)).astype('int').sum()
+        N_ALLAGN_GV = ((y[mALLAGN] <= -10.8) & (y[mALLAGN] > -11.8)).astype('int').sum()
+        print('# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI))
+        print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
+        print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
+        print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
+        output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+        f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+        plt.close(f)
+        print('###################################')
+    ###################################
 
-    #############################
-    ## M-Mgas colored by EW_Ha ##
-    #############################
-    print('\n#############################')
-    print('## M-Mgas colored by EW_Ha ##')
-    print('#############################')
-    n_bins_min_x = 5
-    n_bins_maj_y = 6
-    n_bins_min_y = 5
-    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass_corr'], y=elines['log_Mass_gas_Av_gas_rad'], markAGNs=True,
-                      xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                      ylabel=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$',
-                      extent=[8, 12.5, 4.8, 10.2],
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                      z=z, zlabel=zlabel,
-                      output_name='%s/fig_M_Mgas.%s' % (args.figs_dir, args.img_suffix))
-    print('#############################')
-    #############################
+    # #############################
+    # ## M-fgas colored by EW_Ha ##
+    # #############################
+    # print('\n#############################')
+    # print('## M-fgas colored by EW_Ha ##')
+    # print('#############################')
+    # x = elines['log_Mass_corr']
+    # y = elines['log_fgas']
+    # n_bins_min_x = 5
+    # n_bins_maj_y = 5
+    # n_bins_min_y = 2
+    # output_name = '%s/fig_M_fgas.%s' % (args.figs_dir, args.img_suffix)
+    # f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+    # N_rows, N_cols = 1, 1
+    # # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
+    # bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    # gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+    # ax = plt.subplot(gs[0])
+    # f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
+    #                           ylabel=r'$\log\ f_{\rm gas}$',
+    #                           xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
+    #                           extent=[8, 12, -5, 0], markAGNs=True,
+    #                           n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+    #                           n_bins_maj_x=4, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=z_label)
+    # mtAGN = mtI | mtII
+    # WHa = elines['EW_Ha_cen_mean']
+    # WHa_Re = elines['EW_Ha_Re']
+    # WHa_ALL = elines['EW_Ha_ALL']
+    # interval = [9, 11.5, -5, 0]
+    # XS, YS, ZS = xyz_clean_sort_interval(x.values, y.values, WHa_Re.values)
+    # x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.5)
+    # _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, interval)
+    # print(x_bincenter__r)
+    # # print(y_mean, N_y_mean)
+    # # ax.plot(x_bincenter__r, y_mean, 'k--')
+    # SFc = ZS > args.EW_SF
+    # GV = (ZS > args.EW_hDIG) & (ZS <= args.EW_SF)
+    # RG = ZS <= args.EW_hDIG
+    # _, _, _, y_mean_SF, N_y_mean_SF, _ = redf_xy_bins_interval(XS[SFc], YS[SFc], x_bins__r, interval)
+    # # print(y_mean_SF, N_y_mean_SF)
+    # p = np.ma.polyfit(x_bincenter__r, y_mean_SF, 1)
+    # ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='k', ls='--', label='SFG')
+    # ax.text(x_bincenter__r[0], np.polyval(p, x_bincenter__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
+    # # _, _, _, y_mean_RG, N_y_mean_RG, _ = redf_xy_bins_interval(XS[RG], YS[RG], x_bins__r, interval)
+    # # print(y_mean_RG, N_y_mean_RG)
+    # # p = np.ma.polyfit(x_bincenter__r, y_mean_RG, 1)
+    # # print(y_mean_RG, p)
+    # # ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='r', label='RG')
+    # ### above ###
+    # N_y_tI = y[mtI].count()
+    # N_y_tII = y[mtII].count()
+    # # N_y_tIII = y[mtIII].count()
+    # N_y_tAGN = y[mtAGN].count()
+    # N_y_tI_above = count_y_above_mean(x.loc[mtI].values, y.loc[mtI].values, y_mean, x_bins__r, interval=interval)
+    # N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r, interval=interval)
+    # # N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r, interval=interval)
+    # N_y_tAGN_above = count_y_above_mean(x.loc[mtAGN].values, y.loc[mtAGN].values, y_mean, x_bins__r, interval=interval)
+    # print('# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
+    # print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
+    # # print('# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
+    # print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
+    # f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    # plt.close(f)
+    # print('#############################')
+    # ##########################
 
-    ##########################
-    ## M-C colored by EW_Ha ##
-    ##########################
-    print('\n##########################')
-    print('## M-C colored by EW_Ha ##')
-    print('##########################')
-    n_bins_min_x = 5
-    n_bins_maj_y = 6
-    n_bins_min_y = 2
-    plot_colored_by_z(elines=elines, args=args, x=elines['log_Mass_corr'], y=elines['C'], markAGNs=True,
-                      xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                      ylabel=r'${\rm R}90/{\rm R}50$',
-                      extent=[8, 12.5, 0.5, 5.5],
-                      n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                      n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                      z=z, zlabel=zlabel,
-                      output_name='%s/fig_M_C.%s' % (args.figs_dir, args.img_suffix))
-    print('##########################')
-    ##########################
-
-    #############################
-    ## sSFR-C colored by EW_Ha ##
-    #############################
-    print('\n#############################')
-    print('## sSFR-C colored by EW_Ha ##')
-    print('#############################')
-    x = elines['sSFR']
-    y = elines['C']
-    n_bins_min_x = 5
-    n_bins_maj_y = 6
-    n_bins_min_y = 2
-    output_name = '%s/fig_sSFR_C.%s' % (args.figs_dir, args.img_suffix)
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
-                              xlabel=r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$',
-                              ylabel=r'${\rm R}90/{\rm R}50$',
-                              extent=[-13.5, -8.5, 0.5, 5.5], markAGNs=True,
-                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
-    N_GV = ((x <= -10.8) & (x > -11.8)).astype('int').sum()
-    N_AGN_tI_GV = ((x[mtI] <= -10.8) & (x[mtI] > -11.8)).astype('int').sum()
-    N_AGN_tII_GV = ((x[mtII] <= -10.8) & (x[mtII] > -11.8)).astype('int').sum()
-    N_BFAGN_GV = ((x[mBFAGN] <= -10.8) & (x[mBFAGN] > -11.8)).astype('int').sum()
-    N_ALLAGN_GV = ((x[mALLAGN] <= -10.8) & (x[mALLAGN] > -11.8)).astype('int').sum()
-    print('# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI))
-    print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
-    print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
-    print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
-    ax.axvline(x=-11.8, c='k', ls='--')
-    ax.axvline(x=-10.8, c='k', ls='--')
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('#############################')
-    ##########################
-
-    ################################
-    ## sSFR_SF-C colored by EW_Ha ##
-    ################################
-    print('\n################################')
-    print('## sSFR_SF-C colored by EW_Ha ##')
-    print('################################')
-    x = elines['sSFR_SF']
-    y = elines['C']
-    n_bins_maj_x = 6
-    n_bins_min_x = 2
-    n_bins_maj_y = 6
-    n_bins_min_y = 2
-    output_name = '%s/fig_sSFRSF_C.%s' % (args.figs_dir, args.img_suffix)
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
-                              xlabel=r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$',
-                              ylabel=r'${\rm R}90/{\rm R}50$',
-                              extent=[-14.5, -8.5, 0.5, 5.5], markAGNs=True,
-                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
-    N_GV = ((x <= -10.8) & (x > -11.8)).astype('int').sum()
-    N_AGN_tI_GV = ((x[mtI] <= -10.8) & (x[mtI] > -11.8)).astype('int').sum()
-    N_AGN_tII_GV = ((x[mtII] <= -10.8) & (x[mtII] > -11.8)).astype('int').sum()
-    N_BFAGN_GV = ((x[mBFAGN] <= -10.8) & (x[mBFAGN] > -11.8)).astype('int').sum()
-    N_ALLAGN_GV = ((x[mALLAGN] <= -10.8) & (x[mALLAGN] > -11.8)).astype('int').sum()
-    print('# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI))
-    print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
-    print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
-    print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
-    ax.axvline(x=-11.8, c='k', ls='--')
-    ax.axvline(x=-10.8, c='k', ls='--')
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('#############################')
-    ##########################
-
-    #################################
-    ## sSFR_ssp-C colored by EW_Ha ##
-    #################################
-    print('\n#################################')
-    print('## sSFR_ssp-C colored by EW_Ha ##')
-    print('#################################')
-    x = elines['sSFR_ssp']
-    y = elines['C']
-    n_bins_maj_x = 4
-    n_bins_min_x = 2
-    n_bins_maj_y = 6
-    n_bins_min_y = 2
-    output_name = '%s/fig_sSFRssp_C.%s' % (args.figs_dir, args.img_suffix)
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
-                              xlabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
-                              ylabel=r'${\rm R}90/{\rm R}50$',
-                              extent=[-12.5, -8.5, 0.5, 5.5], markAGNs=True,
-                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
-    N_GV = ((x <= -10.8) & (x > -11.8)).astype('int').sum()
-    N_AGN_tI_GV = ((x[mtI] <= -10.8) & (x[mtI] > -11.8)).astype('int').sum()
-    N_AGN_tII_GV = ((x[mtII] <= -10.8) & (x[mtII] > -11.8)).astype('int').sum()
-    N_BFAGN_GV = ((x[mBFAGN] <= -10.8) & (x[mBFAGN] > -11.8)).astype('int').sum()
-    N_ALLAGN_GV = ((x[mALLAGN] <= -10.8) & (x[mALLAGN] > -11.8)).astype('int').sum()
-    print('# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI))
-    print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
-    print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
-    print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
-    ax.axvline(x=-11.8, c='k', ls='--')
-    ax.axvline(x=-10.8, c='k', ls='--')
-
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('#############################')
-    ##########################
-
-    #############################
-    ## M-sSFR colored by EW_Ha ##
-    #############################
-    print('\n#############################')
-    print('## M-sSFR colored by EW_Ha ##')
-    print('#############################')
-    x = elines['log_Mass_corr']
-    y = elines['sSFR']
-    n_bins_min_x = 5
-    n_bins_maj_y = 5
-    n_bins_min_y = 2
-    output_name = '%s/fig_M_sSFR.%s' % (args.figs_dir, args.img_suffix)
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
-                              ylabel=r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$',
-                              xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                              extent=[8, 12.5, -13.5, -8.5], markAGNs=True,
-                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
-    ax.axhline(y=-11.8, c='k', ls='--')
-    ax.axhline(y=-10.8, c='k', ls='--')
-    N_GV = ((y <= -10.8) & (y > -11.8)).astype('int').sum()
-    N_AGN_tI_GV = ((y[mtI] <= -10.8) & (y[mtI] > -11.8)).astype('int').sum()
-    N_AGN_tII_GV = ((y[mtII] <= -10.8) & (y[mtII] > -11.8)).astype('int').sum()
-    N_BFAGN_GV = ((y[mBFAGN] <= -10.8) & (y[mBFAGN] > -11.8)).astype('int').sum()
-    N_ALLAGN_GV = ((y[mALLAGN] <= -10.8) & (y[mALLAGN] > -11.8)).astype('int').sum()
-    print('# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI))
-    print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
-    print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
-    print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('#############################')
-    ##########################
-
-    ################################
-    ## M-sSFR_SF colored by EW_Ha ##
-    ################################
-    print('\n################################')
-    print('## M-sSFR_SF colored by EW_Ha ##')
-    print('################################')
-    x = elines['log_Mass_corr']
-    y = elines['sSFR_SF']
-    n_bins_min_x = 5
-    n_bins_maj_y = 6
-    n_bins_min_y = 2
-    output_name = '%s/fig_M_sSFRSF.%s' % (args.figs_dir, args.img_suffix)
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
-                              ylabel=r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$',
-                              xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                              extent=[8, 12.5, -14.5, -8.5], markAGNs=True,
-                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
-    ax.axhline(y=-11.8, c='k', ls='--')
-    ax.axhline(y=-10.8, c='k', ls='--')
-    N_GV = ((y <= -10.8) & (y > -11.8)).astype('int').sum()
-    N_AGN_tI_GV = ((y[mtI] <= -10.8) & (y[mtI] > -11.8)).astype('int').sum()
-    N_AGN_tII_GV = ((y[mtII] <= -10.8) & (y[mtII] > -11.8)).astype('int').sum()
-    N_BFAGN_GV = ((y[mBFAGN] <= -10.8) & (y[mBFAGN] > -11.8)).astype('int').sum()
-    N_ALLAGN_GV = ((y[mALLAGN] <= -10.8) & (y[mALLAGN] > -11.8)).astype('int').sum()
-    print('# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI))
-    print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
-    print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
-    print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('#############################')
-    ##########################
-
-    #################################
-    ## M-sSFR_ssp colored by EW_Ha ##
-    #################################
-    print('\n#################################')
-    print('## M-sSFR_ssp colored by EW_Ha ##')
-    print('#################################')
-    x = elines['log_Mass_corr']
-    y = elines['sSFR_ssp']
-    n_bins_min_x = 5
-    n_bins_maj_y = 4
-    n_bins_min_y = 2
-    output_name = '%s/fig_M_sSFRssp.%s' % (args.figs_dir, args.img_suffix)
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
-                              ylabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
-                              xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                              extent=[8, 12.5, -12.5, -8.5], markAGNs=True,
-                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
-    ax.axhline(y=-11.8, c='k', ls='--')
-    ax.axhline(y=-10.8, c='k', ls='--')
-    N_GV = ((y <= -10.8) & (y > -11.8)).astype('int').sum()
-    N_AGN_tI_GV = ((y[mtI] <= -10.8) & (y[mtI] > -11.8)).astype('int').sum()
-    N_AGN_tII_GV = ((y[mtII] <= -10.8) & (y[mtII] > -11.8)).astype('int').sum()
-    N_BFAGN_GV = ((y[mBFAGN] <= -10.8) & (y[mBFAGN] > -11.8)).astype('int').sum()
-    N_ALLAGN_GV = ((y[mALLAGN] <= -10.8) & (y[mALLAGN] > -11.8)).astype('int').sum()
-    print('# B.F. Type-I AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tI_GV, N_GV, N_AGN_tI, 100.*N_AGN_tI_GV/N_GV, 100.*N_AGN_tI_GV/N_AGN_tI))
-    print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
-    print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
-    print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('#############################')
-    ##########################
-
-    #############################
-    ## M-fgas colored by EW_Ha ##
-    #############################
-    print('\n#############################')
-    print('## M-fgas colored by EW_Ha ##')
-    print('#############################')
-    x = elines['log_Mass_corr']
-    y = fgas.apply(np.log10)
-    n_bins_min_x = 5
-    n_bins_maj_y = 5
-    n_bins_min_y = 2
-    output_name = '%s/fig_M_fgas.%s' % (args.figs_dir, args.img_suffix)
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
-                              ylabel=r'$\log\ f_{\rm gas}$',
-                              xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                              extent=[8, 12, -5, 0], markAGNs=True,
-                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_maj_x=4, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
-    mtAGN = mtI | mtII
-    WHa = elines['EW_Ha_cen_mean']
-    WHa_Re = elines['EW_Ha_Re']
-    WHa_ALL = elines['EW_Ha_ALL']
-    interval = [9, 11.5, -5, 0]
-    XS, YS, ZS = xyz_clean_sort_interval(x.values, y.values, WHa_Re.values)
-    x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.5)
-    _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, interval)
-    print(x_bincenter__r)
-    # print(y_mean, N_y_mean)
-    # ax.plot(x_bincenter__r, y_mean, 'k--')
-    SFc = ZS > args.EW_SF
-    GV = (ZS > args.EW_hDIG) & (ZS <= args.EW_SF)
-    RG = ZS <= args.EW_hDIG
-    _, _, _, y_mean_SF, N_y_mean_SF, _ = redf_xy_bins_interval(XS[SFc], YS[SFc], x_bins__r, interval)
-    # print(y_mean_SF, N_y_mean_SF)
-    p = np.ma.polyfit(x_bincenter__r, y_mean_SF, 1)
-    ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='k', ls='--', label='SFG')
-    ax.text(x_bincenter__r[0], np.polyval(p, x_bincenter__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-    # _, _, _, y_mean_RG, N_y_mean_RG, _ = redf_xy_bins_interval(XS[RG], YS[RG], x_bins__r, interval)
-    # print(y_mean_RG, N_y_mean_RG)
-    # p = np.ma.polyfit(x_bincenter__r, y_mean_RG, 1)
-    # print(y_mean_RG, p)
-    # ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='r', label='RG')
-    ### above ###
-    N_y_tI = y[mtI].count()
-    N_y_tII = y[mtII].count()
-    # N_y_tIII = y[mtIII].count()
-    N_y_tAGN = y[mtAGN].count()
-    N_y_tI_above = count_y_above_mean(x.loc[mtI].values, y.loc[mtI].values, y_mean, x_bins__r, interval=interval)
-    N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r, interval=interval)
-    # N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r, interval=interval)
-    N_y_tAGN_above = count_y_above_mean(x.loc[mtAGN].values, y.loc[mtAGN].values, y_mean, x_bins__r, interval=interval)
-    print('# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
-    print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
-    # print('# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
-    print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('#############################')
-    ##########################
-
-    ############################
-    ## M-SFE colored by EW_Ha ##
-    ############################
-    print('\n############################')
-    print('## M-SFE colored by EW_Ha ##')
-    print('############################')
-    x = elines['log_Mass_corr']
-    y = elines['log_SFR_SF'] - elines['log_Mass_gas_Av_gas_rad']
-    n_bins_min_x = 5
-    n_bins_maj_y = 3
-    n_bins_min_y = 4
-    # z = fgas.apply(np.log10)
-    # zlabel = r'$\log\ f_{\rm gas}$'
-    output_name = '%s/fig_M_SFE.%s' % (args.figs_dir, args.img_suffix)
-    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-    N_rows, N_cols = 1, 1
-    # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
-    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-    ax = plt.subplot(gs[0])
-    sc_kwargs = dict(s=1, vmax=0, vmin=-3, cmap='viridis_r', marker='o', edgecolor='none', alpha=1)
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
-                              ylabel=r'$\log$ (SFE/yr)',
-                              xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
-                              extent=[8, 12, -11, -6], markAGNs=True,
-                              n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_maj_x=4, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel) #,
-                              # sc_kwargs=sc_kwargs, z_maxlocator=3)
-    mtAGN = mtI | mtII
-    WHa = elines['EW_Ha_cen_mean']
-    WHa_Re = elines['EW_Ha_Re']
-    WHa_ALL = elines['EW_Ha_ALL']
-    if interval is None:
-        interval = [9, 11.5, -5, 0]
-    XS, YS, ZS = xyz_clean_sort_interval(x.values, y.values, WHa_Re.values)
-    x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.5)
-    _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, interval)
-    # print(y_mean, N_y_mean)
-    # ax.plot(x_bincenter__r, y_mean, 'k--')
-    SFc = ZS > args.EW_SF
-    GV = (ZS > args.EW_hDIG) & (ZS <= args.EW_SF)
-    RG = ZS <= args.EW_hDIG
-    _, _, _, y_mean_SF, N_y_mean_SF, _ = redf_xy_bins_interval(XS[SFc], YS[SFc], x_bins__r, interval)
-    # print(y_mean_SF, N_y_mean_SF)
-    p = np.ma.polyfit(x_bincenter__r, y_mean_SF, 1)
-    ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='k', ls='--', label='SFG')
-    # _, _, _, y_mean_RG, N_y_mean_RG, _ = redf_xy_bins_interval(XS[RG], YS[RG], x_bins__r, interval)
-    # print(y_mean_RG, N_y_mean_RG)
-    # p = np.ma.polyfit(x_bincenter__r, y_mean_RG, 1)
-    # print(y_mean_RG, p)
-    # ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='r', label='RG')
-    ### above ###
-    N_y_tI = y[mtI].count()
-    N_y_tII = y[mtII].count()
-    # N_y_tIII = y[mtIII].count()
-    N_y_tAGN = y[mtAGN].count()
-    N_y_tI_above = count_y_above_mean(x.loc[mtI].values, y.loc[mtI].values, y_mean, x_bins__r, interval=interval)
-    N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r, interval=interval)
-    # N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r, interval=interval)
-    N_y_tAGN_above = count_y_above_mean(x.loc[mtAGN].values, y.loc[mtAGN].values, y_mean, x_bins__r, interval=interval)
-    print('# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
-    print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
-    # print('# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
-    print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('#############################')
-    ##########################
+    # ############################
+    # ## M-SFE colored by EW_Ha ##
+    # ############################
+    # print('\n############################')
+    # print('## M-SFE colored by EW_Ha ##')
+    # print('############################')
+    # x = elines['log_Mass_corr']
+    # y = elines['log_SFR_SF'] - elines['log_Mass_gas_Av_gas_rad']
+    # n_bins_min_x = 5
+    # n_bins_maj_y = 3
+    # n_bins_min_y = 4
+    # # z = fgas.apply(np.log10)
+    # # zlabel = r'$\log\ f_{\rm gas}$'
+    # output_name = '%s/fig_M_SFE.%s' % (args.figs_dir, args.img_suffix)
+    # f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+    # N_rows, N_cols = 1, 1
+    # # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
+    # bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    # gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+    # ax = plt.subplot(gs[0])
+    # sc_kwargs = dict(s=1, vmax=0, vmin=-3, cmap='viridis_r', marker='o', edgecolor='none', alpha=1)
+    # f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=z,
+    #                           ylabel=r'$\log$ (SFE/yr)',
+    #                           xlabel=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$',
+    #                           extent=[8, 12, -11, -6], markAGNs=True,
+    #                           n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
+    #                           n_bins_maj_x=4, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=z_label) #,
+    #                           # sc_kwargs=sc_kwargs, z_maxlocator=3)
+    # mtAGN = mtI | mtII
+    # WHa = elines['EW_Ha_cen_mean']
+    # WHa_Re = elines['EW_Ha_Re']
+    # WHa_ALL = elines['EW_Ha_ALL']
+    # if interval is None:
+    #     interval = [9, 11.5, -5, 0]
+    # XS, YS, ZS = xyz_clean_sort_interval(x.values, y.values, WHa_Re.values)
+    # x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], 0.5)
+    # _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, interval)
+    # # print(y_mean, N_y_mean)
+    # # ax.plot(x_bincenter__r, y_mean, 'k--')
+    # SFc = ZS > args.EW_SF
+    # GV = (ZS > args.EW_hDIG) & (ZS <= args.EW_SF)
+    # RG = ZS <= args.EW_hDIG
+    # _, _, _, y_mean_SF, N_y_mean_SF, _ = redf_xy_bins_interval(XS[SFc], YS[SFc], x_bins__r, interval)
+    # # print(y_mean_SF, N_y_mean_SF)
+    # p = np.ma.polyfit(x_bincenter__r, y_mean_SF, 1)
+    # ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='k', ls='--', label='SFG')
+    # # _, _, _, y_mean_RG, N_y_mean_RG, _ = redf_xy_bins_interval(XS[RG], YS[RG], x_bins__r, interval)
+    # # print(y_mean_RG, N_y_mean_RG)
+    # # p = np.ma.polyfit(x_bincenter__r, y_mean_RG, 1)
+    # # print(y_mean_RG, p)
+    # # ax.plot(interval[0:2], np.polyval(p, interval[0:2]), c='r', label='RG')
+    # ### above ###
+    # N_y_tI = y[mtI].count()
+    # N_y_tII = y[mtII].count()
+    # # N_y_tIII = y[mtIII].count()
+    # N_y_tAGN = y[mtAGN].count()
+    # N_y_tI_above = count_y_above_mean(x.loc[mtI].values, y.loc[mtI].values, y_mean, x_bins__r, interval=interval)
+    # N_y_tII_above = count_y_above_mean(x.loc[mtII].values, y.loc[mtII].values, y_mean, x_bins__r, interval=interval)
+    # # N_y_tIII_above = count_y_above_mean(x.loc[mtIII].values, y.loc[mtIII].values, y_mean, x_bins__r, interval=interval)
+    # N_y_tAGN_above = count_y_above_mean(x.loc[mtAGN].values, y.loc[mtAGN].values, y_mean, x_bins__r, interval=interval)
+    # print('# B.F. Type-I AGN above mean: %d/%d (%.1f%%)' % (N_y_tI_above, N_y_tI, 100.*N_y_tI_above/N_y_tI))
+    # print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
+    # # print('# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
+    # print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
+    # f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    # plt.close(f)
+    # print('#############################')
+    # ##########################
 
     ##################################
     ## sSFR_SF-g-r colored by EW_Ha ##
@@ -2278,7 +1713,7 @@ if __name__ == '__main__':
                               ylabel=r'g-r (mag)',
                               extent=[-14.5, -8.5, 0, 1], markAGNs=True,
                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
+                              n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=z_label)
     N_GV = ((x <= -10.8) & (x > -11.8)).astype('int').sum()
     N_AGN_tI_GV = ((x[mtI] <= -10.8) & (x[mtI] > -11.8)).astype('int').sum()
     N_AGN_tII_GV = ((x[mtII] <= -10.8) & (x[mtII] > -11.8)).astype('int').sum()
@@ -2301,7 +1736,7 @@ if __name__ == '__main__':
     print('\n################################')
     print('## EWHa-sSFR colored by EW_Ha ##')
     print('################################')
-    x = elines['EW_Ha_Re'].apply(np.log10)
+    x = elines['log_EW_Ha_Re']
     y = elines['sSFR']
     extent = [-1, 2.5, -13.5, -8.5]
     n_bins_maj_x = 4
@@ -2319,10 +1754,10 @@ if __name__ == '__main__':
                               ylabel=r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$',
                               extent=extent, markAGNs=True,
                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
+                              n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=z_label)
     X = x
     Y = y
-    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
+    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
     borders = np.array([0.2, -0.2])
     mod_sSFR = np.polyval(p, np.array(extent[0:2]) + borders)
     ax.plot(np.array(extent[0:2]) + borders, mod_sSFR, c='k', ls='--')
@@ -2348,7 +1783,7 @@ if __name__ == '__main__':
     print('\n###################################')
     print('## EWHa-sSFR_SF colored by EW_Ha ##')
     print('###################################')
-    x = elines['EW_Ha_Re'].apply(np.log10)
+    x = elines['log_EW_Ha_Re']
     y = elines['sSFR_SF']
     extent = [-1, 2.5, -14.5, -8.5]
     n_bins_maj_x = 4
@@ -2366,10 +1801,10 @@ if __name__ == '__main__':
                               ylabel=r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$',
                               extent=extent, markAGNs=True,
                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
-                              n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=zlabel)
+                              n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=z_label)
     X = x
     Y = y
-    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
+    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
     borders = np.array([0.2, -0.2])
     mod_sSFR = np.polyval(p, np.array(extent[0:2]) + borders)
     ax.plot(np.array(extent[0:2]) + borders, mod_sSFR, c='k', ls='--')
@@ -2395,7 +1830,7 @@ if __name__ == '__main__':
     print('\n####################################')
     print('## EWHa-sSFR_ssp colored by EW_Ha ##')
     print('####################################')
-    x = elines['EW_Ha_Re'].apply(np.log10)
+    x = elines['log_EW_Ha_Re']
     y = elines['sSFR_ssp']
     extent = [-1, 2.5, -12.5, -8.5]
     n_bins_maj_x = 4
@@ -2410,18 +1845,18 @@ if __name__ == '__main__':
     ax = plt.subplot(gs[0])
     # z = EW_Ha_cen.apply(np.log10)
     # zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
-    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=EW_Ha_cen.apply(np.log10),
+    f, ax = plot_colored_by_z(elines=elines, args=args, f=f, ax=ax, x=x, y=y, z=elines['log_EW_Ha_cen_mean'],
                               xlabel=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm Re}$ (\AA)',
                               ylabel=r'$\log ({\rm sSFR}_\star/{\rm yr})$',
                               extent=extent, markAGNs=True,
                               n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y,
                               n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x,
-                              zlabel=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)')
+                              zlabel=props['log_EW_Ha_cen_mean']['label'])
     X = x
     Y = y
     # Z = z.loc[SFc_Re]
     # XS, YS, ZS = xyz_clean_sort_interval(X.values, Y.values, Z.values)
-    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
+    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
     borders = np.array([0.2, -0.2])
     mod_sSFR = np.polyval(p, np.array(extent[0:2]) + borders)
     ax.plot(np.array(extent[0:2]) + borders, mod_sSFR, c='k', ls='--')
@@ -2429,6 +1864,70 @@ if __name__ == '__main__':
     plt.close(f)
     print('#############################')
     ##########################
+
+    ##############################
+    # sSFR vs (NUV_r, g_r, EWHa) #
+    ##############################
+    for x_key in ['sSFR', 'sSFR_SF', 'sSFR_ssp']:
+        print('\n##############################')
+        print('# sSFR vs (NUV_r, g_r, EWHa) #')
+        print('##############################')
+        k = '%s_Salim07' % props[x_key]['fname']
+        fname = 'fig_%s' % k
+        print('# %s' % fname)
+        N_rows, N_cols = 3, 1
+        y_key_list = ['g_r', 'NUV_r_SDSS', 'log_EW_Ha_Re']
+        f = plot_setup(width=latex_column_width, aspect=N_rows/golden_mean)
+        bottom, top, left, right = 0.05, 0.95, 0.15, 0.95
+        gs = gridspec.GridSpec(N_rows, N_cols,
+                               left=left, bottom=bottom, right=right, top=top,
+                               wspace=0., hspace=0.)
+        # ax = plt.subplot(gs[0])
+        mask = elines[x_key].notna()
+        for y_key in y_key_list:
+            mask = mask & elines[y_key].notna()
+        x = elines.loc[mask, x_key]
+        x_label = props[x_key]['label']
+        x_majloc = props[x_key]['majloc']
+        x_minloc = props[x_key]['minloc']
+        x_extent = props[x_key]['extent']
+        row = 0
+        for y_key in y_key_list:
+            print(y_key)
+            y = elines.loc[mask, y_key]
+            y_label = props[y_key]['label']
+            y_majloc = props[y_key]['majloc']
+            y_minloc = props[y_key]['minloc']
+            y_extent = props[y_key]['extent']
+            extent = x_extent + y_extent
+            print(extent, y_key)
+            p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(x, y, interval=extent, step=0.1, clip=2)
+            mXY = (x.notna() & y.notna())
+            print('x:%s:%d  y:%s:%d  all:%d  tIAGN:%d  tIIAGN:%d  AGN:%d' % (x.name, x.notna().sum(), y.name, y.notna().sum(), mXY.sum(), (mXY & mtI).sum(), (mXY & mtII).sum(), (mXY & mBFAGN).sum()))
+            ax = plt.subplot(gs[row])
+            sc = ax.scatter(x, y, c='grey', s=5, marker='o', edgecolor='none', alpha=0.8)
+            ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
+            ax.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
+            ax.set_ylabel(y_label, fontsize=args.fontsize+1)
+            ax.set_xlim(extent[0:2])
+            ax.set_ylim(extent[2:4])
+            tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=False, labeltop=False, labelleft=True, labelright=False)
+            ax.tick_params(**tick_params)
+            ax.xaxis.set_major_locator(MaxNLocator(x_majloc, prune=None))
+            ax.xaxis.set_minor_locator(AutoMinorLocator(x_minloc))
+            ax.yaxis.set_major_locator(MaxNLocator(y_majloc, prune='lower'))
+            ax.yaxis.set_minor_locator(AutoMinorLocator(y_minloc))
+            if row == 0:
+                plot_text_ax(ax, '%d' % mask.astype('int').sum(), 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
+            row = row + 1
+        ax.yaxis.set_major_locator(MaxNLocator(y_majloc, prune=None))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(y_minloc))
+        tick_params['labelbottom'] = True
+        ax.tick_params(**tick_params)
+        ax.set_xlabel(x_label, fontsize=args.fontsize+1)
+        output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+        f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+        plt.close(f)
 
     ################################
     ################################
@@ -2441,470 +1940,115 @@ if __name__ == '__main__':
     # print(elines.loc['2MASXJ01331766+1319567', 'EW_Ha_cen_mean'])
     # print(np.log10(np.abs(elines.loc['2MASXJ01331766+1319567', 'EW_Ha_cen_mean'])))
     m_redshift = (elines['z_stars'] > 1e-6) & (elines['z_stars'] < 0.2)
-    EW_Ha_cen_zcut = elines.loc[m_redshift, 'EW_Ha_cen_mean'].apply(np.abs)
 
-    # Build of plot histo xy dictionary:
-    # keys:
-    #   figure name
-    # values:
-    #   x, xlabel, n_bins_maj_x, n_bins_min_x, prune_x
-    #   y, ylabel, n_bins_maj_y, n_bins_min_y, prune_y
-    #   z, extent, aux_mask
-    plot_histo_xy_dict = {
-        #####################################
-        ## CMassD (CUBES) colored by EW_Ha ##
-        #####################################
-        'fig_histo_M_gr': [
-            elines.loc[m_redshift, 'log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines.loc[m_redshift, 'g_r'], r'g-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [8, 12, 0, 1],
-            m_redshift
-        ],
-        ##################################
-        ############################################
-        ## CMassD (CUBES) NO CEN colored by EW_Ha ##
-        ############################################
-        'fig_histo_M_gr_NC': [
-            elines.loc[m_redshift, 'log_Mass_corr_NC'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines.loc[m_redshift, 'g_r_NC'], r'g-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [8, 12, 0, 1],
-            m_redshift
-        ],
-        #########################################
-        ####################################
-        ## Mstar vs fgas colored by EW_Ha ##
-        ####################################
-        'fig_histo_M_fgas': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            fgas.apply(np.log10), r'$\log\ f_{\rm gas}$', 5, 2, None,
-            EW_Ha_cen_zcut.apply(np.log10), [8, 12, -5, 0],
-        ],
-        ##################################
-        ####################################
-        ## Mstar vs SFE colored by EW_Ha ##
-        ####################################
-        'fig_histo_M_SFE': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['log_SFR_SF'] - elines['log_Mass_gas_Av_gas_rad'], r'$\log$ (SFE/yr)', 3, 4, None,
-            EW_Ha_cen_zcut.apply(np.log10), [8, 12, -11, -6],
-        ],
-        ##################################
-        ##################################
-        ## CMD (CUBES) colored by EW_Ha ##
-        ##################################
-        'fig_histo_CMD_ui_CUBES': [
-            elines.loc[m_redshift, 'Mabs_i'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None,
-            elines.loc[m_redshift, 'u_i'], r'u-i (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
-            m_redshift
-        ],
-        ##################################
-        #########################################
-        ## CMD (CUBES) NO CEN colored by EW_Ha ##
-        #########################################
-        'fig_histo_CMD_ui_CUBES_NC': [
-            elines.loc[m_redshift, 'Mabs_i_NC'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None,
-            elines.loc[m_redshift, 'u_i_NC'], r'u-i (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
-            m_redshift
-        ],
-        #########################################
-        ##################################
-        ## CMD (CUBES) colored by EW_Ha ##
-        ##################################
-        'fig_histo_CMD_gr_CUBES': [
-            elines.loc[m_redshift, 'Mabs_r'], r'${\rm M}_{\rm r}$ (mag)', 5, 2, None,
-            elines.loc[m_redshift, 'g_r'], r'g-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1],
-            m_redshift
-        ],
-        ##################################
-        #########################################
-        ## CMD (CUBES) NO CEN colored by EW_Ha ##
-        #########################################
-        'fig_histo_CMD_gr_CUBES_NC': [
-            elines.loc[m_redshift, 'Mabs_r_NC'], r'${\rm M}_{\rm i}$ (mag)', 5, 2, None,
-            elines.loc[m_redshift, 'g_r_NC'], r'g-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1],
-            m_redshift
-        ],
-        #########################################
-        ##################################
-        ## CMD (CUBES) colored by EW_Ha ##
-        ##################################
-        'fig_histo_CMD_ur_CUBES': [
-            elines.loc[m_redshift, 'Mabs_r'], r'${\rm M}_{\rm r}$ (mag)', 5, 2, None,
-            elines.loc[m_redshift, 'u_r'], r'u-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
-            m_redshift
-        ],
-        ##################################
-        #########################################
-        ## CMD (CUBES) NO CEN colored by EW_Ha ##
-        #########################################
-        'fig_histo_CMD_ur_CUBES_NC': [
-            elines.loc[m_redshift, 'Mabs_r_NC'], r'${\rm M}_{\rm r}$ (mag)', 5, 2, None,
-            elines.loc[m_redshift, 'u_r_NC'], r'u-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 3.5],
-            m_redshift
-        ],
-        #########################################
-        ##################################
-        ## CMD (CUBES) colored by EW_Ha ##
-        ##################################
-        'fig_histo_CMD_BR_CUBES': [
-            elines.loc[m_redshift, 'Mabs_R'], r'${\rm M}_{\rm R}$ (mag)', 5, 5, None,
-            elines.loc[m_redshift, 'B_R'], r'B-R (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1.5],
-            m_redshift
-        ],
-        ##################################
-        #########################################
-        ## CMD (CUBES) NO CEN colored by EW_Ha ##
-        #########################################
-        'fig_histo_CMD_BR_CUBES_NC': [
-            # elines.loc[m_redshift, 'Mabs_R_NC'], r'${\rm M}_{\rm R}$ (mag)${}_{\rm NO CEN}$', 5, 5, None,
-            # elines.loc[m_redshift, 'B_R_NC'], r'B-R (mag)${}_{\rm NO CEN}$', 3, 5, None,
-            elines.loc[m_redshift, 'Mabs_R_NC'], r'${\rm M}_{\rm R}$ (mag)', 5, 5, None,
-            elines.loc[m_redshift, 'B_R_NC'], r'B-R (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0, 1.5],
-            m_redshift
-        ],
-        #########################################
-        ##################################
-        ## CMD (CUBES) colored by EW_Ha ##
-        ##################################
-        'fig_histo_CMD_BV_CUBES': [
-            elines.loc[m_redshift, 'Mabs_V'], r'${\rm M}_{\rm V}$ (mag)', 5, 5, None,
-            elines.loc[m_redshift, 'B_V'], r'B-V (mag)', 2, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0., 1.0],
-            m_redshift
-        ],
-        ##################################
-        #########################################
-        ## CMD (CUBES) NO CEN colored by EW_Ha ##
-        #########################################
-        'fig_histo_CMD_BV_CUBES_NC': [
-            # elines.loc[m_redshift, 'Mabs_V_NC'], r'${\rm M}_{\rm V}$ (mag)${}_{\rm NO CEN}$', 5, 5, None,
-            # elines.loc[m_redshift, 'B_V_NC'], r'B-V (mag)${}_{\rm NO CEN}$', 3, 5, None,
-            elines.loc[m_redshift, 'Mabs_V_NC'], r'${\rm M}_{\rm V}$ (mag)', 5, 5, None,
-            elines.loc[m_redshift, 'B_V_NC'], r'B-V (mag)', 2, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-24, -15, 0., 1.0],
-            m_redshift
-        ],
-        #########################################
-        ##################################
-        ## sSFR vs u-i colored by EW_Ha ##
-        ##################################
-        'fig_histo_sSFR_ui': [
-            elines.loc[m_redshift, 'sSFR'], r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$', 5, 2, None,
-            elines.loc[m_redshift, 'u_i'], r'u-i (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 3.5],
-            m_redshift
-        ],
-        ##################################
-        #####################################
-        ## sSFR_SF vs u-i colored by EW_Ha ##
-        #####################################
-        'fig_histo_sSFRSF_ui': [
-            elines.loc[m_redshift, 'sSFR_SF'], r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$', 5, 2, None,
-            elines.loc[m_redshift, 'u_i'], r'u-i (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-14.5, -8.5, 0, 3.5],
-            m_redshift
-        ],
-        ##################################
-        ######################################
-        ## sSFR_ssp vs u-i colored by EW_Ha ##
-        ######################################
-        'fig_histo_sSFRssp_ui': [
-            elines.loc[m_redshift, 'sSFR_ssp'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 4, 2, None,
-            elines.loc[m_redshift, 'u_i'], r'u-i (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-12.5, -8.5, 0, 3.5],
-            m_redshift
-        ],
-        ##################################
-        ##################################
-        ## sSFR vs g-r colored by EW_Ha ##
-        ##################################
-        'fig_histo_sSFR_gr': [
-            elines.loc[m_redshift, 'sSFR'], r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$', 5, 2, None,
-            elines.loc[m_redshift, 'g_r'], r'g-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 1],
-            m_redshift
-        ],
-        ##################################
-        #####################################
-        ## sSFR_SF vs g-r colored by EW_Ha ##
-        #####################################
-        'fig_histo_sSFRSF_gr': [
-            elines.loc[m_redshift, 'sSFR_SF'], r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$', 5, 2, None,
-            elines.loc[m_redshift, 'g_r'], r'g-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-14.5, -8.5, 0, 1],
-            m_redshift
-        ],
-        ##################################
-        ######################################
-        ## sSFR_ssp vs g-r colored by EW_Ha ##
-        ######################################
-        'fig_histo_sSFRssp_gr': [
-            elines.loc[m_redshift, 'sSFR_ssp'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 4, 2, None,
-            elines.loc[m_redshift, 'g_r'], r'g-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-12.5, -8.5, 0, 1],
-            m_redshift
-        ],
-        ##################################
-        ##################################
-        ## sSFR vs u-r colored by EW_Ha ##
-        ##################################
-        'fig_histo_sSFR_ur': [
-            elines.loc[m_redshift, 'sSFR'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
-            elines.loc[m_redshift, 'u_r'], r'u-r (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 3.5],
-            m_redshift
-        ],
-        ##################################
-        ##################################
-        ## sSFR vs B-R colored by EW_Ha ##
-        ##################################
-        'fig_histo_sSFR_BR': [
-            elines.loc[m_redshift, 'sSFR'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
-            elines.loc[m_redshift, 'B_R'], r'B-R (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, 0, 1.5],
-            m_redshift
-        ],
-        ##################################
-        ##################################
-        ## sSFR vs B-V colored by EW_Ha ##
-        ##################################
-        'fig_histo_sSFR_BV': [
-            elines.loc[m_redshift, 'sSFR'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 5, 2, None,
-            elines.loc[m_redshift, 'B_V'], r'B-V (mag)', 3, 5, None,
-            EW_Ha_cen_zcut.apply(np.log10), [-13.5, -8.5, -0.5, 1.0],
-            m_redshift
-        ],
-        ##################################
-        ###########################
-        ## SFMS colored by EW_Ha ##
-        ###########################
-        'fig_histo_SFMS_SF': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['log_SFR_SF'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
-        ],
-        ###########################
-        ###########################
-        ## SFMS colored by EW_Ha ##
-        ###########################
-        'fig_histo_SFMS': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['lSFR'], r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
-        ],
-        ###########################
-        ####################################
-        ## SFMS colored by EW_Ha (NO CEN) ##
-        ####################################
-        'fig_histo_SFMS_NC': [
-            elines['log_Mass_corr_NC'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['lSFR_NC'], r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, -4.5, 2.5]
-        ],
-        ####################################
-        ##########################
-        ## M-C colored by EW_Ha ##
-        ##########################
-        'fig_histo_M_C': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['C'], r'${\rm R}90/{\rm R}50$', 6, 2, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, 0.5, 5.5]
-        ],
-        ##########################
-        #############################
-        ## sSFR-C colored by EW_Ha ##
-        #############################
-        'fig_histo_sSFR_C': [
-            elines['sSFR'], r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$', 5, 2, None,
-            elines['C'], r'${\rm R}90/{\rm R}50$', 6, 2, None,
-            EW_Ha_cen.apply(np.log10), [-13.5, -8.5, 0.5, 5.5]
-        ],
-        #############################
-        ################################
-        ## sSFR_SF-C colored by EW_Ha ##
-        ################################
-        'fig_histo_sSFRSF_C': [
-            elines['sSFR_SF'], r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$', 6, 2, None,
-            elines['C'], r'${\rm R}90/{\rm R}50$', 6, 2, None,
-            EW_Ha_cen.apply(np.log10), [-14.5, -8.5, 0.5, 5.5]
-        ],
-        #############################
-        #################################
-        ## sSFR_ssp-C colored by EW_Ha ##
-        #################################
-        'fig_histo_sSFRssp_C': [
-            elines['sSFR_ssp'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 4, 2, None,
-            elines['C'], r'${\rm R}90/{\rm R}50$', 6, 2, None,
-            EW_Ha_cen.apply(np.log10), [-12.5, -8.5, 0.5, 5.5]
-        ],
-        #############################
-        #############################
-        ## M-sSFR colored by EW_Ha ##
-        #############################
-        'fig_histo_M_sSFR': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['sSFR'], r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$', 5, 2, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, -13.5, -8.5]
-        ],
-        #############################
-        ################################
-        ## M-sSFR_SF colored by EW_Ha ##
-        ################################
-        'fig_histo_M_sSFRSF': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['sSFR_SF'], r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$', 6, 2, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, -14.5, -8.5]
-        ],
-        #############################
-        #################################
-        ## M-sSFR_ssp colored by EW_Ha ##
-        #################################
-        'fig_histo_M_sSFRssp': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['sSFR_ssp'], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 4, 2, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, -12.5, -8.5]
-        ],
-        #############################
-        ###############################
-        ## M-ZHLWRe colored by EW_Ha ##
-        ###############################
-        'fig_histo_M_ZHLW': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, -0.7, 0.3]
-            # elines['ZH_LW_Re_fit'] - elines['alpha_ZH_LW_Re_fit'], r'[Z/H] LW', 3, 2, None,
-            # EW_Ha_cen.apply(np.log10), [8, 12, -0.9, 0.3]
-        ],
-        ###############################
-        ###############################
-        ## M-ZHMWRe colored by EW_Ha ##
-        ###############################
-        'fig_histo_M_ZHMW': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            # elines['ZH_MW_Re_fit'] - elines['alpha_ZH_MW_Re_fit'], r'[Z/H] MW', 3, 4, None,
-            # EW_Ha_cen.apply(np.log10), [8, 12, -0.9, 0.3]
-            elines['ZH_MW_Re_fit'], r'[Z/H] MW', 3, 8, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, -0.7, 0.3]
-        ],
-        ###############################
-        ##########@@@################
-        ## MZR t2 colored by EW_Ha ##
-        #############@@@#############
-        'fig_histo_MZR_t2': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['OH_Re_fit_t2'], r'$12 + \log (O/H)$ t2 ', 4, 4, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, 8.3, 9.1]
-        ],
-        ##########################
-        ###############################
-        ## MZR O3N2 colored by EW_Ha ##
-        ###############################
-        'fig_histo_MZR_O3N2': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['OH_O3N2_Re'], r'$12 + \log (O/H)$ O3N2 ', 2, 4, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, 8, 8.8]
-        ],
-        ###############################
-        ############################
-        ## M-tLW colored by EW_Ha ##
-        ############################
-        'fig_histo_M_tLW': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['Age_LW_Re_fit'], r'$\log({\rm age/yr})$ LW', 4, 5, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, 7.5, 10.5]
-        ],
-        ############################
-        ############################
-        ## M-tMW colored by EW_Ha ##
-        ############################
-        'fig_histo_M_tMW': [
-            elines['log_Mass_corr'], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 4, 5, None,
-            elines['Age_MW_Re_fit'], r'$\log({\rm age/yr})$ MW', 3, 5, None,
-            EW_Ha_cen.apply(np.log10), [8, 12, 8.8, 10.2]
-        ],
-        ############################
-        ###############################
-        ## Mgas-SFR colored by EW_Ha ##
-        ###############################
-        'fig_histo_Mgas_SFR': [
-            elines['log_Mass_gas_Av_gas_rad'], r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', 6, 5, None,
-            elines['lSFR'], r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', 4, 4, None,
-            EW_Ha_cen.apply(np.log10), [4.8, 10.2, -4.5, 2.5]
-        ],
-        ###############################
-        ##################################
-        ## Mgas-SFR_SF colored by EW_Ha ##
-        ##################################
-        'fig_histo_Mgas_SFRSF': [
-            elines['log_Mass_gas_Av_gas_rad'], r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', 6, 5, None,
-            elines['log_SFR_SF'], r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm SF}/{\rm M}_{\odot}/{\rm yr})$', 4, 4, None,
-            EW_Ha_cen.apply(np.log10), [4.8, 10.2, -4.5, 2.5]
-        ],
-        ##################################
-        ###################################
-        ## Mgas-SFR_ssp colored by EW_Ha ##
-        ###################################
-        'fig_histo_Mgas_SFRssp': [
-            elines['log_Mass_gas_Av_gas_rad'], r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', 6, 5, None,
-            elines['log_SFR_ssp'], r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', 4, 2, None,
-            EW_Ha_cen.apply(np.log10), [4.8, 10.2, -4.5, 2.5]
-        ],
-        ###################################
-    }
-    for k, v in plot_histo_xy_dict.items():
+    # XXX TODO:
+    #   Create a process that reads the dimensions (rows X cols) of each list
+    # element in order to create subplots with gridspec rows and cols
+    plots_props_list = [
+        ['Mabs_r', 'g_r'],
+        ['Mabs_r_NC', 'g_r_NC'],
+        ['log_Mass_corr', 'C'],
+        ['log_Mass_corr', 'g_r'],
+        ['log_Mass_corr_NC', 'g_r_NC'],
+        ['log_Mass_corr', 'lSFR'],
+        ['log_Mass_corr_NC', 'lSFR_NC'],
+        ['log_Mass_corr', 'log_SFR_SF'],
+        ['log_Mass_corr', 'log_SFR_ssp'],
+        ['log_Mass_corr', 'log_fgas'],
+        ['log_Mass_corr', 'SFE'],
+        ['log_Mass_corr', 'SFE_SF'],
+        ['log_Mass_corr', 'SFE_ssp'],
+        ['log_Mass_corr', 'sSFR'],
+        ['log_Mass_corr', 'sSFR_SF'],
+        ['log_Mass_corr', 'sSFR_ssp'],
+        ['log_Mass_corr', 'ZH_LW_Re_fit'],
+        ['log_Mass_corr', 'ZH_MW_Re_fit'],
+        ['log_Mass_corr', 'OH_Re_fit_t2'],
+        ['log_Mass_corr', 'Age_LW_Re_fit'],
+        ['log_Mass_corr', 'Age_MW_Re_fit'],
+        ['sSFR', 'g_r'],
+        ['sSFR_SF', 'g_r'],
+        ['sSFR_ssp', 'g_r'],
+        ['log_Mass_gas_Av_gas_rad', 'lSFR'],
+        ['log_Mass_gas_Av_gas_rad', 'log_SFR_SF'],
+        ['log_Mass_gas_Av_gas_rad', 'log_SFR_ssp'],
+        # ['sSFR', 'C'],
+        # ['sSFR_SF', 'C'],
+        # ['sSFR_ssp', 'C'],
+        # ['Mabs_i', 'u_i'],
+        # ['Mabs_i_NC', 'u_i_NC'],
+        # ['Mabs_r', 'u_r'],
+        # ['Mabs_r_NC', 'u_r_NC'],
+        # ['Mabs_R', 'B_R'],
+        # ['Mabs_R_NC', 'B_R_NC'],
+        # ['Mabs_V', 'B_V'],
+        # ['Mabs_V_NC', 'B_V_NC'],
+    ]
+    for plot_element in plots_props_list:
+        x_key = plot_element[0]
+        y_key = plot_element[1]
+        x = elines[x_key]
+        x_label = props[x_key]['label']
+        x_majloc = props[x_key]['majloc']
+        x_minloc = props[x_key]['minloc']
+        x_extent = props[x_key]['extent']
+        prune_x = None
+        y = elines[y_key]
+        y_label = props[y_key]['label']
+        y_majloc = props[y_key]['majloc']
+        y_minloc = props[y_key]['minloc']
+        y_extent = props[y_key]['extent']
+        prune_y = None
+        z_key = 'log_EW_Ha_Re'
+        # z_key = 'EW_Ha_Re'
+        z = elines[z_key]
+        z_label = props[z_key]['label']
+        z_extent = props[z_key]['extent']
         print('\n################################')
-        print('# %s' % k)
-        x, xlabel, n_bins_maj_x, n_bins_min_x, prune_x = v[0:5]
-        y, ylabel, n_bins_maj_y, n_bins_min_y, prune_y = v[5:10]
-        z = v[10]
-        extent = v[11]
-        aux_mask = None
-        if len(v) == 13:
-            aux_mask = v[12]
-        output_name = '%s/%s.%s' % (args.figs_dir, k, args.img_suffix)
+        k = '%s_%s' % (props[x_key]['fname'], props[y_key]['fname'])
+        fname = 'fig_histo_%s' % k
+        print('# %s' % fname)
+        extent = x_extent + y_extent
+        aux_mask = m_redshift
+        output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-        # bottom, top, left, right = 0.30, 0.95, 0.2, 0.75
         gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax_Hx = plt.subplot(gs[-1, 1:])
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
-        # if k == 'fig_histo_CMD_CUBES' or k == 'fig_histo_CMD_CUBES_NC':
-        #     aux_mask = m_redshift
-        # else:
-        #     aux_mask = None
-        plot_histo_xy_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, xlabel=xlabel, xrange=extent[0:2], n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, ylabel=ylabel, yrange=extent[2:4], n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=prune_y, aux_mask=aux_mask, zlabel=zlabel)
-        if k == 'fig_histo_sSFR_C':
+        plot_histo_xy_colored_by_z(elines=elines, args=args, x=x, y=y, z=z,
+                                   ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc,
+                                   aux_mask=aux_mask,
+                                   xlabel=x_label, xrange=extent[0:2],
+                                   ylabel=y_label, yrange=extent[2:4],
+                                   n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc, prune_x=prune_x,
+                                   n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc, prune_y=prune_y,
+                                   zlabel=z_label, zextent=z_extent)
+        if k == 'sSFR_C':
             ax_sc.axvline(x=-11.8, c='k', ls='--')
             ax_sc.axvline(x=-10.8, c='k', ls='--')
-        if k == 'fig_histo_M_sSFR':
+        if k == 'M_sSFR':
             ax_sc.axhline(y=-11.8, c='k', ls='--')
             ax_sc.axhline(y=-10.8, c='k', ls='--')
-        if k == 'fig_histo_MZR_t2':
+        if k == 'M_OHt2':
             ax_sc = plot_fig_histo_MZR_t2(elines, args, x, y, ax_sc)
-        if k == 'fig_histo_MZR_O3N2':
+        if k == 'M_O3N2':
             ax_sc = plot_fig_histo_MZR_O3N2(elines, args, x, y, ax_sc)
-        if k == 'fig_histo_M_ZHMW':
+        if k == 'M_ZHMW':
             ax_sc = plot_fig_histo_M_ZHMW(elines, args, x, y, ax_sc)
-        if k == 'fig_histo_M_tLW' or k == 'fig_histo_M_tMW':
+        if k == 'M_tLW' or k == 'M_tMW':
             ax_sc = plot_fig_histo_M_t(elines, args, x, y, ax_sc)
-        if k == 'fig_histo_M_fgas':
+        if k == 'M_logfgas':
             ax_sc = plot_fig_histo_M_fgas(elines, args, x, y, ax_sc)
-        if k == 'fig_histo_M_SFE':
+        if k == 'M_SFEHa' or k == 'M_SFESF' or k == 'M_SFEssp':
             ax_sc = plot_fig_histo_M_SFE(elines, args, x, y, ax_sc, [9, 11.5, -11, -6])
-        if k == 'fig_histo_CMD_BR_CUBES_NC':
-            plot_text_ax(ax_sc, 'NOCEN', 0.96, 0.95, fs+2, 'top', 'right', 'k')
-        if k == 'fig_histo_SFMS_NC':
-            plot_text_ax(ax_sc, 'NOCEN', 0.04, 0.95, fs+2, 'top', 'left', 'k')
-        if k == 'fig_histo_M_sSFRSF':
+        # if k[-3::] == '_NC':
+        #     if k[0:5] == 'M_SFR':
+        #         plot_text_ax(ax_sc, 'NOCEN', 0.04, 0.95, fs+2, 'top', 'left', 'k')
+        #     else:
+        #         plot_text_ax(ax_sc, 'NOCEN', 0.96, 0.95, fs+2, 'top', 'right', 'k')
+        if k == 'M_sSFRSF':
             ax_sc.axhline(y=-11.8, c='k', ls='--')
             ax_sc.axhline(y=-10.8, c='k', ls='--')
             N_GV = ((y <= -10.8) & (y > -11.8)).astype('int').sum()
@@ -2916,7 +2060,7 @@ if __name__ == '__main__':
             print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
             print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
             print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
-        if k == 'fig_histo_M_sSFRssp':
+        if k == 'M_sSFRssp':
             N_GV = ((y <= -10.8) & (y > -11.8)).astype('int').sum()
             N_AGN_tI_GV = ((y[mtI] <= -10.8) & (y[mtI] > -11.8)).astype('int').sum()
             N_AGN_tII_GV = ((y[mtII] <= -10.8) & (y[mtII] > -11.8)).astype('int').sum()
@@ -2926,14 +2070,10 @@ if __name__ == '__main__':
             print('# B.F. Type-II AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_AGN_tII_GV, N_GV, N_AGN_tII, 100.*N_AGN_tII_GV/N_GV, 100.*N_AGN_tII_GV/N_AGN_tII))
             print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
             print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
-        # if k == 'fig_histo_M_Mgas':
-        #     ax_sc = plot_fig_histo_M_Mgas(elines, args, x, y, ax_sc)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print('################################')
     print('\n################################')
-    ################################
-    ################################
 
     ###########
     ## Morph ##
@@ -2963,46 +2103,84 @@ if __name__ == '__main__':
     print('## Morph colored by EW_Ha ##')
     print('############################')
     # elines_wmorph['u_i']
-    plots_dict = {
-        'fig_Morph_M': ['log_Mass_corr', [7.5, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
-        'fig_Morph_C': ['C', [0.5, 5.5], r'${\rm R}90/{\rm R}50$', 6, 2],
-        'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma_\star/{\rm M}_{\odot}/{\rm pc}^2)$ cen', 4, 2],
-        'fig_Morph_vsigma': ['rat_vel_sigma', [0, 1], r'${\rm V}/\sigma\ ({\rm R} < {\rm Re})$', 2, 5],
-        'fig_Morph_Re': ['Re_kpc', [0, 25], r'${\rm Re}/{\rm kpc}$', 6, 2],
-        'fig_Morph_sSFR': ['sSFR', [-13.5, -8.5], r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$', 5, 2],
-        'fig_Morph_sSFRSF': ['sSFR_SF', [-14.5, -8.5], r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$', 6, 2],
-        'fig_Morph_sSFRssp': ['sSFR_ssp', [-12.5, -8.5], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 4, 2],
-        'fig_Morph_bar': ['bar', [-0.2, 2.2], 'bar presence', 3, 1],
-        'fig_Morph_BR': ['B_R', [0, 1.5], r'B-R (mag)', 3, 5],
-        'fig_Morph_BV': ['B_V', [0, 1.], r'B-V (mag)', 3, 5],
-        'fig_Morph_ui': ['u_i', [0, 3.5], r'u-i (mag)', 3, 5],
-        'fig_Morph_ur': ['u_r', [0, 3.5], r'u-r (mag)', 3, 5],
-        'fig_Morph_gr': ['g_r', [0, 1], r'g-r (mag)', 3, 5],
-    }
-    for k, v in plots_dict.items():
+    plots_props_list = [
+        'log_Mass_corr', 'C', 'Sigma_Mass_cen', 'rat_vel_sigma', 'Re_kpc', 'sSFR', 'sSFR_SF', 'sSFR_ssp', 'bar', 'g_r',
+        # 'B_R', 'B_V', 'u_i', 'u_r',
+    ]
+    for y_key in plots_props_list:
         print('\n############################')
-        print('# %s' % k)
-        ykey, yrange, ylabel, n_bins_maj_y, n_bins_min_y = v
-        y = elines_wmorph[ykey]
-        z = elines_wmorph['EW_Ha_Re']
-        zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm Re}$ (\AA)'
+        p = props[y_key]
+        k = '%s' % p['fname']
+        fname = 'fig_Morph_%s' % k
+        print('# %s' % fname)
+        y_extent = p['extent']
+        y_label = p['label']
+        n_bins_maj_y = p['majloc']
+        n_bins_min_y = p['minloc']
+        y = elines_wmorph[y_key]
+        z_key = 'log_EW_Ha_Re'
+        # z_key = 'EW_Ha_Re'
+        z = elines_wmorph[z_key]
+        z_label = props[z_key]['label']
+        z_extent = props[z_key]['extent']
         # z = elines_wmorph['EW_Ha_cen_mean']
         # zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-        output_name = '%s/%s.%s' % (args.figs_dir, k, args.img_suffix)
+        output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
         gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax_Hx = plt.subplot(gs[-1, 1:])
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
         ax_Hx = plot_x_morph(elines=elines_wmorph, args=args, ax=ax_Hx)
-        plot_morph_y_colored_by_z(elines=elines_wmorph, args=args, y=y, z=z.apply(np.log10), ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, ylabel=ylabel, yrange=yrange, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, zlabel=zlabel)
+        plot_morph_y_colored_by_z(elines=elines_wmorph, args=args, y=y, z=z, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, ylabel=y_label, yrange=y_extent, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, zlabel=z_label, zextent=z_extent)
         # gs.tight_layout(f)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print('############################')
     print('\n#################')
     ############################
+
+    # plots_dict = {
+    #     'fig_Morph_M': ['log_Mass_corr', [7.5, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
+    #     'fig_Morph_C': ['C', [0.5, 5.5], r'${\rm R}90/{\rm R}50$', 6, 2],
+    #     'fig_Morph_SigmaMassCen': ['Sigma_Mass_cen', [1, 5], r'$\log (\Sigma_\star/{\rm M}_{\odot}/{\rm pc}^2)$ cen', 4, 2],
+    #     'fig_Morph_vsigma': ['rat_vel_sigma', [0, 1], r'${\rm V}/\sigma\ ({\rm R} < {\rm Re})$', 2, 5],
+    #     'fig_Morph_Re': ['Re_kpc', [0, 25], r'${\rm Re}/{\rm kpc}$', 6, 2],
+    #     'fig_Morph_sSFR': ['sSFR', [-13.5, -8.5], r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$', 5, 2],
+    #     'fig_Morph_sSFRSF': ['sSFR_SF', [-14.5, -8.5], r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$', 6, 2],
+    #     'fig_Morph_sSFRssp': ['sSFR_ssp', [-12.5, -8.5], r'$\log ({\rm sSFR}_\star/{\rm yr})$', 4, 2],
+    #     'fig_Morph_bar': ['bar', [-0.2, 2.2], 'bar presence', 3, 1],
+    #     'fig_Morph_BR': ['B_R', [0, 1.5], r'B-R (mag)', 3, 5],
+    #     'fig_Morph_BV': ['B_V', [0, 1.], r'B-V (mag)', 3, 5],
+    #     'fig_Morph_ui': ['u_i', [0, 3.5], r'u-i (mag)', 3, 5],
+    #     'fig_Morph_ur': ['u_r', [0, 3.5], r'u-r (mag)', 3, 5],
+    #     'fig_Morph_gr': ['g_r', [0, 1], r'g-r (mag)', 3, 5],
+    # }
+    # for k, v in plots_dict.items():
+    #     print('\n############################')
+    #     print('# %s' % k)
+    #     ykey, yrange, ylabel, n_bins_maj_y, n_bins_min_y = v
+    #     y = elines_wmorph[ykey]
+    #     z = elines_wmorph['EW_Ha_Re']
+    #     zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm Re}$ (\AA)'
+    #     # z = elines_wmorph['EW_Ha_cen_mean']
+    #     # zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
+    #     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+    #     output_name = '%s/%s.%s' % (args.figs_dir, k, args.img_suffix)
+    #     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    #     gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+    #     ax_Hx = plt.subplot(gs[-1, 1:])
+    #     ax_Hy = plt.subplot(gs[0:3, 0])
+    #     ax_sc = plt.subplot(gs[0:-1, 1:])
+    #     ax_Hx = plot_x_morph(elines=elines_wmorph, args=args, ax=ax_Hx)
+    #     plot_morph_y_colored_by_z(elines=elines_wmorph, args=args, y=y, z=z.apply(np.log10), ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, ylabel=ylabel, yrange=yrange, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, zlabel=z_label)
+    #     # gs.tight_layout(f)
+    #     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    #     plt.close(f)
+    #     print('############################')
+    # print('\n#################')
+    # ############################
 
 ###############################################################################
 # END PLOTS ###################################################################
