@@ -2053,7 +2053,7 @@ if __name__ == '__main__':
         #         plot_text_ax(ax_sc, 'NOCEN', 0.04, 0.95, fs+2, 'top', 'left', 'k')
         #     else:
         #         plot_text_ax(ax_sc, 'NOCEN', 0.96, 0.95, fs+2, 'top', 'right', 'k')
-        if k == 'M_sSFRSF':
+        if k == 'M_sSFRHaSF':
             ax_sc.axhline(y=-11.8, c='k', ls='--')
             ax_sc.axhline(y=-10.8, c='k', ls='--')
             N_GV = ((y <= -10.8) & (y > -11.8)).astype('int').sum()
