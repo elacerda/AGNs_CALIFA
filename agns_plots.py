@@ -71,14 +71,14 @@ props = {
     'EW_Ha_Re': dict(fname='WHa_Re', label=r'${\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[3, 10], majloc=4, minloc=2),
     'log_EW_Ha_cen_mean': dict(fname='logWHa_cen', label=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[-1, 2.5], majloc=4, minloc=2),
     'log_EW_Ha_Re': dict(fname='logWHa_Re', label=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm Re}$ (\AA)', extent=[-1, 2.5], majloc=4, minloc=2),
-    'C': dict(fname='C', label=r'${\rm R}90/{\rm R}50$', extent=[0.5, 5.5], majloc=6, minloc=2),
+    'C': dict(fname='C', label=r'${\rm R}90/{\rm R}50$', extent=[0.5, 4.5], majloc=4, minloc=2),
     'log_Mass_corr': dict(fname='M', label=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', extent=[8, 12], majloc=4, minloc=5),
     'log_Mass_corr_NC': dict(fname='M_NC', label=r'$\log ({\rm M}_\star^{\rm NC}/{\rm M}_{\odot})$', extent=[8, 12], majloc=4, minloc=5),
     'log_Mass_gas_Av_gas_rad': dict(fname='Mgas', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[4.8, 10.2], majloc=6, minloc=5),
-    'lSFR': dict(fname='SFRHa', label=r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=2),
-    'lSFR_NC': dict(fname='SFRHa_NC', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm NC}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=2),
-    'log_SFR_SF': dict(fname='SFRHaSF', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm SF}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=2),
-    'log_SFR_ssp': dict(fname='SFRssp', label=r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=2),
+    'lSFR': dict(fname='SFRHa', label=r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
+    'lSFR_NC': dict(fname='SFRHa_NC', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm NC}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
+    'log_SFR_SF': dict(fname='SFRHaSF', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm SF}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
+    'log_SFR_ssp': dict(fname='SFRssp', label=r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
     'sSFR': dict(fname='sSFRHa', label=r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$', extent=[-13.5, -8.5], majloc=5, minloc=2),
     'sSFR_SF': dict(fname='sSFRHaSF', label=r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$', extent=[-14.5, -8.5], majloc=6, minloc=2),
     'sSFR_ssp': dict(fname='sSFRssp', label=r'$\log ({\rm sSFR}_\star/{\rm yr})$', extent=[-12.5, -8.5], majloc=4, minloc=2),
@@ -111,10 +111,10 @@ props = {
     'Age_MW_Re_fit': dict(fname='tMW', label=r'$\log({\rm age/yr})$ MW', extent=[8.8, 10.2], majloc=3, minloc=5),
     'NUV_r_SDSS': dict(fname='NUV_r_SDSS', label=r'NUV-r (mag) SDSS', extent=[0, 7], majloc=7, minloc=2),
     'NUV_r_CUBES': dict(fname='NUV_r_CUBES', label=r'NUV-r (mag) CUBES', extent=[0, 7], majloc=3, minloc=2),
-    'Sigma_Mass_cen': dict(fname='mu_cen', label=r'$\log (\Sigma_\star^{\rm cen}/{\rm M}_{\odot}/{\rm pc}^2)$', extent=[1, 5], majloc=4, minloc=2),
+    'Sigma_Mass_cen': dict(fname='mu_cen', label=r'$\log (\Sigma_\star^{\rm cen}/{\rm M}_{\odot}/{\rm pc}^2)$', extent=[1, 5], majloc=4, minloc=5),
     'bar': dict(fname='bar', label='bar presence', extent=[-0.2, 2.2], majloc=3, minloc=1),
-    'rat_vel_sigma': dict(fname='vsigma', label=r'${\rm V}/\sigma\ ({\rm R} < {\rm Re})$', extent=[0, 1], majloc=2, minloc=5),
-    'Re_kpc': dict(fname='Re', label=r'${\rm Re}/{\rm kpc}$', extent=[0, 25], majloc=6, minloc=2),
+    'rat_vel_sigma': dict(fname='vsigma', label=r'${\rm V}/\sigma\ ({\rm R} < {\rm Re})$', extent=[0, 1], majloc=5, minloc=2),
+    'Re_kpc': dict(fname='Re', label=r'${\rm Re}/{\rm kpc}$', extent=[0, 20], majloc=5, minloc=4),
 }
 
 def parser_args(default_args_file='args/default_plots.args'):
@@ -133,8 +133,11 @@ def parser_args(default_args_file='args/default_plots.args'):
         'img_suffix': 'pdf',
         'dpi': 300,
         'fontsize': 6,
+        'debug': False,
     }
+
     parser = readFileArgumentParser(fromfile_prefix_chars='@')
+    parser.add_argument('--debug', '-d', action = 'store_true', default = default_args['debug'])
     parser.add_argument('--input', '-I', metavar='FILE', type=str, default=default_args['input'])
     parser.add_argument('--sigma_clip', action='store_false', default=default_args['sigma_clip'])
     parser.add_argument('--figs_dir', '-D', metavar='DIR', type=str, default=default_args['figs_dir'])
@@ -415,8 +418,9 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
         N_rows, N_cols = 1, 1
         gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax = plt.subplot(gs[0])
-    txt = '%d:%d:%d' % (mXYZ.astype('int').sum(), (mXYZ & mtI).astype('int').sum(), (mXYZ & mtII).astype('int').sum())
-    plot_text_ax(ax, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
+    if args.debug:
+        txt = '%d:%d:%d' % (mXYZ.astype('int').sum(), (mXYZ & mtI).astype('int').sum(), (mXYZ & mtII).astype('int').sum())
+        plot_text_ax(ax, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
     sc = ax.scatter(x, y, c=z, vmin=zextent[0], vmax=zextent[1], **sc_kwargs)
     # mALLAGN = (elines['AGN_FLAG'] > 0)
     xm, ym = ma_mask_xyz(x, y, mask=~mtAGN)
@@ -493,8 +497,9 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     mtAGN = mtI | mtII
     # mtIII = elines['AGN_FLAG'] == 3
     mXYZ = (x.notna() & y.notna() & z.notna())
-    txt = '%d:%d:%d' % (mXYZ.astype('int').sum(), (mXYZ & mtI).astype('int').sum(), (mXYZ & mtII).astype('int').sum())
-    plot_text_ax(ax_sc, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
+    if args.debug:
+        txt = '%d:%d:%d' % (mXYZ.astype('int').sum(), (mXYZ & mtI).astype('int').sum(), (mXYZ & mtII).astype('int').sum())
+        plot_text_ax(ax_sc, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
     print('x:%s:%d  y:%s:%d  z:%s:%d  all:%d  tIAGN:%d  tIIAGN:%d  AGN:%d' % (x.name, x.notna().sum(), y.name, y.notna().sum(), z.name, z.notna().sum(), mXYZ.sum(), (mXYZ & mtI).sum(), (mXYZ & mtII).sum(), (mXYZ & mtAGN).sum()))
     Nbins = 20
     ax_Hx_t = ax_Hx.twinx()
@@ -557,34 +562,6 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
     cb_ax.tick_params(which='both', direction='in')
     cb.update_ticks()
-    ####################################
-    if args.verbose > 0:
-        print('# x #')
-        xlim = ax_sc.get_xlim()
-        x_low = x.loc[x < xlim[0]]
-        x_upp = x.loc[x > xlim[1]]
-        print('# N.x points < %.1f: %d' % (xlim[0], x_low.count()))
-        if args.verbose > 1:
-            for i in x_low.index:
-                print('#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG']))
-        print('# N.x points > %.1f: %d' % (xlim[1], x_upp.count()))
-        if args.verbose > 1:
-            for i in x_upp.index:
-                print('#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
-        print('#####')
-        print('# y #')
-        ylim = ax_sc.get_ylim()
-        y_low = y.loc[y < ylim[0]]
-        y_upp = y.loc[y > ylim[1]]
-        print('# N.y points < %.1f: %d' % (ylim[0], y_low.count()))
-        if args.verbose > 1:
-            for i in y_low.index:
-                print('#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG']))
-        print('# N.y points > %.1f: %d' % (ylim[1], y_upp.count()))
-        if args.verbose > 1:
-            for i in y_upp.index:
-                print('#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
-        print('#####')
     return ax_Hx, ax_Hy, ax_sc
 
 
@@ -644,8 +621,9 @@ def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=No
     mtAGN = mtI | mtII
     morph = elines['morph'].apply(morph_adjust)
     mXYZ = (morph.notna() & y.notna() & z.notna())
-    txt = '%d:%d:%d' % (mXYZ.astype('int').sum(), (mXYZ & mtI).astype('int').sum(), (mXYZ & mtII).astype('int').sum())
-    plot_text_ax(ax, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
+    if args.debug:
+        txt = '%d:%d:%d' % (mXYZ.astype('int').sum(), (mXYZ & mtI).astype('int').sum(), (mXYZ & mtII).astype('int').sum())
+        plot_text_ax(ax, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
     print('x:morph:%d  y:%s:%d  z:%s:%d  all:%d  tIAGN:%d  tIIAGN:%d  AGN:%d' % (morph.notna().sum(), y.name, y.notna().sum(), z.name, z.notna().sum(), mXYZ.sum(), (mXYZ & mtI).sum(), (mXYZ & mtII).sum(), (mXYZ & mtAGN).sum()))
     m = np.linspace(7, 19, 13).astype('int')
     y_mean = np.array([y.loc[morph == mt].mean() for mt in m])
@@ -678,7 +656,26 @@ def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=No
     ax_Hy.tick_params(**tick_params)
     ax_Hy_t.tick_params(**tick_params)
     ####################################
-    sc = ax_sc.scatter(morph, y, c=z, vmin=zextent[0], vmax=zextent[1], **scatter_kwargs)
+    data = [y.loc[(morph == mt) & y.notna()] for mt in m]
+    d = ax_sc.boxplot(data,
+                      showfliers=False, notch=False, positions=m,
+                      flierprops=dict(linewidth=0.2, marker='D', markersize=1, color='r'),
+                      boxprops=dict(linewidth=0.2),
+                      whiskerprops=dict(linewidth=0.2),
+                      capprops=dict(linewidth=0.2),
+                      medianprops=dict(linewidth=0, color='k'))
+    cmap = mpl.cm.get_cmap('viridis_r')
+    norm = mpl.colors.Normalize(vmin=-1, vmax=2.5)
+    colors_list = [ cmap(norm(elines.loc[morph == mt, 'log_EW_Ha_Re'].mean())) for mt in m ]
+    # color boxes in boxplot
+    i = 0
+    for i in range(len(colors_list)):
+        box = d['boxes'][i]
+        box_coords = np.column_stack([box.get_xdata(), box.get_ydata()])
+        ax_sc.add_patch(mpl.patches.Polygon(box_coords, facecolor=colors_list[i], zorder=0.01))
+    tmp_kw = scatter_kwargs.copy()
+    tmp_kw['alpha'] = 0
+    sc = ax_sc.scatter(morph, y, c=z, vmin=zextent[0], vmax=zextent[1], **tmp_kw)
     # mALLAGN = (elines['AGN_FLAG'] > 0)
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
@@ -699,6 +696,7 @@ def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=No
     cb_width = 0.05
     cb_ax = f.add_axes([pos.x1, pos.y0, cb_width, pos.y1-pos.y0])
     cb = plt.colorbar(sc, cax=cb_ax)
+    # cb = plt.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), cax=cb_ax)
     cb.solids.set(alpha=1)
     cb.set_label(zlabel, fontsize=args.fontsize+2)
     cb.locator = MaxNLocator(4)
@@ -1154,12 +1152,12 @@ if __name__ == '__main__':
         # Line2D([0], [0], marker=marker_AGN_tIV, alpha=alpha_AGN_tIV, markeredgecolor=color_AGN_tIV, label=r'by [NII]/H$\alpha$ (+%d)' % N_AGN_tIV, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
     ]
 
-    # sSFR_SF = elines['log_SFR_SF'] - elines['log_Mass_corr']
-    # sSFR = elines['lSFR'] - elines['log_Mass_corr']
-    # sSFR_ssp = elines['log_SFR_ssp'] - elines['log_Mass_corr']
-    # Mrat = 10**(elines['log_Mass_corr'] - elines['log_Mass_gas_Av_gas_rad'])
-    # fgas = 1 / (1 + Mrat)
-    #
+    sSFR_SF = elines['log_SFR_SF'] - elines['log_Mass_corr']
+    sSFR = elines['lSFR'] - elines['log_Mass_corr']
+    sSFR_ssp = elines['log_SFR_ssp'] - elines['log_Mass_corr']
+    Mrat = 10**(elines['log_Mass_corr'] - elines['log_Mass_gas_Av_gas_rad'])
+    fgas = 1 / (1 + Mrat)
+
     ##########################
     ## BPT colored by EW_Ha ##
     ##########################
@@ -1889,7 +1887,7 @@ if __name__ == '__main__':
         x = elines.loc[mask, x_key]
         x_label = props[x_key]['label']
         x_majloc = props[x_key]['majloc']
-        x_minloc = props[x_key]['minloc']
+        x_minloc = 5  # props[x_key]['minloc']
         x_extent = props[x_key]['extent']
         row = 0
         for y_key in y_key_list:
@@ -1919,10 +1917,13 @@ if __name__ == '__main__':
             ax.yaxis.set_minor_locator(AutoMinorLocator(y_minloc))
             ax.axvline(x=-11.8, c='k', ls='--')
             ax.axvline(x=-10.8, c='k', ls='--')
+            if y_key == 'log_EW_Ha_Re':
+                ax.axhline(y=np.log10(3), c='r', ls='--')
+                ax.axhline(y=np.log10(10), c='b', ls='--')
             if y_key == 'NUV_r_SDSS':
                 ax.axhline(y=4, c='k', ls='--')
                 ax.axhline(y=5, c='k', ls='--')
-            if row == 0:
+            if args.debug and row == 0:
                 plot_text_ax(ax, '%d' % mask.astype('int').sum(), 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
             row = row + 1
         ax.yaxis.set_major_locator(MaxNLocator(y_majloc, prune=None))
