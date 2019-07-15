@@ -323,7 +323,7 @@ def plot_setup(width, aspect, fignum=None, dpi=300, cmap=None):
     return plt.figure(fignum, figsize, dpi=dpi)
 
 
-def plot_WHAN(args, N2Ha, WHa, z=None, f=None, ax=None, extent=None, output_name=None, cmap='viridis', mask=None, N=False, z_label=r'R [HLR]', vmax=None, vmin=None, dcontour=True):
+def plot_WHAN(args, N2Ha, WHa, z=None, f=None, ax=None, extent=None, output_name=None, cmap='viridis_r', mask=None, N=False, z_label=r'R [HLR]', vmax=None, vmin=None, dcontour=True):
     from pytu.plots import plot_text_ax
     from pytu.functions import ma_mask_xyz
 
@@ -447,7 +447,7 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
         ax.set_ylim(extent[2:4])
     ax.xaxis.set_major_locator(MaxNLocator(n_bins_maj_x, prune=prune_x))
     ax.xaxis.set_minor_locator(AutoMinorLocator(n_bins_min_x))
-    ax.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_x))
+    ax.yaxis.set_major_locator(MaxNLocator(n_bins_maj_y, prune=prune_y))
     ax.yaxis.set_minor_locator(AutoMinorLocator(n_bins_min_y))
     tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
     ax.tick_params(**tick_params)
@@ -562,6 +562,33 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
     cb_ax.tick_params(which='both', direction='in')
     cb.update_ticks()
+    if args.verbose > 0:
+        print('# x #')
+        xlim = ax_sc.get_xlim()
+        x_low = x.loc[x < xlim[0]]
+        x_upp = x.loc[x > xlim[1]]
+        print('# N.x points < %.1f: %d' % (xlim[0], x_low.count()))
+        if args.verbose > 1:
+            for i in x_low.index:
+                print('#\t%s: %.3f (AGN:%d)' % (i, x_low.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('# N.x points > %.1f: %d' % (xlim[1], x_upp.count()))
+        if args.verbose > 1:
+            for i in x_upp.index:
+                print('#\t%s: %.3f (AGN:%d)' % (i, x_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('#####')
+        print('# y #')
+        ylim = ax_sc.get_ylim()
+        y_low = y.loc[y < ylim[0]]
+        y_upp = y.loc[y > ylim[1]]
+        print('# N.y points < %.1f: %d' % (ylim[0], y_low.count()))
+        if args.verbose > 1:
+            for i in y_low.index:
+                print('#\t%s: %.3f (AGN:%d)' % (i, y_low.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('# N.y points > %.1f: %d' % (ylim[1], y_upp.count()))
+        if args.verbose > 1:
+            for i in y_upp.index:
+                print('#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
+        print('#####')
     return ax_Hx, ax_Hy, ax_sc
 
 
@@ -1056,6 +1083,7 @@ if __name__ == '__main__':
     args.EW_hDIG = EW_hDIG
     args.EW_strong = EW_strong
     args.EW_verystrong = EW_verystrong
+    args.props = props
     debug_var(True, args=args)
 
     sel_NIIHa = pickled['sel_NIIHa']
@@ -1146,8 +1174,8 @@ if __name__ == '__main__':
     N_ALLAGN = mALLAGN.astype('int').sum()
 
     legend_elements = [
-        Line2D([0], [0], marker=marker_AGN_tI, markeredgecolor=color_AGN_tI, label='Type-I (%d)' % N_AGN_tI, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
-        Line2D([0], [0], marker=marker_AGN_tII, markeredgecolor=color_AGN_tII, label='Type-II (%d)' % N_AGN_tII, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
+        Line2D([0], [0], marker=marker_AGN_tI, markeredgecolor=color_AGN_tI, label='Type-I (%d)' % N_AGN_tI, markerfacecolor='none', markersize=7, markeredgewidth=0.4, linewidth=0),
+        Line2D([0], [0], marker=marker_AGN_tII, markeredgecolor=color_AGN_tII, label='Type-II (%d)' % N_AGN_tII, markerfacecolor='none', markersize=7, markeredgewidth=0.4, linewidth=0),
         # Line2D([0], [0], marker=marker_AGN_tIII, alpha=alpha_AGN_tIII, markeredgecolor=color_AGN_tIII, label=r'by [NII]/H$\alpha$ and other (+%d)' % N_AGN_tIII, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
         # Line2D([0], [0], marker=marker_AGN_tIV, alpha=alpha_AGN_tIV, markeredgecolor=color_AGN_tIV, label=r'by [NII]/H$\alpha$ (+%d)' % N_AGN_tIV, markerfacecolor='none', markersize=5, markeredgewidth=0.1, linewidth=0),
     ]
@@ -1201,7 +1229,7 @@ if __name__ == '__main__':
     ax.yaxis.set_minor_locator(AutoMinorLocator(5))
     ax.tick_params(**tick_params)
     ax.grid(linestyle='--', color='gray', linewidth=0.1, alpha=0.3)
-    ax.legend(handles=legend_elements, ncol=2, loc=2, frameon=False, fontsize=4, borderpad=0, borderaxespad=0.75)
+    ax.legend(handles=legend_elements, ncol=1, loc=2, frameon=False, fontsize=6, borderpad=0, borderaxespad=0.75)
     ##########################
     # SII/Ha
     ##########################
@@ -1249,6 +1277,7 @@ if __name__ == '__main__':
     ax.set_xlabel(r'$\log\ ({\rm [OI]}/{\rm H\alpha})$', fontsize=fs+4)
     cb_ax = f.add_axes([right, bottom, 0.02, top-bottom])
     cb = plt.colorbar(sc, cax=cb_ax)
+    cb.solids.set(alpha=1)
     cb.set_label(r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', fontsize=fs+4)
     cb_ax.tick_params(direction='in')
     cb.locator = MaxNLocator(4)
@@ -1400,6 +1429,17 @@ if __name__ == '__main__':
             X = x.loc[v]
             Y = y.loc[v]
             p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
+            mod_key = 'mod_%s_%s' % (y_key, k)
+            mod_key_2sigma = '%s_2sigma' % mod_key
+            elines[mod_key] = np.polyval(p, x)
+            elines[mod_key_2sigma] = np.polyval(pc, x)
+            R_key = 'R_%s' % mod_key
+            R_key_2sigma = 'R_%s' % mod_key_2sigma
+            elines[R_key] = y - elines[mod_key]
+            elines[R_key_2sigma] = y - elines[mod_key_2sigma]
+            print(mod_key, mod_key_2sigma, R_key, R_key_2sigma)
+            args.props[R_key] = dict(fname=R_key, label=r'${\rm R}_{\rm SB}$', extent=[-4, 1], majloc=5, minloc=2)
+            args.props[R_key_2sigma] = dict(fname=R_key_2sigma, label=r'${\rm R}_{\rm SB}$', extent=[-4, 1], majloc=5, minloc=2)
             if k == 'SFc_Re':
                 p_SFc = pc
                 ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', ls='--', label='SFG')
@@ -1951,6 +1991,27 @@ if __name__ == '__main__':
     #   Create a process that reads the dimensions (rows X cols) of each list
     # element in order to create subplots with gridspec rows and cols
     plots_props_list = [
+        ['log_fgas', 'R_mod_lSFR_SFc_Re'],
+        ['SFE', 'R_mod_lSFR_SFc_Re'],
+        ['SFE_SF', 'R_mod_lSFR_SFc_Re'],
+        ['SFE_ssp', 'R_mod_lSFR_SFc_Re'],
+        ['SFE', 'R_mod_lSFR_SFc_Re_2sigma'],
+        ['SFE_SF', 'R_mod_lSFR_SFc_Re_2sigma'],
+        ['SFE_ssp', 'R_mod_lSFR_SFc_Re_2sigma'],
+        ['log_fgas', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['SFE', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['SFE_SF', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['SFE_ssp', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['SFE', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+        ['SFE_SF', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+        ['SFE_ssp', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+        ['log_fgas', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['SFE', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['SFE_SF', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['SFE_ssp', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['SFE', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+        ['SFE_SF', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+        ['SFE_ssp', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
         ['Mabs_r', 'g_r'],
         ['Mabs_r_NC', 'g_r_NC'],
         ['log_Mass_corr', 'C'],
@@ -2047,7 +2108,7 @@ if __name__ == '__main__':
             ax_sc = plot_fig_histo_M_t(elines, args, x, y, ax_sc)
         if k == 'M_logfgas':
             ax_sc = plot_fig_histo_M_fgas(elines, args, x, y, ax_sc)
-        if k == 'M_SFEHa' or k == 'M_SFESF' or k == 'M_SFEssp':
+        if k == 'M_SFEHa' or k == 'M_SFEHaSF' or k == 'M_SFEssp':
             ax_sc = plot_fig_histo_M_SFE(elines, args, x, y, ax_sc, [9, 11.5, -11, -6])
         # if k[-3::] == '_NC':
         #     if k[0:5] == 'M_SFR':
