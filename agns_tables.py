@@ -112,8 +112,9 @@ with open('%s/list_Broad_by_eye.pandas.csv' % args.csv_dir, 'r') as f:
 # Populating dataframe elines joining different data from other dataframes
 for c in df['bitsakis_t12'].columns[1:]:
     df['elines'][c] = df['bitsakis_t12'][c]
-df['elines'].rename(columns={'lSFR_NO_CEN': 'lSFR_NC'}, inplace=True)
+df['elines']['CALIFAID'] = df['elines']['CALIFAID']
 df['elines']['CALIFAID_2'] = df['basic_joint']['CALIFAID']
+df['elines'].rename(columns={'lSFR_NO_CEN': 'lSFR_NC'}, inplace=True)
 df['elines']['C'] = df['mag_cubes_v2.2']['C']
 df['elines']['e_C'] = df['mag_cubes_v2.2']['error_C']
 df['elines']['Mabs_V'] = df['mag_cubes_v2.2']['V_band_abs_mag']

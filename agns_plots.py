@@ -106,16 +106,17 @@ props = {
     'Mabs_V_NC': dict(fname='MV_NC', label=r'${\rm M}_{\rm V}^{\rm NC}$ (mag)', extent=[-24, -15], majloc=5, minloc=2),
     'ZH_MW_Re_fit': dict(fname='ZHMW', label=r'[Z/H] MW', extent=[-0.7, 0.3], majloc=3, minloc=3),
     'ZH_LW_Re_fit': dict(fname='ZHLW', label=r'[Z/H] LW', extent=[-0.7, 0.3], majloc=3, minloc=3),
-    'OH_Re_fit_t2': dict(fname='OHt2', label= r'$12 + \log (O/H)$ t2', extent=[8.3, 9.1], majloc=4, minloc=2),
+    'OH_Re_fit_t2': dict(fname='OHt2', label=r'$12 + \log (O/H)$ t2', extent=[8.3, 9.1], majloc=4, minloc=2),
     'Age_LW_Re_fit': dict(fname='tLW', label=r'$\log({\rm age/yr})$ LW', extent=[7.5, 10.5], majloc=3, minloc=5),
     'Age_MW_Re_fit': dict(fname='tMW', label=r'$\log({\rm age/yr})$ MW', extent=[8.8, 10.2], majloc=3, minloc=5),
-    'NUV_r_SDSS': dict(fname='NUV_r_SDSS', label=r'NUV-r (mag) SDSS', extent=[0, 7], majloc=7, minloc=2),
+    'NUV_r_SDSS': dict(fname='NUV_r_SDSS', label=r'NUV-r (mag)', extent=[0, 7], majloc=7, minloc=2),
     'NUV_r_CUBES': dict(fname='NUV_r_CUBES', label=r'NUV-r (mag) CUBES', extent=[0, 7], majloc=3, minloc=2),
     'Sigma_Mass_cen': dict(fname='mu_cen', label=r'$\log (\Sigma_\star^{\rm cen}/{\rm M}_{\odot}/{\rm pc}^2)$', extent=[1, 5], majloc=4, minloc=5),
     'bar': dict(fname='bar', label='bar presence', extent=[-0.2, 2.2], majloc=3, minloc=1),
     'rat_vel_sigma': dict(fname='vsigma', label=r'${\rm V}/\sigma\ ({\rm R} < {\rm Re})$', extent=[0, 1], majloc=5, minloc=2),
     'Re_kpc': dict(fname='Re', label=r'${\rm Re}/{\rm kpc}$', extent=[0, 20], majloc=5, minloc=4),
 }
+
 
 def parser_args(default_args_file='args/default_plots.args'):
     """
@@ -693,7 +694,7 @@ def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=No
                       medianprops=dict(linewidth=0, color='k'))
     cmap = mpl.cm.get_cmap('viridis_r')
     norm = mpl.colors.Normalize(vmin=-1, vmax=2.5)
-    colors_list = [ cmap(norm(elines.loc[morph == mt, 'log_EW_Ha_Re'].mean())) for mt in m ]
+    colors_list = [cmap(norm(elines.loc[morph == mt, 'log_EW_Ha_Re'].mean())) for mt in m]
     # color boxes in boxplot
     i = 0
     for i in range(len(colors_list)):
@@ -1360,7 +1361,7 @@ if __name__ == '__main__':
                 print('#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
         print('#####')
     ####################################
-    output_name='%s/fig_WHAN.%s' % (args.figs_dir, args.img_suffix)
+    output_name = '%s/fig_WHAN.%s' % (args.figs_dir, args.img_suffix)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print('##################################')
@@ -1428,7 +1429,7 @@ if __name__ == '__main__':
             print('{}:'.format(k))
             X = x.loc[v]
             Y = y.loc[v]
-            p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
+            p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
             mod_key = 'mod_%s_%s' % (y_key, k)
             mod_key_2sigma = '%s_2sigma' % mod_key
             elines[mod_key] = np.polyval(p, x)
@@ -1499,7 +1500,7 @@ if __name__ == '__main__':
         Y = y
         # Z = z.loc[SFc_Re]
         # XS, YS, ZS = xyz_clean_sort_interval(X.values, Y.values, Z.values)
-        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
+        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
         mod_SFR = np.polyval(p, np.array(extent[0:2]) + np.array([0.5, -0.5]))
         ax.plot(np.array(extent[0:2]) + np.array([0.5, -0.5]), mod_SFR, c='k', ls='--')
         # x_bins__r, x_bincenter__r, nbins = create_bins(np.array(extent[0:2]) + np.array([0.5, -0.5]), 0.5)
@@ -1795,7 +1796,7 @@ if __name__ == '__main__':
                               n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=z_label)
     X = x
     Y = y
-    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
+    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
     borders = np.array([0.2, -0.2])
     mod_sSFR = np.polyval(p, np.array(extent[0:2]) + borders)
     ax.plot(np.array(extent[0:2]) + borders, mod_sSFR, c='k', ls='--')
@@ -1842,7 +1843,7 @@ if __name__ == '__main__':
                               n_bins_maj_x=n_bins_maj_x, n_bins_min_x=n_bins_min_x, prune_x=prune_x, zlabel=z_label)
     X = x
     Y = y
-    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
+    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
     borders = np.array([0.2, -0.2])
     mod_sSFR = np.polyval(p, np.array(extent[0:2]) + borders)
     ax.plot(np.array(extent[0:2]) + borders, mod_sSFR, c='k', ls='--')
@@ -1894,7 +1895,7 @@ if __name__ == '__main__':
     Y = y
     # Z = z.loc[SFc_Re]
     # XS, YS, ZS = xyz_clean_sort_interval(X.values, Y.values, Z.values)
-    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
+    p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
     borders = np.array([0.2, -0.2])
     mod_sSFR = np.polyval(p, np.array(extent[0:2]) + borders)
     ax.plot(np.array(extent[0:2]) + borders, mod_sSFR, c='k', ls='--')
@@ -1939,7 +1940,7 @@ if __name__ == '__main__':
             y_extent = props[y_key]['extent']
             extent = x_extent + y_extent
             print(extent, y_key)
-            p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c =  linear_regression_mean(x, y, interval=extent, step=0.1, clip=2)
+            p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(x, y, interval=extent, step=0.1, clip=2)
             mXY = (x.notna() & y.notna())
             print('x:%s:%d  y:%s:%d  all:%d  tIAGN:%d  tIIAGN:%d  AGN:%d' % (x.name, x.notna().sum(), y.name, y.notna().sum(), mXY.sum(), (mXY & mtI).sum(), (mXY & mtII).sum(), (mXY & mBFAGN).sum()))
             ax = plt.subplot(gs[row])

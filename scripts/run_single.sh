@@ -1,8 +1,15 @@
 #!/bin/bash
-
+debug=0
+if [ $# -eq 4 ]
+then
+    debug=1
+    echo "################"
+    echo "## DEBUG MODE ##"
+    echo "################"
+fi
 if [ $# -lt 3 ]
 then
-	echo "Usage: $0 EWAGN BUG IMGSUFFIX"
+	echo "Usage: $0 EWAGN BUG IMGSUFFIX [1:DEBUG]"
 	exit 1
 fi
 WORKPATH=${HOME}/dev/astro/AGNs_CALIFA
@@ -38,11 +45,16 @@ echo "## Generating plots ##"
 echo "######################"
 IMGSUFFIX=$3
 OUTPUTFIGSDIR=${FIGSPATH}/${RUNTAG}_${IMGSUFFIX}
+PLOTSARGS="-I ${OUTPUTFILE} --figs_dir=${OUTPUTFIGSDIR} -vv --img_suffix=${IMGSUFFIX}"
+if [ $debug -gt 0 ]
+then
+    OUTPUTFIGSDIR=${FIGSPATH}/${RUNTAG}_${IMGSUFFIX}_debug
+    PLOTSARGS="-I ${OUTPUTFILE} --figs_dir=${OUTPUTFIGSDIR} -vv --img_suffix=${IMGSUFFIX} --debug"
+fi
 if [ ! -d "${OUTPUTFIGSDIR}" ]
 then
     mkdir "${OUTPUTFIGSDIR}" --
 fi
-PLOTSARGS="-I ${OUTPUTFILE} --figs_dir=${OUTPUTFIGSDIR} -vv --img_suffix=${IMGSUFFIX}"
 echo "$0: running python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS}"
 python3 ${WORKPATH}/agns_plots.py ${PLOTSARGS}
 echo "#########"
