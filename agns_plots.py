@@ -8,6 +8,7 @@ import seaborn as sns
 import matplotlib as mpl
 from pytu.lines import Lines
 from scipy.stats import describe
+from pytu.objects import runstats
 from pytu.plots import plot_text_ax
 from matplotlib.lines import Line2D
 from pytu.functions import debug_var
@@ -198,20 +199,22 @@ def count_y_above_mean(x, y, y_mean, x_bins, interval=None):
     return above
 
 
-def xyz_clean_sort_interval(x, y, z=None, interval=None):
+def xyz_clean_sort_interval(x, y, z=None, interval=None, mask=None):
     if z is None:
-        m = ~(np.isnan(x) | np.isnan(y))
+        sel = np.isfinite(x) & np.isfinite(y)
+        # sel = ~(np.isnan(x) | np.isnan(y))
     else:
-        m = ~(np.isnan(x) | np.isnan(y) | np.isnan(z))
+        sel = np.isfinite(x) & np.isfinite(y) & np.isfinite(z)
+        # sel = ~(np.isnan(x) | np.isnan(y) | np.isnan(z))
     if interval is not None:
-        m &= (x > interval[0]) & (x < interval[1]) & (y > interval[2]) & (y < interval[3])
-    X = x[m]
-    Y = y[m]
+        sel &= (x > interval[0]) & (x < interval[1]) & (y > interval[2]) & (y < interval[3])
+    X = x[sel]
+    Y = y[sel]
     iS = np.argsort(X)
     XS = X[iS]
     YS = Y[iS]
     if z is not None:
-        Z = z[m]
+        Z = z[sel]
         ZS = Z[iS]
         return XS, YS, ZS
     else:
@@ -1060,6 +1063,42 @@ def plot_fig_histo_M_SFE(elines, args, x, y, ax, interval=None):
     print('# B.F. Type-II AGN above mean: %d/%d (%.1f%%)' % (N_y_tII_above, N_y_tII, 100.*N_y_tII_above/N_y_tII))
     # print('# 2 crit. AGN above mean: %d/%d (%.1f%%)' % (N_y_tIII_above, N_y_tIII, 100.*N_y_tIII_above/N_y_tIII))
     print('# ALL AGN above mean: %d/%d (%.1f%%)' % (N_y_tAGN_above, N_y_tAGN, 100.*N_y_tAGN_above/N_y_tAGN))
+    return ax_sc
+
+
+def plot_RSB(elines, args, x, y, ax, interval=None):
+    mtI = elines['AGN_FLAG'] == 1
+    mtII = elines['AGN_FLAG'] == 2
+    # mtIII = elines['AGN_FLAG'] == 3
+    mtAGN = mtI | mtII
+    WHacen = elines['EW_Ha_cen_mean']
+    WHaRe = elines['EW_Ha_Re']
+    SFG = WHaRe > args.EW_SF
+    GVG = (WHaRe > args.EW_hDIG) & (WHaRe <= args.EW_SF)
+    RG = WHaRe <= args.EW_hDIG
+    masks = dict(SFG=SFG, GVG=GVG, RG=RG)
+    colors = dict(SFG='b', GVG='g', RG='r')
+    for k, v in masks.items():
+        c = colors[k]
+        print(k,c)
+        m = v & np.isfinite(x) & np.isfinite(y) & np.isfinite(z)
+        xm, ym, zm = ma_mask_xyz(x.loc[m].values, y.loc[m].values, z.loc[m].values)
+        rs = runstats(xm.compressed(), ym.compressed(),
+                      smooth=True, sigma=1.2,
+                      debug=True, gs_prc=True,
+                      poly1d=True)
+        print(rs.poly1d_median_slope, rs.poly1d_median_intercept)
+        # p = [rs.poly1d_median_slope, rs.poly1d_median_intercept]
+        # ax.plot(xm.compressed(), np.polyval(p, xm.compressed()), color=c, lw=1)
+        ax.plot(rs.xS, rs.yS, color=c, lw=1)
+        # XS, YS, ZS = xyz_clean_sort_interval(x.loc[v].values, y.loc[v].values, WHa_Re.loc[v].values)
+        # nbins = 25
+        # step = (interval[1] - interval[0]) / nbins
+        # # step = 0.3
+        # x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], step)
+        # _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, interval)
+        # # print(y_mean, N_y_mean)
+        #ax.plot(x_bincenter__r, y_mean, '%c--' % colors[k])
     return ax_sc
 
 
@@ -1958,6 +1997,35 @@ if __name__ == '__main__':
             ax.yaxis.set_minor_locator(AutoMinorLocator(y_minloc))
             ax.axvline(x=-11.8, c='k', ls='--')
             ax.axvline(x=-10.8, c='k', ls='--')
+
+            WHacen = elines['EW_Ha_cen_mean']
+            WHaRe = elines['EW_Ha_Re']
+            SFG = WHaRe > args.EW_SF
+            GVG = (WHaRe > args.EW_hDIG) & (WHaRe <= args.EW_SF)
+            RG = WHaRe <= args.EW_hDIG
+            masks = dict(SFG=SFG, GVG=GVG, RG=RG)
+            colors = dict(SFG='b', GVG='g', RG='r')
+            sel = np.isfinite(x) & np.isfinite(y) & np.isfinite(z)
+            xm, ym, zm = ma_mask_xyz(x.loc[sel].values, y.loc[sel].values, z.loc[sel].values)
+            rs = runstats(xm.compressed(), ym.compressed(),
+                          smooth=True, sigma=1.2,
+                          debug=True, gs_prc=True,
+                          poly1d=True)
+            ax.plot(rs.xS, rs.yS, 'k--', lw=1)
+            txt = 'r:%.2f' % rs.Rs
+            plot_text_ax(ax, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
+            # bins per class
+            # for k, v in masks.items():
+            #     c = colors[k]
+            #     print(k,c)
+            #     m = v & sel
+            #     xm, ym, zm = ma_mask_xyz(x.loc[m].values, y.loc[m].values, z.loc[m].values)
+            #     rs_masked = runstats(xm.compressed(), ym.compressed(),
+            #                          smooth=True, sigma=1.2,
+            #                          debug=True, gs_prc=True,
+            #                          poly1d=True)
+            #     print(rs_masked.poly1d_median_slope, rs_masked.poly1d_median_intercept)
+            #     ax.plot(rs_masked.xS, rs_masked.yS, color=c, lw=1)
             if y_key == 'log_EW_Ha_Re':
                 ax.axhline(y=np.log10(3), c='r', ls='--')
                 ax.axhline(y=np.log10(10), c='b', ls='--')
@@ -2093,6 +2161,8 @@ if __name__ == '__main__':
                                    n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc, prune_x=prune_x,
                                    n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc, prune_y=prune_y,
                                    zlabel=z_label, zextent=z_extent)
+        if 'R_mod' in k:
+            ax_sc = plot_RSB(elines, args, x, y, ax_sc, extent)
         if k == 'sSFR_C':
             ax_sc.axvline(x=-11.8, c='k', ls='--')
             ax_sc.axvline(x=-10.8, c='k', ls='--')
