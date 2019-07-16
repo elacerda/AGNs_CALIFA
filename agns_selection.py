@@ -601,7 +601,7 @@ if __name__ == '__main__':
     N_pAGB_NIIHa_OIIIHb = (sel_NIIHa & sel_OIIIHb & sel_pAGB).astype('int').sum()
     N_pAGB_SIIHa_OIIIHb = (sel_SIIHa & sel_OIIIHb & sel_pAGB).astype('int').sum()
     N_pAGB_OIHa_OIIIHb = (sel_OIHa & sel_OIIIHb & sel_pAGB).astype('int').sum()
-    print('N_SF_EW_NIIHa_OIIIHb:{}  N_SF_EW_SIIHa_OIIIHb:{}  N_SF_EW_OIHa_OIIIHb:{}  N_SFCD_EW_NIIHa_OIIIHb:{}  N_SFCD_EW_SIIHa_OIIIHb:{}  N_SFCD_EW_OIHa_OIIIHb:{}  N_pAGB_NIIHa_OIIIHb:{}  N_pAGB_SIIHa_OIIIHb:{}  N_pAGB_OIHa_OIIIHb:{}  '.format(N_SF_EW_NIIHa_OIIIHb,N_SF_EW_SIIHa_OIIIHb,N_SF_EW_OIHa_OIIIHb,N_SFCD_EW_NIIHa_OIIIHb,N_SFCD_EW_SIIHa_OIIIHb,N_SFCD_EW_OIHa_OIIIHb,N_pAGB_NIIHa_OIIIHb,N_pAGB_SIIHa_OIIIHb,N_pAGB_OIHa_OIIIHb))
+    print('N_SF_EW_NIIHa_OIIIHb:{}  N_SF_EW_SIIHa_OIIIHb:{}  N_SF_EW_OIHa_OIIIHb:{}  N_SFCD_EW_NIIHa_OIIIHb:{}  N_SFCD_EW_SIIHa_OIIIHb:{}  N_SFCD_EW_OIHa_OIIIHb:{}  N_pAGB_NIIHa_OIIIHb:{}  N_pAGB_SIIHa_OIIIHb:{}  N_pAGB_OIHa_OIIIHb:{}  '.format(N_SF_EW_NIIHa_OIIIHb, N_SF_EW_SIIHa_OIIIHb, N_SF_EW_OIHa_OIIIHb, N_SFCD_EW_NIIHa_OIIIHb, N_SFCD_EW_SIIHa_OIIIHb, N_SFCD_EW_OIHa_OIIIHb, N_pAGB_NIIHa_OIIIHb, N_pAGB_SIIHa_OIIIHb, N_pAGB_OIHa_OIIIHb))
 
     m = ~sel_below_K01
     N_above_K01 = m.astype('int').sum()

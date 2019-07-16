@@ -111,7 +111,7 @@ props = {
     'Age_LW_Re_fit': dict(fname='tLW', label=r'$\log({\rm age/yr})$ LW', extent=[7.5, 10.5], majloc=3, minloc=5),
     'Age_MW_Re_fit': dict(fname='tMW', label=r'$\log({\rm age/yr})$ MW', extent=[8.8, 10.2], majloc=3, minloc=5),
     'NUV_r_SDSS': dict(fname='NUV_r_SDSS', label=r'NUV-r (mag)', extent=[0, 7], majloc=7, minloc=2),
-    'NUV_r_CUBES': dict(fname='NUV_r_CUBES', label=r'NUV-r (mag) CUBES', extent=[0, 7], majloc=3, minloc=2),
+    'NUV_r_CUBES': dict(fname='NUV_r_CUBES', label=r'NUV-r (mag)', extent=[0, 7], majloc=7, minloc=2),
     'Sigma_Mass_cen': dict(fname='mu_cen', label=r'$\log (\Sigma_\star^{\rm cen}/{\rm M}_{\odot}/{\rm pc}^2)$', extent=[1, 5], majloc=4, minloc=5),
     'bar': dict(fname='bar', label='bar presence', extent=[-0.2, 2.2], majloc=3, minloc=1),
     'rat_vel_sigma': dict(fname='vsigma', label=r'${\rm V}/\sigma\ ({\rm R} < {\rm Re})$', extent=[0, 1], majloc=5, minloc=2),
@@ -402,9 +402,9 @@ def plot_WHAN(args, N2Ha, WHa, z=None, f=None, ax=None, extent=None, output_name
         return f, ax
 
 
-def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, output_name=None, markAGNs=False, f=None, ax=None, sc_kwargs=None, z_maxlocator=4, zextent=None):
-    if zextent is None:
-        zextent = [-1, 2.5]
+def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=None, extent=None, n_bins_maj_x=5, n_bins_maj_y=5, n_bins_min_x=5, n_bins_min_y=5, prune_x='upper', prune_y=None, output_name=None, markAGNs=False, f=None, ax=None, sc_kwargs=None, z_maxlocator=4, z_extent=None):
+    if z_extent is None:
+        z_extent = [-1, 2.5]
     if zlabel is None:
         zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
     if sc_kwargs is None:
@@ -425,7 +425,7 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
     if args.debug:
         txt = '%d:%d:%d' % (mXYZ.astype('int').sum(), (mXYZ & mtI).astype('int').sum(), (mXYZ & mtII).astype('int').sum())
         plot_text_ax(ax, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
-    sc = ax.scatter(x, y, c=z, vmin=zextent[0], vmax=zextent[1], **sc_kwargs)
+    sc = ax.scatter(x, y, c=z, vmin=z_extent[0], vmax=z_extent[1], **sc_kwargs)
     # mALLAGN = (elines['AGN_FLAG'] > 0)
     xm, ym = ma_mask_xyz(x, y, mask=~mtAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
@@ -489,9 +489,9 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
     return f, ax
 
 
-def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, aux_mask=None, zlabel=None, zextent=None):
-    if zextent is None:
-        zextent = [-1, 2.5]
+def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, aux_mask=None, zlabel=None, z_extent=None):
+    if z_extent is None:
+        z_extent = [-1, 2.5]
     if zlabel is None:
         zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
     if aux_mask is not None:
@@ -543,7 +543,7 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     # print(len(x), len(y), len(mtAGN))
     # xm, ym = ma_mask_xyz(x, y, mask=~mtAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
-    sc = ax_sc.scatter(x, y, c=z, vmin=zextent[0], vmax=zextent[1], **scatter_kwargs)
+    sc = ax_sc.scatter(x, y, c=z, vmin=z_extent[0], vmax=z_extent[1], **scatter_kwargs)
     # ax_sc.scatter(x[mtIII], y[mtIII], **scatter_AGN_tIII_kwargs)
     ax_sc.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax_sc.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
@@ -639,9 +639,9 @@ def plot_x_morph(elines, args, ax):
     return ax
 
 
-def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, zlabel=None, zextent=None):
-    if zextent is None:
-        zextent = [-1, 2.5]
+def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, zlabel=None, z_extent=None):
+    if z_extent is None:
+        z_extent = [-1, 2.5]
     if zlabel is None:
         zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
     # EW_color = elines['EW_Ha_cen_mean'].apply(np.abs)
@@ -706,7 +706,7 @@ def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=No
         ax_sc.add_patch(mpl.patches.Polygon(box_coords, facecolor=colors_list[i], zorder=0.01))
     tmp_kw = scatter_kwargs.copy()
     tmp_kw['alpha'] = 0
-    sc = ax_sc.scatter(morph, y, c=z, vmin=zextent[0], vmax=zextent[1], **tmp_kw)
+    sc = ax_sc.scatter(morph, y, c=z, vmin=z_extent[0], vmax=z_extent[1], **tmp_kw)
     # mALLAGN = (elines['AGN_FLAG'] > 0)
     # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
     # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax_sc, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
@@ -1447,7 +1447,7 @@ if __name__ == '__main__':
                           xlabel=x_label, ylabel=y_label, extent=extent,
                           n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
                           n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
-                          prune_x=None, zlabel=z_label, zextent=z_extent,
+                          prune_x=None, zlabel=z_label, z_extent=z_extent,
                           f=f, ax=ax)
         if y_key[-3::] == '_NC':
             plot_text_ax(ax, 'NOCEN', 0.04, 0.95, args.fontsize+2, 'top', 'left', 'k')
@@ -1532,7 +1532,7 @@ if __name__ == '__main__':
                           xlabel=x_label, ylabel=y_label, zlabel=z_label,
                           n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
                           n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
-                          extent=extent, zextent=z_extent, f=f, ax=ax)
+                          extent=extent, z_extent=z_extent, f=f, ax=ax)
         WHa_Re = elines['EW_Ha_Re']
         SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
         X = x
@@ -1580,7 +1580,7 @@ if __name__ == '__main__':
         plot_colored_by_z(elines=elines, args=args, markAGNs=True,
                           x=elines[x_key], y=elines[y_key], z=z,
                           xlabel=props[x_key]['label'], ylabel=props[y_key]['label'], zlabel=z_label,
-                          extent=props[x_key]['extent'] + props[y_key]['extent'], zextent=z_extent,
+                          extent=props[x_key]['extent'] + props[y_key]['extent'], z_extent=z_extent,
                           n_bins_maj_x=props[x_key]['majloc'], n_bins_min_x=props[x_key]['minloc'],
                           n_bins_maj_y=props[y_key]['majloc'], n_bins_min_y=props[y_key]['minloc'],
                           prune_x=None, output_name=output_name)
@@ -1612,7 +1612,7 @@ if __name__ == '__main__':
         ax = plt.subplot(gs[0])
         plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
                           xlabel=x_label, ylabel=y_label, zlabel=z_label,
-                          zextent=z_extent, extent=extent,
+                          z_extent=z_extent, extent=extent,
                           n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
                           n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
                           prune_x=None, f=f, ax=ax)
@@ -1950,13 +1950,13 @@ if __name__ == '__main__':
         print('\n##############################')
         print('# sSFR vs (NUV_r, g_r, EWHa) #')
         print('##############################')
-        k = '%s_Salim07' % props[x_key]['fname']
+        k = '%s_Salim14' % props[x_key]['fname']
         fname = 'fig_%s' % k
         print('# %s' % fname)
         N_rows, N_cols = 3, 1
         y_key_list = ['g_r', 'NUV_r_SDSS', 'log_EW_Ha_Re']
         f = plot_setup(width=latex_column_width, aspect=N_rows/golden_mean)
-        bottom, top, left, right = 0.05, 0.95, 0.15, 0.95
+        bottom, top, left, right = 0.10, 0.95, 0.15, 0.80
         gs = gridspec.GridSpec(N_rows, N_cols,
                                left=left, bottom=bottom, right=right, top=top,
                                wspace=0., hspace=0.)
@@ -1973,6 +1973,7 @@ if __name__ == '__main__':
         for y_key in y_key_list:
             print(y_key)
             y = elines.loc[mask, y_key]
+            zm = elines.loc[mask, z_key]
             y_label = props[y_key]['label']
             y_majloc = props[y_key]['majloc']
             y_minloc = props[y_key]['minloc']
@@ -1983,7 +1984,7 @@ if __name__ == '__main__':
             mXY = (x.notna() & y.notna())
             print('x:%s:%d  y:%s:%d  all:%d  tIAGN:%d  tIIAGN:%d  AGN:%d' % (x.name, x.notna().sum(), y.name, y.notna().sum(), mXY.sum(), (mXY & mtI).sum(), (mXY & mtII).sum(), (mXY & mBFAGN).sum()))
             ax = plt.subplot(gs[row])
-            sc = ax.scatter(x, y, c='grey', s=5, marker='o', edgecolor='none', alpha=0.8)
+            sc = ax.scatter(x, y, c=zm, cmap='viridis_r', vmax=z_extent[1], vmin=z_extent[0], s=5, marker='o', edgecolor='none', alpha=0.8)
             ax.scatter(x[mtII], y[mtII], **scatter_AGN_tII_kwargs)
             ax.scatter(x[mtI], y[mtI], **scatter_AGN_tI_kwargs)
             ax.set_ylabel(y_label, fontsize=args.fontsize+1)
@@ -1997,7 +1998,6 @@ if __name__ == '__main__':
             ax.yaxis.set_minor_locator(AutoMinorLocator(y_minloc))
             ax.axvline(x=-11.8, c='k', ls='--')
             ax.axvline(x=-10.8, c='k', ls='--')
-
             WHacen = elines['EW_Ha_cen_mean']
             WHaRe = elines['EW_Ha_Re']
             SFG = WHaRe > args.EW_SF
@@ -2029,12 +2029,23 @@ if __name__ == '__main__':
             if y_key == 'log_EW_Ha_Re':
                 ax.axhline(y=np.log10(3), c='r', ls='--')
                 ax.axhline(y=np.log10(10), c='b', ls='--')
-            if y_key == 'NUV_r_SDSS':
+            if 'NUV_r' in y_key:
                 ax.axhline(y=4, c='k', ls='--')
                 ax.axhline(y=5, c='k', ls='--')
             if args.debug and row == 0:
                 plot_text_ax(ax, '%d' % mask.astype('int').sum(), 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
             row = row + 1
+
+        cb_width = 0.05
+        cb_ax = f.add_axes([right, bottom, cb_width, top-bottom])
+        cb = plt.colorbar(sc, cax=cb_ax)
+        cb.solids.set(alpha=1)
+        cb.set_label(z_label, fontsize=args.fontsize+1)
+        cb.locator = MaxNLocator(props[z_key]['majloc'])
+        # cb_ax.minorticks_on()
+        cb_ax.tick_params(which='both', direction='in')
+        cb.update_ticks()
+
         ax.yaxis.set_major_locator(MaxNLocator(y_majloc, prune=None))
         ax.yaxis.set_minor_locator(AutoMinorLocator(y_minloc))
         tick_params['labelbottom'] = True
@@ -2160,7 +2171,7 @@ if __name__ == '__main__':
                                    ylabel=y_label, yrange=extent[2:4],
                                    n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc, prune_x=prune_x,
                                    n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc, prune_y=prune_y,
-                                   zlabel=z_label, zextent=z_extent)
+                                   zlabel=z_label, z_extent=z_extent)
         if 'R_mod' in k:
             ax_sc = plot_RSB(elines, args, x, y, ax_sc, extent)
         if k == 'sSFR_C':
@@ -2271,7 +2282,7 @@ if __name__ == '__main__':
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
         ax_Hx = plot_x_morph(elines=elines_wmorph, args=args, ax=ax_Hx)
-        plot_morph_y_colored_by_z(elines=elines_wmorph, args=args, y=y, z=z, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, ylabel=y_label, yrange=y_extent, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, zlabel=z_label, zextent=z_extent)
+        plot_morph_y_colored_by_z(elines=elines_wmorph, args=args, y=y, z=z, ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc, ylabel=y_label, yrange=y_extent, n_bins_maj_y=n_bins_maj_y, n_bins_min_y=n_bins_min_y, prune_y=None, zlabel=z_label, z_extent=z_extent)
         # gs.tight_layout(f)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
