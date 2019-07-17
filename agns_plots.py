@@ -110,6 +110,7 @@ props = {
     'OH_Re_fit_t2': dict(fname='OHt2', label=r'$12 + \log (O/H)$ t2', extent=[8.3, 9.1], majloc=4, minloc=2),
     'Age_LW_Re_fit': dict(fname='tLW', label=r'$\log({\rm age/yr})$ LW', extent=[7.5, 10.5], majloc=3, minloc=5),
     'Age_MW_Re_fit': dict(fname='tMW', label=r'$\log({\rm age/yr})$ MW', extent=[8.8, 10.2], majloc=3, minloc=5),
+    'log_age_mean_LW': dict(fname='tmLW', label=r'$\log({\rm age/yr})$ LW', extent=[7.5, 10.5], majloc=3, minloc=5),
     'NUV_r_SDSS': dict(fname='NUV_r_SDSS', label=r'NUV-r (mag)', extent=[0, 7], majloc=7, minloc=2),
     'NUV_r_CUBES': dict(fname='NUV_r_CUBES', label=r'NUV-r (mag)', extent=[0, 7], majloc=7, minloc=2),
     'Sigma_Mass_cen': dict(fname='mu_cen', label=r'$\log (\Sigma_\star^{\rm cen}/{\rm M}_{\odot}/{\rm pc}^2)$', extent=[1, 5], majloc=4, minloc=5),
@@ -2113,6 +2114,7 @@ if __name__ == '__main__':
         ['log_Mass_corr', 'OH_Re_fit_t2'],
         ['log_Mass_corr', 'Age_LW_Re_fit'],
         ['log_Mass_corr', 'Age_MW_Re_fit'],
+        ['log_Mass_corr', 'log_age_mean_LW'],
         ['sSFR', 'g_r'],
         ['sSFR_SF', 'g_r'],
         ['sSFR_ssp', 'g_r'],
@@ -2186,7 +2188,7 @@ if __name__ == '__main__':
             ax_sc = plot_fig_histo_MZR_O3N2(elines, args, x, y, ax_sc)
         if k == 'M_ZHMW':
             ax_sc = plot_fig_histo_M_ZHMW(elines, args, x, y, ax_sc)
-        if k == 'M_tLW' or k == 'M_tMW':
+        if 'M_t' in k:
             ax_sc = plot_fig_histo_M_t(elines, args, x, y, ax_sc)
         if k == 'M_logfgas':
             ax_sc = plot_fig_histo_M_fgas(elines, args, x, y, ax_sc)
