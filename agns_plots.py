@@ -55,7 +55,7 @@ alpha_AGN_tIV = 1
 scatter_kwargs = dict(s=5, cmap='viridis_r', marker='o', edgecolor='none', alpha=0.6)
 # scatter_kwargs = dict(s=5, cmap='viridis_r', vmax=14, vmin=3, marker='o', edgecolor='none', alpha=0.6)
 scatter_kwargs_EWmaxmin = dict(s=5, vmax=2.5, vmin=-1, cmap='viridis_r', marker='o', edgecolor='none', alpha=0.6)
-#scatter_kwargs_EWmaxmin = dict(c=EW_color.apply(np.log10), s=2, vmax=2.5, vmin=-1, cmap='viridis_r', marker='o', edgecolor='none')
+# scatter_kwargs_EWmaxmin = dict(c=EW_color.apply(np.log10), s=2, vmax=2.5, vmin=-1, cmap='viridis_r', marker='o', edgecolor='none')
 scatter_AGN_tIV_kwargs = dict(s=35, alpha=alpha_AGN_tIV, linewidth=0.5, marker=marker_AGN_tIV, facecolor='none', edgecolor=color_AGN_tIV)
 scatter_AGN_tIII_kwargs = dict(s=35, alpha=alpha_AGN_tIII, linewidth=0.5, marker=marker_AGN_tIII, facecolor='none', edgecolor=color_AGN_tIII)
 scatter_AGN_tII_kwargs = dict(s=35, linewidth=0.5, marker=marker_AGN_tII, facecolor='none', edgecolor=color_AGN_tII)
@@ -67,7 +67,7 @@ props = {
     'log_NII_Ha_cen': dict(fname='logNIIHa_cen', label=r'$\log\ ({\rm [NII]}/{\rm H\alpha})$', extent=[-1.6, 0.8], majloc=3, minloc=5),
     'log_SII_Ha_cen_mean': dict(fname='logSIIHa_cen', label=r'$\log\ ({\rm [SII]}/{\rm H\alpha})$', extent=[-1.6, 0.8], majloc=3, minloc=5),
     'log_OI_Ha_cen_mean': dict(fname='logOIHa_cen', label=r'$\log\ ({\rm [OI]}/{\rm H\alpha})$', extent=[-3, 0.8], majloc=4, minloc=5),
-    'log_OIII_Hb_cen_mean': dict(fname='logOIIIHb_cen', label= r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', extent=[-1.2, 1.5], majloc=3, minloc=5),
+    'log_OIII_Hb_cen_mean': dict(fname='logOIIIHb_cen', label=r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', extent=[-1.2, 1.5], majloc=3, minloc=5),
     'EW_Ha_cen_mean': dict(fname='WHa_cen', label=r'${\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[3, 10], majloc=4, minloc=2),
     'EW_Ha_Re': dict(fname='WHa_Re', label=r'${\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[3, 10], majloc=4, minloc=2),
     'log_EW_Ha_cen_mean': dict(fname='logWHa_cen', label=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[-1, 2.5], majloc=4, minloc=2),
@@ -140,7 +140,7 @@ def parser_args(default_args_file='args/default_plots.args'):
     }
 
     parser = readFileArgumentParser(fromfile_prefix_chars='@')
-    parser.add_argument('--debug', '-d', action = 'store_true', default = default_args['debug'])
+    parser.add_argument('--debug', '-d', action='store_true', default=default_args['debug'])
     parser.add_argument('--input', '-I', metavar='FILE', type=str, default=default_args['input'])
     parser.add_argument('--sigma_clip', action='store_false', default=default_args['sigma_clip'])
     parser.add_argument('--figs_dir', '-D', metavar='DIR', type=str, default=default_args['figs_dir'])
@@ -1078,29 +1078,31 @@ def plot_RSB(elines, args, x, y, ax, interval=None):
     SFG = WHaRe > args.EW_SF
     GVG = (WHaRe > args.EW_hDIG) & (WHaRe <= args.EW_SF)
     RG = WHaRe <= args.EW_hDIG
-    masks = dict(SFG=SFG, GVG=GVG, RG=RG)
-    colors = dict(SFG='b', GVG='g', RG='r')
+    masks = dict(SFG=SFG, GVG=GVG, RG=RG, ALL=(SFG | GVG | RG))
+    colors = dict(SFG='b', GVG='g', RG='r', ALL='k')
     for k, v in masks.items():
         c = colors[k]
-        print(k,c)
+        print(k, c)
         m = v & np.isfinite(x) & np.isfinite(y) & np.isfinite(z)
+        # X = x.loc[m]
+        # Y = y.loc[m]
+        # p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=interval, step=0.3, clip=2)
+        # if k == 'ALL':
+            # ax.plot(x_bins_center__r, YS__r, '%s--' % c, lw=1)
+        # else:
+        print(x_bins_center__r)
         xm, ym, zm = ma_mask_xyz(x.loc[m].values, y.loc[m].values, z.loc[m].values)
         rs = runstats(xm.compressed(), ym.compressed(),
                       smooth=True, sigma=1.2,
                       debug=True, gs_prc=True,
-                      poly1d=True)
-        print(rs.poly1d_median_slope, rs.poly1d_median_intercept)
-        # p = [rs.poly1d_median_slope, rs.poly1d_median_intercept]
+                      frac=0.05,
+                      poly1d=True)  #  , xbin=x_bins_center__r)
+        p = [rs.poly1d_median_slope, rs.poly1d_median_intercept]
+        print(p[0], p[1])
         # ax.plot(xm.compressed(), np.polyval(p, xm.compressed()), color=c, lw=1)
-        ax.plot(rs.xS, rs.yS, color=c, lw=1)
-        # XS, YS, ZS = xyz_clean_sort_interval(x.loc[v].values, y.loc[v].values, WHa_Re.loc[v].values)
-        # nbins = 25
-        # step = (interval[1] - interval[0]) / nbins
-        # # step = 0.3
-        # x_bins__r, x_bincenter__r, nbins = create_bins(interval[0:2], step)
-        # _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, interval)
-        # # print(y_mean, N_y_mean)
-        #ax.plot(x_bincenter__r, y_mean, '%c--' % colors[k])
+        if k != 'ALL':
+            # ax.plot(x_bins_center__r, YS__r, '%s-' % c, lw=1)
+            ax.plot(rs.xS, rs.yS, '%s-' % c, lw=1)
     return ax_sc
 
 
@@ -1484,8 +1486,10 @@ if __name__ == '__main__':
             elines[R_key] = y - elines[mod_key]
             elines[R_key_2sigma] = y - elines[mod_key_2sigma]
             print(mod_key, mod_key_2sigma, R_key, R_key_2sigma)
-            args.props[R_key] = dict(fname=R_key, label=r'${\rm R}_{\rm SB}$', extent=[-4, 1], majloc=5, minloc=2)
-            args.props[R_key_2sigma] = dict(fname=R_key_2sigma, label=r'${\rm R}_{\rm SB}$', extent=[-4, 1], majloc=5, minloc=2)
+            RSB_label = r'$\Delta$($\log$ SFR)'
+            args.props[R_key] = dict(fname=R_key, label=RSB_label, extent=[-4, 1], majloc=5, minloc=2)
+            args.props[R_key_2sigma] = dict(fname=R_key_2sigma, label=RSB_label, extent=[-4, 1], majloc=5, minloc=2)
+
             if k == 'SFc_Re':
                 p_SFc = pc
                 ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', ls='--', label='SFG')
