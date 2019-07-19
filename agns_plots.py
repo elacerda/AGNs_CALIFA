@@ -278,13 +278,14 @@ def linear_regression_mean(x, y, interval, step=None, clip=None):
     x_bins__r, x_bins_center__r, nbins = create_bins(interval[0:2], step)
     YS_c__r, N_c__r, sel_c, YS__r, N__r, sel = redf_xy_bins_interval(XS, YS, x_bins__r, clip=clip, interval=interval)
     if clip is not None:
-        xm, ym = ma_mask_xyz(x_bins_center__r, YS_c__r)
+        xm, ym = ma_mask_xyz(XS[sel_c], YS[sel_c])
+        # xm, ym = ma_mask_xyz(x_bins_center__r, YS_c__r)
         pc = np.ma.polyfit(xm.compressed(), ym.compressed(), 1)
         print('linear regression with {:d} sigma clip:'.format(clip))
         print(pc)
         sigma_dev = (y - np.polyval(pc, x)).std()
         print('sigma dev = {:.5f}'.format(sigma_dev))
-        xm, ym = ma_mask_xyz(XS[sel_c], YS[sel_c])
+        # xm, ym = ma_mask_xyz(XS[sel_c], YS[sel_c])
         c_p_c = pearsonr(xm.compressed(), ym.compressed())[0]
         c_r_c = spearmanr(xm.compressed(), ym.compressed())[0]
         print('pearsonr:%.2f spearmanr:%.2f' % (pearsonr(xm.compressed(), ym.compressed())[0], spearmanr(xm.compressed(), ym.compressed())[0]))
@@ -1458,17 +1459,21 @@ if __name__ == '__main__':
         WHa_Re = elines['EW_Ha_Re']
         WHa_ALL = elines['EW_Ha_ALL']
         hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
+        GV = sel_EW_cen & ((WHa > args.EW_hDIG) & (WHa <= args.EW_SF))
         SFc = sel_EW_cen & (WHa > args.EW_SF)
         hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
+        GV_Re = sel_EW_Re & ((WHa_Re > args.EW_hDIG) & (WHa_Re <= args.EW_SF))
         SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
         hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
+        GV_ALL = sel_EW_ALL & ((WHa_ALL > args.EW_hDIG) & (WHa_ALL <= args.EW_SF))
         SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
         interval = [8.3, 11.8, 7.5, 10.5]
-        dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
+        dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, GV=GV, GV_Re=GV_Re, GV_ALL=GV_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
         for k, v in dict_masks.items():
             print('{}:'.format(k))
-            X = x.loc[v]
-            Y = y.loc[v]
+            m = v & np.isfinite(x) & np.isfinite(y)
+            X = x.loc[m]
+            Y = y.loc[m]
             p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
             mod_key = 'mod_%s_%s' % (y_key, k)
             mod_key_2sigma = '%s_2sigma' % mod_key
@@ -1534,29 +1539,33 @@ if __name__ == '__main__':
                           n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
                           n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
                           extent=extent, z_extent=z_extent, f=f, ax=ax)
+
+        WHa = EW_Ha_cen
         WHa_Re = elines['EW_Ha_Re']
+        hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
         SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-        X = x
-        Y = y
-        # Z = z.loc[SFc_Re]
-        # XS, YS, ZS = xyz_clean_sort_interval(X.values, Y.values, Z.values)
-        p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=extent, step=0.1, clip=2)
-        mod_SFR = np.polyval(p, np.array(extent[0:2]) + np.array([0.5, -0.5]))
-        ax.plot(np.array(extent[0:2]) + np.array([0.5, -0.5]), mod_SFR, c='k', ls='--')
-        # x_bins__r, x_bincenter__r, nbins = create_bins(np.array(extent[0:2]) + np.array([0.5, -0.5]), 0.5)
-        # _, _, _, y_mean, N_y_mean, _ = redf_xy_bins_interval(XS, YS, x_bins__r, extent)
-        # print(y_mean, N_y_mean)
-        # ax.plot(x_bincenter__r, y_mean, 'k--')
-        # print('p:%.2f s:%.2f' % (pearsonr(X, Y)[0], spearmanr(X, Y)[0]))
+        GV_Re = sel_EW_Re & ((WHa_Re > args.EW_hDIG) & (WHa_Re <= args.EW_SF))
+        interval = [7.5, 11] + y_extent
+        # interval = [5, 11] + y_extent
+        dict_masks = dict(hDIG_Re=hDIG_Re, GV_Re=GV_Re, SFc_Re=SFc_Re, ALL=sel_EW_Re)
+        m_xy = np.isfinite(x) & np.isfinite(y)
+        for k, v in dict_masks.items():
+            print('{}:'.format(k))
+            m = m_xy & v
+            X = x.loc[m]
+            Y = y.loc[m]
+            p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
+            if 'SFc' in k:
+                pSF = p
         ########################################
-        N_AGN_tI_under_bestfit = ((y[mtI] - np.polyval(p, x[mtI])) <= 0).astype('int').sum()
-        N_AGN_tII_under_bestfit = ((y[mtII] - np.polyval(p, x[mtII])) <= 0).astype('int').sum()
-        N_BFAGN_under_bestfit = ((y[mBFAGN] - np.polyval(p, x[mBFAGN])) <= 0).astype('int').sum()
-        N_ALLAGN_under_bestfit = ((y[mALLAGN] - np.polyval(p, x[mALLAGN])) <= 0).astype('int').sum()
-        print('# B.F. Type-I AGN under bestfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_bestfit, N_AGN_tI, 100.*N_AGN_tI_under_bestfit/N_AGN_tI))
-        print('# B.F. Type-II AGN under bestfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_bestfit, N_AGN_tII, 100.*N_AGN_tII_under_bestfit/N_AGN_tII))
-        print('# B.F. AGN under bestfit: %d/%d (%.1f%%)' % (N_BFAGN_under_bestfit, N_BFAGN, 100.*N_BFAGN_under_bestfit/N_BFAGN))
-        print('# ALL AGN under bestfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_bestfit, N_ALLAGN, 100.*N_ALLAGN_under_bestfit/N_ALLAGN))
+        N_AGN_tI_under_SFfit = ((y[mtI] - np.polyval(pSF, x[mtI])) <= 0).astype('int').sum()
+        N_AGN_tII_under_SFfit = ((y[mtII] - np.polyval(pSF, x[mtII])) <= 0).astype('int').sum()
+        N_BFAGN_under_SFfit = ((y[mBFAGN] - np.polyval(pSF, x[mBFAGN])) <= 0).astype('int').sum()
+        N_ALLAGN_under_SFfit = ((y[mALLAGN] - np.polyval(pSF, x[mALLAGN])) <= 0).astype('int').sum()
+        print('# B.F. Type-I AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_SFfit, N_AGN_tI, 100.*N_AGN_tI_under_SFfit/N_AGN_tI))
+        print('# B.F. Type-II AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_SFfit, N_AGN_tII, 100.*N_AGN_tII_under_SFfit/N_AGN_tII))
+        print('# B.F. AGN under SFfit: %d/%d (%.1f%%)' % (N_BFAGN_under_SFfit, N_BFAGN, 100.*N_BFAGN_under_SFfit/N_BFAGN))
+        print('# ALL AGN under SFfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_SFfit, N_ALLAGN, 100.*N_ALLAGN_under_SFfit/N_ALLAGN))
         ########################################
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
@@ -1572,19 +1581,65 @@ if __name__ == '__main__':
         print('\n#############################')
         x_key = plot_element[0]
         y_key = plot_element[1]
-        x_key, y_key = 'log_Mass_corr', 'log_Mass_gas_Av_gas_rad'
         k = '%s_%s' % (props[x_key]['fname'], props[y_key]['fname'])
         fname = 'fig_%s' % k
         print('# %s' % fname)
         print('#############################')
+        x = elines[x_key]
+        x_label = props[x_key]['label']
+        x_extent = props[x_key]['extent']
+        x_majloc = props[x_key]['majloc']
+        x_minloc = props[x_key]['minloc']
+        y = elines[y_key]
+        y_label = props[y_key]['label']
+        y_extent = props[y_key]['extent']
+        y_majloc = props[y_key]['majloc']
+        y_minloc = props[y_key]['minloc']
+        extent = x_extent + y_extent
+        prune_x = None
+        bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+        f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+        N_rows, N_cols = 1, 1
+        gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+        ax = plt.subplot(gs[0])
+        plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
+                          xlabel=x_label, ylabel=y_label, zlabel=z_label,
+                          n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
+                          n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
+                          prune_x=None, extent=extent, z_extent=z_extent, f=f, ax=ax)
+        WHaRe = elines['EW_Ha_Re']
+        SFG = WHaRe > args.EW_SF
+        GVG = (WHaRe > args.EW_hDIG) & (WHaRe <= args.EW_SF)
+        RG = WHaRe <= args.EW_hDIG
+        masks = dict(SFG=SFG, GVG=GVG, RG=RG)
+        colors = dict(SFG='b', GVG='g', RG='r')
+        for k, v in masks.items():
+            c = colors[k]
+            print(k,c)
+            m = v & np.isfinite(x) & np.isfinite(y) & np.isfinite(z)
+            xm, ym, zm = ma_mask_xyz(x.loc[m].values, y.loc[m].values, z.loc[m].values)
+            p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(x.loc[m], y.loc[m], interval=extent, step=0.1, clip=2)
+            rs = runstats(xm.compressed(), ym.compressed(),
+                          smooth=True, sigma=1.2,
+                          debug=True, gs_prc=True,
+                          poly1d=True)
+            print(rs.poly1d_median_slope, rs.poly1d_median_intercept)
+            # ax.plot(rs.xS, rs.yS, color=c, lw=1)
+            if k == 'SFG':
+                pSF = p
+        ########################################
+        N_AGN_tI_under_SFfit = ((y[mtI] - np.polyval(pSF, x[mtI])) <= 0).astype('int').sum()
+        N_AGN_tII_under_SFfit = ((y[mtII] - np.polyval(pSF, x[mtII])) <= 0).astype('int').sum()
+        N_BFAGN_under_SFfit = ((y[mBFAGN] - np.polyval(pSF, x[mBFAGN])) <= 0).astype('int').sum()
+        N_ALLAGN_under_SFfit = ((y[mALLAGN] - np.polyval(pSF, x[mALLAGN])) <= 0).astype('int').sum()
+        print('# B.F. Type-I AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_SFfit, N_AGN_tI, 100.*N_AGN_tI_under_SFfit/N_AGN_tI))
+        print('# B.F. Type-II AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_SFfit, N_AGN_tII, 100.*N_AGN_tII_under_SFfit/N_AGN_tII))
+        print('# B.F. AGN under SFfit: %d/%d (%.1f%%)' % (N_BFAGN_under_SFfit, N_BFAGN, 100.*N_BFAGN_under_SFfit/N_BFAGN))
+        print('# ALL AGN under SFfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_SFfit, N_ALLAGN, 100.*N_ALLAGN_under_SFfit/N_ALLAGN))
+        ########################################
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
-        plot_colored_by_z(elines=elines, args=args, markAGNs=True,
-                          x=elines[x_key], y=elines[y_key], z=z,
-                          xlabel=props[x_key]['label'], ylabel=props[y_key]['label'], zlabel=z_label,
-                          extent=props[x_key]['extent'] + props[y_key]['extent'], z_extent=z_extent,
-                          n_bins_maj_x=props[x_key]['majloc'], n_bins_min_x=props[x_key]['minloc'],
-                          n_bins_maj_y=props[y_key]['majloc'], n_bins_min_y=props[y_key]['minloc'],
-                          prune_x=None, output_name=output_name)
+        f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+        plt.close(f)
         print('#############################')
 
     ###################################
