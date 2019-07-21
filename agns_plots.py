@@ -75,7 +75,7 @@ props = {
     'C': dict(fname='C', label=r'${\rm R}90/{\rm R}50$', extent=[0.5, 4.5], majloc=4, minloc=2),
     'log_Mass_corr': dict(fname='M', label=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', extent=[8, 12], majloc=4, minloc=5),
     'log_Mass_corr_NC': dict(fname='M_NC', label=r'$\log ({\rm M}_\star^{\rm NC}/{\rm M}_{\odot})$', extent=[8, 12], majloc=4, minloc=5),
-    'log_Mass_gas_Av_gas_rad': dict(fname='Mgas', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[4.8, 10.2], majloc=6, minloc=5),
+    'log_Mass_gas_Av_gas_rad': dict(fname='Mgas', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[4.8, 10.2], majloc=6, minloc=2),
     'lSFR': dict(fname='SFRHa', label=r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
     'lSFR_NC': dict(fname='SFRHa_NC', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm NC}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
     'log_SFR_SF': dict(fname='SFRHaSF', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm SF}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
@@ -83,9 +83,9 @@ props = {
     'sSFR': dict(fname='sSFRHa', label=r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$', extent=[-13.5, -8.5], majloc=5, minloc=2),
     'sSFR_SF': dict(fname='sSFRHaSF', label=r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$', extent=[-14.5, -8.5], majloc=6, minloc=2),
     'sSFR_ssp': dict(fname='sSFRssp', label=r'$\log ({\rm sSFR}_\star/{\rm yr})$', extent=[-12.5, -8.5], majloc=4, minloc=2),
-    'SFE': dict(fname='SFEHa', label=r'$\log$ (${\rm SFE}_{\rm H\alpha}$/yr)', extent=[-10, -5], majloc=3, minloc=4),
-    'SFE_SF': dict(fname='SFEHaSF', label=r'$\log$ (${\rm SFE}_{\rm SF}$/yr)', extent=[-11, -6], majloc=3, minloc=4),
-    'SFE_ssp': dict(fname='SFEssp', label=r'$\log$ (${\rm SFE}_\star$/yr)', extent=[-10, -5], majloc=3, minloc=4),
+    'SFE': dict(fname='SFEHa', label=r'$\log$ (${\rm SFE}_{\rm H\alpha}$/yr)', extent=[-10, -6], majloc=4, minloc=2),
+    'SFE_SF': dict(fname='SFEHaSF', label=r'$\log$ (${\rm SFE}_{\rm SF}$/yr)', extent=[-11, -6], majloc=5, minloc=2),
+    'SFE_ssp': dict(fname='SFEssp', label=r'$\log$ (${\rm SFE}_\star$/yr)', extent=[-10, -5], majloc=5, minloc=2),
     'log_fgas': dict(fname='logfgas', label=r'$\log\ f_{\rm gas}$', extent=[-5, 0], majloc=5, minloc=2),
     'g_r': dict(fname='gr', label=r'g-r (mag)', extent=[0, 1], majloc=5, minloc=2),
     'g_r_NC': dict(fname='gr_NC', label=r'${\rm g-r}^{\rm NC}$ (mag)', extent=[0, 1], majloc=5, minloc=2),
@@ -641,7 +641,13 @@ def plot_x_morph(elines, args, ax):
     return ax
 
 
-def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, zlabel=None, z_extent=None):
+def plot_morph_y_colored_by_z(
+        elines, args, y, z, ax_Hx, ax_Hy, ax_sc,
+        ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None,
+        zlabel=None, z_extent=None, no_colorbar=None
+    ):
+    if no_colorbar is None:
+        no_colorbar = False
     if z_extent is None:
         z_extent = [-1, 2.5]
     if zlabel is None:
@@ -725,17 +731,18 @@ def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=No
     tick_params = dict(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=False, labeltop=False, labelleft=False, labelright=False)
     ax_sc.tick_params(**tick_params)
     ####################################
-    pos = ax_sc.get_position()
-    cb_width = 0.05
-    cb_ax = f.add_axes([pos.x1, pos.y0, cb_width, pos.y1-pos.y0])
-    cb = plt.colorbar(sc, cax=cb_ax)
-    # cb = plt.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), cax=cb_ax)
-    cb.solids.set(alpha=1)
-    cb.set_label(zlabel, fontsize=args.fontsize+2)
-    cb.locator = MaxNLocator(4)
-    # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
-    cb_ax.tick_params(which='both', direction='in')
-    cb.update_ticks()
+    if not no_colorbar:
+        pos = ax_sc.get_position()
+        cb_width = 0.05
+        cb_ax = f.add_axes([pos.x1, pos.y0, cb_width, pos.y1-pos.y0])
+        cb = plt.colorbar(sc, cax=cb_ax)
+        # cb = plt.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), cax=cb_ax)
+        cb.solids.set(alpha=1)
+        cb.set_label(zlabel, fontsize=args.fontsize+2)
+        cb.locator = MaxNLocator(4)
+        # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
+        cb_ax.tick_params(which='both', direction='in')
+        cb.update_ticks()
     ####################################
     if args.verbose > 0:
         print('# y #')
@@ -751,6 +758,8 @@ def plot_morph_y_colored_by_z(elines, args, y, z, ax_Hx, ax_Hy, ax_sc, ylabel=No
             for i in y_upp.index:
                 print('#\t%s: %.3f (AGN:%d)' % (i, y_upp.loc[i], elines.loc[i, 'AGN_FLAG']))
         print('#####')
+    if no_colorbar:
+        return ax_Hx, ax_Hy, ax_sc, sc
     return ax_Hx, ax_Hy, ax_sc
 
 
@@ -2314,7 +2323,9 @@ if __name__ == '__main__':
     print('############################')
     # elines_wmorph['u_i']
     plots_props_list = [
-        'log_Mass_corr', 'C', 'Sigma_Mass_cen', 'rat_vel_sigma', 'Re_kpc', 'sSFR', 'sSFR_SF', 'sSFR_ssp', 'bar', 'g_r',
+        'log_Mass_corr', 'C', 'Sigma_Mass_cen', 'rat_vel_sigma', 'Re_kpc',
+        'sSFR', 'sSFR_SF', 'sSFR_ssp', 'bar', 'g_r', 'log_Mass_gas_Av_gas_rad',
+        'SFE', 'SFE_SF','SFE_ssp', 'log_fgas', 'lSFR', 'log_SFR_SF', 'log_SFR_ssp',
         # 'B_R', 'B_V', 'u_i', 'u_r',
     ]
     for y_key in plots_props_list:
@@ -2348,9 +2359,127 @@ if __name__ == '__main__':
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print('############################')
-    print('\n#################')
-    ############################
 
+    print('\n##############################')
+    print('# Morph vs (Mgas, fgas, SFE) #')
+    print('##############################')
+    y_key_list = ['log_Mass_gas_Av_gas_rad', 'log_SFR_SF', 'SFE_SF', 'log_fgas']
+    k = 'Morph_%s' % '_'.join([props[yk]['fname'] for yk in y_key_list])
+    fname = 'fig_%s' % k
+    print('# %s' % fname)
+    N_rows = 4
+    f = plot_setup(width=latex_column_width, aspect=N_rows/golden_mean)
+    bottom, top, left, right = 0.10, 0.95, 0.15, 0.80
+    N_rows_true = N_rows * 3 + 1
+    N_cols = 4
+    gs = gridspec.GridSpec(N_rows_true, N_cols,
+                           left=left, bottom=bottom, right=right, top=top,
+                           wspace=0., hspace=0.)
+    ax_Hx = plt.subplot(gs[-1, 1:])
+    ax_Hy_arr = [plt.subplot(gs[0:3, 0]), plt.subplot(gs[3:6, 0]), plt.subplot(gs[6:9, 0]), plt.subplot(gs[9:12, 0])]
+    ax_sc_arr = [plt.subplot(gs[0:3, 1:]), plt.subplot(gs[3:6, 1:]), plt.subplot(gs[6:9, 1:]), plt.subplot(gs[9:12, 1:])]
+    ax_Hx = plot_x_morph(elines=elines_wmorph, args=args, ax=ax_Hx)
+    row = 0
+    z_key = 'log_EW_Ha_Re'
+    z = elines_wmorph[z_key]
+    z_label = props[z_key]['label']
+    z_extent = props[z_key]['extent']
+    for y_key in y_key_list:
+        print(y_key)
+        y = elines_wmorph[y_key]
+        zm = elines_wmorph[z_key]
+        y_label = props[y_key]['label']
+        y_majloc = props[y_key]['majloc']
+        y_minloc = props[y_key]['minloc']
+        y_extent = props[y_key]['extent']
+        ax_Hy = ax_Hy_arr[row]
+        ax_sc = ax_sc_arr[row]
+        ax_Hx, ax_Hy_arr[row], ax_sc_arr[row], sc = plot_morph_y_colored_by_z(
+            elines=elines_wmorph, args=args, y=y, z=z,
+            ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc,
+            ylabel=y_label, yrange=y_extent,
+            n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc, prune_y='upper',
+            zlabel=z_label, z_extent=z_extent, no_colorbar=True)
+        row += 1
+    cb_width = 0.05
+    cb_left = right
+    height_frac = (top-bottom)/N_rows_true
+    cb_bottom = bottom+height_frac
+    cb_height = top-cb_bottom
+    cb_ax = f.add_axes([cb_left, cb_bottom, cb_width, cb_height])
+    cb = plt.colorbar(sc, cax=cb_ax)
+    cb.solids.set(alpha=1)
+    cb.set_label(z_label, fontsize=args.fontsize+1)
+    cb.locator = MaxNLocator(props[z_key]['majloc'])
+    # cb_ax.minorticks_on()
+    cb_ax.tick_params(which='both', direction='in')
+    cb.update_ticks()
+    output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
+    print('##############################')
+
+    print('\n##############################')
+    print('# Morph vs (Mgas, fgas, SFE) #')
+    print('##############################')
+    y_key_list = ['log_Mass_gas_Av_gas_rad', 'lSFR', 'SFE', 'log_fgas']
+    k = 'Morph_%s' % '_'.join([props[yk]['fname'] for yk in y_key_list])
+    fname = 'fig_%s' % k
+    print('# %s' % fname)
+    N_rows = 4
+    f = plot_setup(width=latex_column_width, aspect=N_rows/golden_mean)
+    bottom, top, left, right = 0.10, 0.95, 0.15, 0.80
+    N_rows_true = N_rows * 3 + 1
+    N_cols = 4
+    gs = gridspec.GridSpec(N_rows_true, N_cols,
+                           left=left, bottom=bottom, right=right, top=top,
+                           wspace=0., hspace=0.)
+    ax_Hx = plt.subplot(gs[-1, 1:])
+    ax_Hy_arr = [plt.subplot(gs[0:3, 0]), plt.subplot(gs[3:6, 0]), plt.subplot(gs[6:9, 0]), plt.subplot(gs[9:12, 0])]
+    ax_sc_arr = [plt.subplot(gs[0:3, 1:]), plt.subplot(gs[3:6, 1:]), plt.subplot(gs[6:9, 1:]), plt.subplot(gs[9:12, 1:])]
+    ax_Hx = plot_x_morph(elines=elines_wmorph, args=args, ax=ax_Hx)
+    row = 0
+    z_key = 'log_EW_Ha_Re'
+    z = elines_wmorph[z_key]
+    z_label = props[z_key]['label']
+    z_extent = props[z_key]['extent']
+    for y_key in y_key_list:
+        print(y_key)
+        y = elines_wmorph[y_key]
+        zm = elines_wmorph[z_key]
+        y_label = props[y_key]['label']
+        y_majloc = props[y_key]['majloc']
+        y_minloc = props[y_key]['minloc']
+        y_extent = props[y_key]['extent']
+        ax_Hy = ax_Hy_arr[row]
+        ax_sc = ax_sc_arr[row]
+        ax_Hx, ax_Hy_arr[row], ax_sc_arr[row], sc = plot_morph_y_colored_by_z(
+            elines=elines_wmorph, args=args, y=y, z=z,
+            ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc,
+            ylabel=y_label, yrange=y_extent,
+            n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc, prune_y='upper',
+            zlabel=z_label, z_extent=z_extent, no_colorbar=True)
+        row += 1
+    cb_width = 0.05
+    cb_left = right
+    height_frac = (top-bottom)/N_rows_true
+    cb_bottom = bottom+height_frac
+    cb_height = top-cb_bottom
+    cb_ax = f.add_axes([cb_left, cb_bottom, cb_width, cb_height])
+    cb = plt.colorbar(sc, cax=cb_ax)
+    cb.solids.set(alpha=1)
+    cb.set_label(z_label, fontsize=args.fontsize+1)
+    cb.locator = MaxNLocator(props[z_key]['majloc'])
+    # cb_ax.minorticks_on()
+    cb_ax.tick_params(which='both', direction='in')
+    cb.update_ticks()
+    output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
+    print('##############################')
+
+
+    ############################
     # plots_dict = {
     #     'fig_Morph_M': ['log_Mass_corr', [7.5, 12.5], r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', 6, 2],
     #     'fig_Morph_C': ['C', [0.5, 5.5], r'${\rm R}90/{\rm R}50$', 6, 2],
