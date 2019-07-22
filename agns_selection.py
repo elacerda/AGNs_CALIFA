@@ -32,6 +32,8 @@ def parser_args(default_args_file='args/default_selection.args'):
         'EW_verystrong': 10.,
         'min_SN_broad': 8.,
         'only_report': False,
+        'zmax': 5,
+        'zmin': 0,
     }
     parser = readFileArgumentParser(fromfile_prefix_chars='@')
     parser.add_argument('--input', '-I', metavar='FILE', type=str, default=default_args['input'])
@@ -43,6 +45,8 @@ def parser_args(default_args_file='args/default_selection.args'):
     parser.add_argument('--csv_dir', metavar='DIR', type=str, default=default_args['csv_dir'])
     parser.add_argument('--output_agn_candidates', metavar='FILE', type=str, default=default_args['output_agn_candidates'])
     parser.add_argument('--verbose', '-v', action='count')
+    parser.add_argument('--zmin', metavar='FLOAT', type=float, default=default_args['zmin'])
+    parser.add_argument('--zmax', metavar='FLOAT', type=float, default=default_args['zmax'])
     parser.add_argument('--EW_SF', metavar='FLOAT', type=float, default=default_args['EW_SF'])
     parser.add_argument('--EW_AGN', metavar='FLOAT', type=float, default=default_args['EW_AGN'])
     parser.add_argument('--EW_hDIG', metavar='FLOAT', type=float, default=default_args['EW_hDIG'])
@@ -128,6 +132,10 @@ if __name__ == '__main__':
             elines = df_elines_clean.copy()
             del df_elines_clean
     del df
+
+    # REDSHIFT cut
+    redshift = elines['z_stars']
+    elines = elines.loc[(redshift >= args.zmin) & (redshift <= args.zmax)]
 
     # print_str = '{}\t{}\t{}\t{}\t{}\t{}\t{}'
     # # Create file for R. Callete
