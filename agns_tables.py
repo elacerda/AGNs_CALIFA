@@ -193,7 +193,11 @@ df['elines'].loc[df['elines']['log_SFR_ssp'] < -10, 'log_SFR_ssp'] = np.nan
 df['elines'].loc[df['elines']['log_SFR_ssp_10Myr'] < -10, 'log_SFR_ssp_10Myr'] = np.nan
 df['elines'].loc[df['elines']['log_SFR_ssp_100Myr'] < -10, 'log_SFR_ssp_100Myr'] = np.nan
 df['elines'].loc[df['elines']['log_Mass_gas'] == -12, 'log_Mass_gas'] = np.nan
+df['elines'].loc[df['elines']['log_Mass_gas_Re'] == -12, 'log_Mass_gas_Re'] = np.nan
+df['elines'].loc[df['elines']['log_Mass_gas_Av_ssp_OH'] == -12, 'log_Mass_gas_Av_ssp_OH'] = np.nan
+df['elines'].loc[df['elines']['log_Mass_gas_Av_ssp_ZH'] == -12, 'log_Mass_gas_Av_ssp_ZH'] = np.nan
 df['elines'].loc[df['elines']['log_Mass_gas_Av_gas_rad'] == -12, 'log_Mass_gas_Av_gas_rad'] = np.nan
+df['elines'].loc[df['elines']['log_Mass_gas_Av_gas_OH'] == -12, 'log_Mass_gas_Av_gas_OH'] = np.nan
 df['elines']['log_NII_Ha_cen_fit'] = np.log10(df['elines']['NII_6583'] / df['elines']['Ha_narrow'])
 # a, b = df['elines']['log_NII_Ha_cen_fit'], df['elines']['log_NII_Ha_cen_mean']
 # m = a.apply(np.isnan)
@@ -213,12 +217,19 @@ df['elines']['sSFR_SF'] = df['elines']['log_SFR_SF'] - df['elines']['log_Mass_co
 df['elines']['sSFR_ssp'] = df['elines']['log_SFR_ssp'] - df['elines']['log_Mass_corr']
 df['elines']['sSFR_ssp_10Myr'] = df['elines']['log_SFR_ssp_10Myr'] - df['elines']['log_Mass_corr']
 df['elines']['sSFR_ssp_100Myr'] = df['elines']['log_SFR_ssp_100Myr'] - df['elines']['log_Mass_corr']
-df['elines']['SFE'] = df['elines']['lSFR'] - df['elines']['log_Mass_gas_Av_gas_rad']
-df['elines']['SFE_SF'] = df['elines']['log_SFR_SF'] - df['elines']['log_Mass_gas_Av_gas_rad']
-df['elines']['SFE_ssp'] = df['elines']['log_SFR_ssp'] - df['elines']['log_Mass_gas_Av_gas_rad']
-df['elines']['Mrat'] = 10**(df['elines']['log_Mass_corr'] - df['elines']['log_Mass_gas_Av_gas_rad'])
-df['elines']['fgas'] = 1 / (1 + df['elines']['Mrat'])
-df['elines']['log_fgas'] = df['elines']['fgas'].apply(np.log10)
+
+for gas_proxy in ['log_Mass_gas_Av_gas_rad','log_Mass_gas_Av_ssp_OH','log_Mass_gas_Av_gas_OH','log_Mass_gas','log_Mass_gas_Re','log_Mass_gas_Av_ssp_ZH']:
+    df['elines']['SFE_%s' % gas_proxy] = df['elines']['lSFR'] - df['elines'][gas_proxy]
+    df['elines']['SFE_SF_%s' % gas_proxy] = df['elines']['log_SFR_SF'] - df['elines'][gas_proxy]
+    df['elines']['SFE_ssp_%s' % gas_proxy] = df['elines']['log_SFR_ssp'] - df['elines'][gas_proxy]
+    df['elines']['tdep_%s' % gas_proxy] = df['elines'][gas_proxy] - df['elines']['lSFR'] - 9
+    df['elines']['tdep_SF_%s' % gas_proxy] = df['elines'][gas_proxy] - df['elines']['log_SFR_SF'] - 9
+    df['elines']['tdep_ssp_%s' % gas_proxy] = df['elines'][gas_proxy] - df['elines']['log_SFR_ssp'] - 9
+    df['elines']['Mrat_%s' % gas_proxy] = 10**(df['elines']['log_Mass_corr'] - df['elines'][gas_proxy])
+    df['elines']['fgas_%s' % gas_proxy] = 1 / (1 + df['elines']['Mrat_%s' % gas_proxy])
+    df['elines']['log_fgas_%s' % gas_proxy] = df['elines']['fgas_%s' % gas_proxy].apply(np.log10)
+
+df['elines']['delta_gas'] = df['elines']['log_Mass_gas_Av_gas_rad'] - df['elines']['log_Mass_gas']
 
 # R. A. Calette volume correction
 df['elines']['weights'] = df['weights']['w_califa']

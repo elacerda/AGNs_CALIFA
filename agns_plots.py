@@ -75,18 +75,36 @@ props = {
     'C': dict(fname='C', label=r'${\rm R}90/{\rm R}50$', extent=[0.5, 4.5], majloc=4, minloc=2),
     'log_Mass_corr': dict(fname='M', label=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', extent=[8, 12], majloc=4, minloc=5),
     'log_Mass_corr_NC': dict(fname='M_NC', label=r'$\log ({\rm M}_\star^{\rm NC}/{\rm M}_{\odot})$', extent=[8, 12], majloc=4, minloc=5),
-    'log_Mass_gas_Av_gas_rad': dict(fname='Mgas', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[4.8, 10.2], majloc=6, minloc=2),
+    'log_Mass_gas_Av_gas_rad': dict(fname='Mgas_Av_gas_rad', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[4.8, 10.2], majloc=6, minloc=2),
+    'log_Mass_gas_Av_ssp_OH': dict(fname='Mgas_Av_ssp_OH', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[4.8, 10.2], majloc=6, minloc=2),
+    'log_Mass_gas_Av_gas_OH': dict(fname='Mgas_Av_gas_OH', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[4.8, 10.2], majloc=6, minloc=2),
+    'log_Mass_gas': dict(fname='Mgas', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[5.8, 10.7], majloc=5, minloc=2),
+    'log_Mass_gas_Re': dict(fname='Mgas_Re', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[4.8, 10.2], majloc=6, minloc=2),
+    'log_Mass_gas_Av_ssp_ZH': dict(fname='Mgas_Av_ssp_ZH', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[6.5, 12.5], majloc=6, minloc=2),
+    'delta_gas': dict(fname='delta_Mgas', label=r'delta Mgas', extent=[-2.5, 0.5], majloc=3, minloc=2),
     'lSFR': dict(fname='SFRHa', label=r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
     'lSFR_NC': dict(fname='SFRHa_NC', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm NC}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
-    'log_SFR_SF': dict(fname='SFRHaSF', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm SF}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
+    # 'log_SFR_SF': dict(fname='SFRHaSF', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm SF}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
+    'log_SFR_SF': dict(fname='SFRHaSF', label=r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
     'log_SFR_ssp': dict(fname='SFRssp', label=r'$\log ({\rm SFR}_\star/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
-    'sSFR': dict(fname='sSFRHa', label=r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr})$', extent=[-13.5, -8.5], majloc=5, minloc=2),
-    'sSFR_SF': dict(fname='sSFRHaSF', label=r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr})$', extent=[-14.5, -8.5], majloc=6, minloc=2),
-    'sSFR_ssp': dict(fname='sSFRssp', label=r'$\log ({\rm sSFR}_\star/{\rm yr})$', extent=[-12.5, -8.5], majloc=4, minloc=2),
-    'SFE': dict(fname='SFEHa', label=r'$\log$ (${\rm SFE}_{\rm H\alpha}$/yr)', extent=[-10, -6], majloc=4, minloc=2),
-    'SFE_SF': dict(fname='SFEHaSF', label=r'$\log$ (${\rm SFE}_{\rm SF}$/yr)', extent=[-11, -6], majloc=5, minloc=2),
-    'SFE_ssp': dict(fname='SFEssp', label=r'$\log$ (${\rm SFE}_\star$/yr)', extent=[-10, -5], majloc=5, minloc=2),
-    'log_fgas': dict(fname='logfgas', label=r'$\log\ f_{\rm gas}$', extent=[-5, 0], majloc=5, minloc=2),
+    'sSFR': dict(fname='sSFRHa', label=r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr}^{-1})$', extent=[-13.5, -8.5], majloc=5, minloc=2),
+    # 'sSFR_SF': dict(fname='sSFRHaSF', label=r'$\log ({\rm sSFR}_{\rm H\alpha}^{\rm SF}/{\rm yr}^{-1})$', extent=[-14.5, -8.5], majloc=6, minloc=2),
+    'sSFR_SF': dict(fname='sSFRHaSF', label=r'$\log ({\rm sSFR}_{\rm H\alpha}/{\rm yr}^{-1})$', extent=[-14.5, -8.5], majloc=6, minloc=2),
+    'sSFR_ssp': dict(fname='sSFRssp', label=r'$\log ({\rm sSFR}_\star/{\rm yr}^{-1})$', extent=[-12.5, -8.5], majloc=4, minloc=2),
+    'SFE_log_Mass_gas_Av_gas_rad': dict(fname='SFEHa_Mgas_Av_gas_rad', label=r'$\log$ (${\rm SFE}_{\rm H\alpha}/{\rm yr}^{-1})$', extent=[-10, -6], majloc=4, minloc=2),
+    'SFE_SF_log_Mass_gas_Av_gas_rad': dict(fname='SFEHaSF_Mgas_Av_gas_rad', label=r'$\log$ (${\rm SFE}_{\rm H\alpha}/{\rm yr}^{-1})$', extent=[-11, -6], majloc=5, minloc=2),
+    'SFE_ssp_log_Mass_gas_Av_gas_rad': dict(fname='SFEssp_Mgas_Av_gas_rad', label=r'$\log$ (${\rm SFE}_\star/{\rm yr}^{-1})$', extent=[-10, -5], majloc=5, minloc=2),
+    'tdep_log_Mass_gas_Av_gas_rad': dict(fname='tdepHa_Mgas_Av_gas_rad', label=r'$\log$ ($\tau_{\rm dep}/{\rm Gyr})$', extent=[-3, 1], majloc=4, minloc=2),
+    'tdep_SF_log_Mass_gas_Av_gas_rad': dict(fname='tdepHaSF_Mgas_Av_gas_rad', label=r'$\log$ ($\tau_{\rm dep}/{\rm Gyr})$', extent=[-3, 2], majloc=5, minloc=2),
+    'tdep_ssp_log_Mass_gas_Av_gas_rad': dict(fname='tdepssp_Mgas_Av_gas_rad', label=r'$\log$ ($\tau_{\rm dep}^\star/{\rm Gyr})$', extent=[-4, 1], majloc=5, minloc=2),
+    'log_fgas_log_Mass_gas_Av_gas_rad': dict(fname='logfgas_Mgas_Av_gas_rad', label=r'$\log\ f_{\rm gas}$', extent=[-5, 0], majloc=5, minloc=2),
+    'SFE_log_Mass_gas': dict(fname='SFEHa_Mgas', label=r'$\log$ (${\rm SFE}_{\rm H\alpha}/{\rm yr}^{-1})$', extent=[-11, -7], majloc=4, minloc=2),
+    'SFE_SF_log_Mass_gas': dict(fname='SFEHaSF_Mgas', label=r'$\log$ (${\rm SFE}_{\rm H\alpha}/{\rm yr}^{-1})$', extent=[-12, -8], majloc=4, minloc=2),
+    'SFE_ssp_log_Mass_gas': dict(fname='SFEssp_Mgas', label=r'$\log$ (${\rm SFE}_\star/{\rm yr}^{-1})$', extent=[-10, -5], majloc=5, minloc=2),
+    'tdep_log_Mass_gas': dict(fname='tdepHa_Mgas', label=r'$\log$ ($\tau_{\rm dep}/{\rm Gyr})$', extent=[-2.5, 1.5], majloc=4, minloc=2),
+    'tdep_SF_log_Mass_gas': dict(fname='tdepHaSF_Mgas', label=r'$\log$ ($\tau_{\rm dep}/{\rm Gyr})$', extent=[-1.2, 2.2], majloc=4, minloc=2),
+    'tdep_ssp_log_Mass_gas': dict(fname='tdepssp_Mgas', label=r'$\log$ ($\tau_{\rm dep}^\star/{\rm Gyr})$', extent=[-4, 1], majloc=5, minloc=2),
+    'log_fgas_log_Mass_gas': dict(fname='logfgas_Mgas', label=r'$\log\ f_{\rm gas}$', extent=[-3.5, -0.5], majloc=3, minloc=2),
     'g_r': dict(fname='gr', label=r'g-r (mag)', extent=[0, 1], majloc=5, minloc=2),
     'g_r_NC': dict(fname='gr_NC', label=r'${\rm g-r}^{\rm NC}$ (mag)', extent=[0, 1], majloc=5, minloc=2),
     'u_r': dict(fname='ur', label=r'u-r (mag)', extent=[0, 3.5], majloc=3, minloc=2),
@@ -666,6 +684,9 @@ def plot_morph_y_colored_by_z(
     print('x:morph:%d  y:%s:%d  z:%s:%d  all:%d  tIAGN:%d  tIIAGN:%d  AGN:%d' % (morph.notna().sum(), y.name, y.notna().sum(), z.name, z.notna().sum(), mXYZ.sum(), (mXYZ & mtI).sum(), (mXYZ & mtII).sum(), (mXYZ & mtAGN).sum()))
     m = np.linspace(7, 19, 13).astype('int')
     y_mean = np.array([y.loc[morph == mt].mean() for mt in m])
+    y_max = np.array([y.loc[morph == mt].max() for mt in m])
+    y_min = np.array([y.loc[morph == mt].min() for mt in m])
+    y_std = np.array([y.loc[morph == mt].std() for mt in m])
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
     N_y_tAGN = y[mtAGN].count()
@@ -722,6 +743,8 @@ def plot_morph_y_colored_by_z(
     ax_sc.scatter(morph[mtII], y[mtII], **scatter_AGN_tII_kwargs)
     ax_sc.scatter(morph[mtI], y[mtI], **scatter_AGN_tI_kwargs)
     ax_sc.plot(m, y_mean, 'k--')
+    for i in range(13):
+        print('%s,%.2f,%.2f,%.2f,%.2f' % (morph_name[i+7], y_mean[i], y_std[i], y_max[i], y_min[i]))
     ax_sc.set_xlim(ax_Hx.get_xlim())
     ax_sc.xaxis.set_major_locator(ax_Hx.xaxis.get_major_locator())
     ax_sc.xaxis.set_minor_locator(ax_Hx.xaxis.get_minor_locator())
@@ -779,16 +802,16 @@ def plot_fig_histo_MZR_t2(elines, args, x, y, ax):
     mX = XS < 11.5
     ax.plot(XS[mX & mY], YS[mX & mY], 'k-')
     # ### best-fit ###
-    # from scipy.optimize import curve_fit
-    # mnotnan = ~(np.isnan(x) | np.isnan(y)) & (x < 11.5) & (x > 8.3)
-    # XFIT = x.loc[mnotnan].values
-    # iSFIT = np.argsort(XFIT)
-    # XFITS = XFIT[iSFIT]
-    # YFIT = y.loc[mnotnan].values
-    # YFITS = YFIT[iSFIT]
-    # popt, pcov = curve_fit(f=modlogOHSF2017, xdata=XFITS, ydata=YFITS, p0=[8.8, 0.015, 11.5], bounds=[[8.54, 0.005, 11.499], [9, 0.022, 11.501]])
-    # ax.plot(XFITS, modlogOHSF2017(XFITS, *popt), 'k--')
-    # print('a:%.2f b:%.4f c:%.1f' % (popt[0], popt[1], popt[2]))
+    from scipy.optimize import curve_fit
+    mnotnan = ~(np.isnan(x) | np.isnan(y)) & (x < 11.5) & (x > 8.3)
+    XFIT = x.loc[mnotnan].values
+    iSFIT = np.argsort(XFIT)
+    XFITS = XFIT[iSFIT]
+    YFIT = y.loc[mnotnan].values
+    YFITS = YFIT[iSFIT]
+    popt, pcov = curve_fit(f=modlogOHSF2017, xdata=XFITS, ydata=YFITS, p0=[8.8, 0.015, 11.5], bounds=[[8.54, 0.005, 11.499], [9, 0.022, 11.501]])
+    ax.plot(XFITS, modlogOHSF2017(XFITS, *popt), 'k--')
+    print('a:%.2f b:%.4f c:%.1f' % (popt[0], popt[1], popt[2]))
     ### Above ###
     m_y_tI_above = y.loc[mtI] > x.loc[mtI].apply(modlogOHSF2017_t2)
     m_y_tII_above = y.loc[mtII] > x.loc[mtII].apply(modlogOHSF2017_t2)
@@ -1430,7 +1453,10 @@ if __name__ == '__main__':
     z_extent = props[z_key]['extent']
     ###############################
     ###############################
-    y_key_list = ['lSFR', 'lSFR_NC', 'log_SFR_SF', 'log_SFR_ssp', 'log_fgas', 'SFE', 'SFE_SF', 'SFE_ssp']
+    y_key_list = ['lSFR', 'lSFR_NC', 'log_SFR_SF', 'log_SFR_ssp',
+                  'SFE_log_Mass_gas_Av_gas_rad', 'SFE_SF_log_Mass_gas_Av_gas_rad', 'SFE_ssp_log_Mass_gas_Av_gas_rad', 'tdep_log_Mass_gas_Av_gas_rad', 'tdep_SF_log_Mass_gas_Av_gas_rad', 'tdep_ssp_log_Mass_gas_Av_gas_rad', 'log_fgas_log_Mass_gas_Av_gas_rad',
+                  'SFE_log_Mass_gas', 'SFE_SF_log_Mass_gas', 'SFE_ssp_log_Mass_gas', 'tdep_log_Mass_gas', 'tdep_SF_log_Mass_gas', 'tdep_ssp_log_Mass_gas', 'log_fgas_log_Mass_gas',
+                  ]
     for y_key in y_key_list:
         print('\n###################################')
         x_key = 'log_Mass_corr'
@@ -1498,96 +1524,119 @@ if __name__ == '__main__':
             RSB_label = r'$\Delta$($\log$ SFR)'
             args.props[R_key] = dict(fname=R_key, label=RSB_label, extent=[-4, 1], majloc=5, minloc=2)
             args.props[R_key_2sigma] = dict(fname=R_key_2sigma, label=RSB_label, extent=[-4, 1], majloc=5, minloc=2)
-
             if k == 'SFc_Re':
-                p_SFc = pc
-                ax.plot(interval[0:2], np.polyval(p_SFc, interval[0:2]), c='k', ls='--', label='SFG')
-                # ax.text(x_bins_center__r[0], np.polyval(p_SFc, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
+                pSF = p
+                pcSF = pc
+                ax.plot(ax.get_xlim(), np.polyval(pcSF, ax.get_xlim()), 'k--')
+                a, b = pc
+                plot_text_ax(ax, 'y = %.2f x - %.2f' % (pcSF[0], -1 * pcSF[1]), 0.05, 0.95, args.fontsize+2, 'top', 'left', 'k')
+        ########################################
+                # ax.plot(interval[0:2], np.polyval(pcSF, interval[0:2]), c='k', ls='--', label='SFG')
+                # ax.text(x_bins_center__r[0], np.polyval(pcSF, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
             # if k == 'hDIG':
             #     p_hDIG = p
             #     p_hDIG_c = pc
             #     ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
             #     ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
         ###########################
-        N_AGN_tI_under_SF = ((y[mtI] - np.polyval(p_SFc, x[mtI])) <= 0).astype('int').sum()
-        N_AGN_tII_under_SF = ((y[mtII] - np.polyval(p_SFc, x[mtII])) <= 0).astype('int').sum()
-        N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(p_SFc, x[mBFAGN])) <= 0).astype('int').sum()
-        N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(p_SFc, x[mALLAGN])) <= 0).astype('int').sum()
+        N_AGN_tI_under_SF = ((y[mtI] - np.polyval(pcSF, x[mtI])) <= 0).astype('int').sum()
+        N_AGN_tII_under_SF = ((y[mtII] - np.polyval(pcSF, x[mtII])) <= 0).astype('int').sum()
+        N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(pcSF, x[mBFAGN])) <= 0).astype('int').sum()
+        N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(pcSF, x[mALLAGN])) <= 0).astype('int').sum()
         print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
         print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
         print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
         print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
         ###########################
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+        if args.debug:
+            f.suptitle(r'%s' % fname.replace('_', ' '))
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
 
-    x_key = 'log_Mass_gas_Av_gas_rad'
-    x = elines[x_key]
-    x_label = props[x_key]['label']
-    x_extent = props[x_key]['extent']
-    x_majloc = props[x_key]['majloc']
-    x_minloc = props[x_key]['minloc']
-    y_key_list = ['lSFR', 'log_SFR_SF', 'log_SFR_ssp']
-    for y_key in y_key_list:
-        print('\n##################################')
-        k = '%s_%s' % (props[x_key]['fname'], props[y_key]['fname'])
-        fname = 'fig_%s' % k
-        print('# %s' % fname)
-        print('##################################')
-        y = elines[y_key]
-        y_label = props[y_key]['label']
-        y_extent = props[y_key]['extent']
-        y_majloc = props[y_key]['majloc']
-        y_minloc = props[y_key]['minloc']
-        extent = x_extent + y_extent
-        prune_x = None
-        bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
-        f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
-        N_rows, N_cols = 1, 1
-        gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
-        ax = plt.subplot(gs[0])
-        plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
-                          xlabel=x_label, ylabel=y_label, zlabel=z_label,
-                          n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
-                          n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
-                          extent=extent, z_extent=z_extent, f=f, ax=ax)
+        # x_key = 'log_Mass_gas_Av_gas_rad'
+    for x_key in ['log_Mass_gas_Av_gas_rad','log_Mass_gas_Av_ssp_OH','log_Mass_gas_Av_gas_OH','log_Mass_gas','log_Mass_gas_Re','log_Mass_gas_Av_ssp_ZH']:
+        x = elines[x_key]
+        x_label = props[x_key]['label']
+        x_extent = props[x_key]['extent']
+        x_majloc = props[x_key]['majloc']
+        x_minloc = props[x_key]['minloc']
+        y_key_list = ['lSFR', 'log_SFR_SF', 'log_SFR_ssp']
+        for y_key in y_key_list:
+            print('\n##################################')
+            k = '%s_%s' % (props[x_key]['fname'], props[y_key]['fname'])
+            fname = 'fig_%s' % k
+            print('# %s' % fname)
+            print('##################################')
+            y = elines[y_key]
+            y_label = props[y_key]['label']
+            y_extent = props[y_key]['extent']
+            y_majloc = props[y_key]['majloc']
+            y_minloc = props[y_key]['minloc']
+            extent = x_extent + y_extent
+            prune_x = None
+            bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+            f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+            N_rows, N_cols = 1, 1
+            gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+            ax = plt.subplot(gs[0])
+            plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
+                              xlabel=x_label, ylabel=y_label, zlabel=z_label,
+                              n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
+                              n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
+                              extent=extent, z_extent=z_extent, f=f, ax=ax)
 
-        WHa = EW_Ha_cen
-        WHa_Re = elines['EW_Ha_Re']
-        hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
-        SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-        GV_Re = sel_EW_Re & ((WHa_Re > args.EW_hDIG) & (WHa_Re <= args.EW_SF))
-        interval = [7.5, 11] + y_extent
-        # interval = [5, 11] + y_extent
-        dict_masks = dict(hDIG_Re=hDIG_Re, GV_Re=GV_Re, SFc_Re=SFc_Re, ALL=sel_EW_Re)
-        m_xy = np.isfinite(x) & np.isfinite(y)
-        for k, v in dict_masks.items():
-            print('{}:'.format(k))
-            m = m_xy & v
-            X = x.loc[m]
-            Y = y.loc[m]
-            p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-            if 'SFc' in k:
-                pSF = p
-        ########################################
-        N_AGN_tI_under_SFfit = ((y[mtI] - np.polyval(pSF, x[mtI])) <= 0).astype('int').sum()
-        N_AGN_tII_under_SFfit = ((y[mtII] - np.polyval(pSF, x[mtII])) <= 0).astype('int').sum()
-        N_BFAGN_under_SFfit = ((y[mBFAGN] - np.polyval(pSF, x[mBFAGN])) <= 0).astype('int').sum()
-        N_ALLAGN_under_SFfit = ((y[mALLAGN] - np.polyval(pSF, x[mALLAGN])) <= 0).astype('int').sum()
-        print('# B.F. Type-I AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_SFfit, N_AGN_tI, 100.*N_AGN_tI_under_SFfit/N_AGN_tI))
-        print('# B.F. Type-II AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_SFfit, N_AGN_tII, 100.*N_AGN_tII_under_SFfit/N_AGN_tII))
-        print('# B.F. AGN under SFfit: %d/%d (%.1f%%)' % (N_BFAGN_under_SFfit, N_BFAGN, 100.*N_BFAGN_under_SFfit/N_BFAGN))
-        print('# ALL AGN under SFfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_SFfit, N_ALLAGN, 100.*N_ALLAGN_under_SFfit/N_ALLAGN))
-        ########################################
-        output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
-        f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-        plt.close(f)
-        print('###############################')
-        ###############################
+            WHa = EW_Ha_cen
+            WHa_Re = elines['EW_Ha_Re']
+            hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
+            SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
+            GV_Re = sel_EW_Re & ((WHa_Re > args.EW_hDIG) & (WHa_Re <= args.EW_SF))
+            # interval = [8.5, 11] + y_extent
+            # interval = [7.5, 11] + y_extent
+            # interval = [5, 11] + y_extent
+            interval = extent
+            dict_masks = dict(hDIG_Re=hDIG_Re, GV_Re=GV_Re, SFc_Re=SFc_Re, ALL=sel_EW_Re)
+            m_xy = np.isfinite(x) & np.isfinite(y)
+            for k, v in dict_masks.items():
+                print('{}:'.format(k))
+                m = m_xy & v
+                X = x.loc[m]
+                Y = y.loc[m]
+                p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
+                if 'SFc' in k:
+                    pSF = p
+                    pcSF = pc
+                    ax.plot(ax.get_xlim(), np.polyval(pcSF, ax.get_xlim()), 'k--')
+                    a, b = pc
+                    plot_text_ax(ax, 'y = %.2f x - %.2f' % (pcSF[0], -1 * pcSF[1]), 0.05, 0.95, args.fontsize+2, 'top', 'left', 'k')
+            ########################################
+            N_AGN_tI_under_SFfit = ((y[mtI] - np.polyval(pcSF, x[mtI])) <= 0).astype('int').sum()
+            N_AGN_tII_under_SFfit = ((y[mtII] - np.polyval(pcSF, x[mtII])) <= 0).astype('int').sum()
+            N_BFAGN_under_SFfit = ((y[mBFAGN] - np.polyval(pcSF, x[mBFAGN])) <= 0).astype('int').sum()
+            N_ALLAGN_under_SFfit = ((y[mALLAGN] - np.polyval(pcSF, x[mALLAGN])) <= 0).astype('int').sum()
+            print('# B.F. Type-I AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_SFfit, N_AGN_tI, 100.*N_AGN_tI_under_SFfit/N_AGN_tI))
+            print('# B.F. Type-II AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_SFfit, N_AGN_tII, 100.*N_AGN_tII_under_SFfit/N_AGN_tII))
+            print('# B.F. AGN under SFfit: %d/%d (%.1f%%)' % (N_BFAGN_under_SFfit, N_BFAGN, 100.*N_BFAGN_under_SFfit/N_BFAGN))
+            print('# ALL AGN under SFfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_SFfit, N_ALLAGN, 100.*N_ALLAGN_under_SFfit/N_ALLAGN))
+            ########################################
+            # ax.legend(ncol=1, loc=2, frameon=False, fontsize=6, borderpad=0, borderaxespad=0.75)
+            output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+            if args.debug:
+                f.suptitle(fname.replace('_', ' '))
+            f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+            plt.close(f)
+            print('###############################')
+            ###############################
 
     plots_props_list = [
         ['log_Mass_corr', 'log_Mass_gas_Av_gas_rad'],
+        ['log_Mass_corr', 'log_Mass_gas_Av_gas_OH'],
+        ['log_Mass_corr', 'log_Mass_gas'],
+        ['log_Mass_corr', 'log_Mass_gas_Re'],
+        ['log_Mass_corr', 'log_Mass_gas_Av_ssp_OH'],
+        ['log_Mass_corr', 'log_Mass_gas_Av_ssp_ZH'],
+        ['log_Mass_corr', 'log_fgas_log_Mass_gas'],
+        ['log_Mass_corr', 'log_fgas_log_Mass_gas_Av_gas_rad'],
         ['log_Mass_corr', 'C'],
     ]
     for plot_element in plots_props_list:
@@ -1640,6 +1689,10 @@ if __name__ == '__main__':
             # ax.plot(rs.xS, rs.yS, color=c, lw=1)
             if k == 'SFG':
                 pSF = p
+                pcSF = pc
+                ax.plot(ax.get_xlim(), np.polyval(pcSF, ax.get_xlim()), 'k--')
+                a, b = pc
+                plot_text_ax(ax, 'y = %.2f x - %.2f' % (pcSF[0], -1 * pcSF[1]), 0.05, 0.95, args.fontsize+2, 'top', 'left', 'k')
         ########################################
         N_AGN_tI_under_SFfit = ((y[mtI] - np.polyval(pSF, x[mtI])) <= 0).astype('int').sum()
         N_AGN_tII_under_SFfit = ((y[mtII] - np.polyval(pSF, x[mtII])) <= 0).astype('int').sum()
@@ -1651,6 +1704,8 @@ if __name__ == '__main__':
         print('# ALL AGN under SFfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_SFfit, N_ALLAGN, 100.*N_ALLAGN_under_SFfit/N_ALLAGN))
         ########################################
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+        if args.debug:
+            f.suptitle(fname.replace('_', ' '))
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print('#############################')
@@ -1697,6 +1752,8 @@ if __name__ == '__main__':
         print('# B.F. AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_BFAGN_GV, N_GV, N_BFAGN, 100.*N_BFAGN_GV/N_GV, 100.*N_BFAGN_GV/N_BFAGN))
         print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+        if args.debug:
+            f.suptitle(fname.replace('_', ' '))
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print('###################################')
@@ -1849,7 +1906,8 @@ if __name__ == '__main__':
     n_bins_min_x = 2
     n_bins_maj_y = 3
     n_bins_min_y = 5
-    output_name = '%s/fig_sSFRSF_gr.%s' % (args.figs_dir, args.img_suffix)
+    fname = 'fig_sSFRSF_gr'
+    output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
     N_rows, N_cols = 1, 1
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
@@ -1872,6 +1930,8 @@ if __name__ == '__main__':
     print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
     ax.axvline(x=-11.8, c='k', ls='--')
     ax.axvline(x=-10.8, c='k', ls='--')
+    if args.debug:
+        f.suptitle(fname.replace('_', ' '))
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print('#############################')
@@ -1890,7 +1950,8 @@ if __name__ == '__main__':
     n_bins_min_x = 2
     n_bins_maj_y = 5
     n_bins_min_y = 2
-    output_name = '%s/fig_EWHaRe_sSFR.%s' % (args.figs_dir, args.img_suffix)
+    fname = 'fig_EWHaRe_sSFR'
+    output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
     N_rows, N_cols = 1, 1
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
@@ -1919,6 +1980,8 @@ if __name__ == '__main__':
     print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
     ax.axhline(y=-11.8, c='k', ls='--')
     ax.axhline(y=-10.8, c='k', ls='--')
+    if args.debug:
+        f.suptitle(fname.replace('_', ' '))
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print('#############################')
@@ -1937,7 +2000,8 @@ if __name__ == '__main__':
     n_bins_min_x = 2
     n_bins_maj_y = 3
     n_bins_min_y = 2
-    output_name = '%s/fig_EWHaRe_sSFRSF.%s' % (args.figs_dir, args.img_suffix)
+    fname = 'fig_EWHaRe_sSFRSF'
+    output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
     N_rows, N_cols = 1, 1
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
@@ -1966,6 +2030,8 @@ if __name__ == '__main__':
     print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
     ax.axhline(y=-11.8, c='k', ls='--')
     ax.axhline(y=-10.8, c='k', ls='--')
+    if args.debug:
+        f.suptitle(fname.replace('_', ' '))
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print('#############################')
@@ -1984,7 +2050,8 @@ if __name__ == '__main__':
     n_bins_min_x = 2
     n_bins_maj_y = 4
     n_bins_min_y = 2
-    output_name = '%s/fig_EWHaRe_sSFRssp.%s' % (args.figs_dir, args.img_suffix)
+    fname = 'fig_EWHaRe_sSFRssp'
+    output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
     f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
     N_rows, N_cols = 1, 1
     bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
@@ -2007,6 +2074,8 @@ if __name__ == '__main__':
     borders = np.array([0.2, -0.2])
     mod_sSFR = np.polyval(p, np.array(extent[0:2]) + borders)
     ax.plot(np.array(extent[0:2]) + borders, mod_sSFR, c='k', ls='--')
+    if args.debug:
+        f.suptitle(fname.replace('_', ' '))
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print('#############################')
@@ -2121,6 +2190,8 @@ if __name__ == '__main__':
         ax.tick_params(**tick_params)
         ax.set_xlabel(x_label, fontsize=args.fontsize+1)
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+        if args.debug:
+            f.suptitle(fname.replace('_', ' '))
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
 
@@ -2140,27 +2211,60 @@ if __name__ == '__main__':
     #   Create a process that reads the dimensions (rows X cols) of each list
     # element in order to create subplots with gridspec rows and cols
     plots_props_list = [
-        ['log_fgas', 'R_mod_lSFR_SFc_Re'],
-        ['SFE', 'R_mod_lSFR_SFc_Re'],
-        ['SFE_SF', 'R_mod_lSFR_SFc_Re'],
-        ['SFE_ssp', 'R_mod_lSFR_SFc_Re'],
-        ['SFE', 'R_mod_lSFR_SFc_Re_2sigma'],
-        ['SFE_SF', 'R_mod_lSFR_SFc_Re_2sigma'],
-        ['SFE_ssp', 'R_mod_lSFR_SFc_Re_2sigma'],
-        ['log_fgas', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['SFE', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['SFE_SF', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['SFE_ssp', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['SFE', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
-        ['SFE_SF', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
-        ['SFE_ssp', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
-        ['log_fgas', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['SFE', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['SFE_SF', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['SFE_ssp', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['SFE', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
-        ['SFE_SF', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
-        ['SFE_ssp', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+        ['log_fgas_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
+        ['log_fgas_log_Mass_gas', 'R_mod_lSFR_SFc_Re_2sigma'],
+        ['SFE_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
+        ['SFE_log_Mass_gas', 'R_mod_lSFR_SFc_Re_2sigma'],
+        ['SFE_SF_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
+        ['SFE_SF_log_Mass_gas', 'R_mod_lSFR_SFc_Re_2sigma'],
+        ['SFE_ssp_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
+        ['SFE_ssp_log_Mass_gas', 'R_mod_lSFR_SFc_Re_2sigma'],
+
+        ['log_fgas_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['log_fgas_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+        ['SFE_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['SFE_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+        ['SFE_SF_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['SFE_SF_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+        ['SFE_ssp_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['SFE_ssp_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+
+        ['log_fgas_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['log_fgas_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+        ['SFE_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['SFE_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+        ['SFE_SF_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['SFE_SF_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+        ['SFE_ssp_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['SFE_ssp_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+
+        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re'],
+        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re_2sigma'],
+        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re'],
+        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re_2sigma'],
+        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re'],
+        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re_2sigma'],
+        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re'],
+        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re_2sigma'],
+
+        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re'],
+        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
+
+        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re'],
+        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
+
         ['Mabs_r', 'g_r'],
         ['Mabs_r_NC', 'g_r_NC'],
         ['log_Mass_corr', 'C'],
@@ -2170,10 +2274,14 @@ if __name__ == '__main__':
         ['log_Mass_corr_NC', 'lSFR_NC'],
         ['log_Mass_corr', 'log_SFR_SF'],
         ['log_Mass_corr', 'log_SFR_ssp'],
-        ['log_Mass_corr', 'log_fgas'],
-        ['log_Mass_corr', 'SFE'],
-        ['log_Mass_corr', 'SFE_SF'],
-        ['log_Mass_corr', 'SFE_ssp'],
+        ['log_Mass_corr', 'log_fgas_log_Mass_gas'],
+        ['log_Mass_corr', 'SFE_log_Mass_gas'],
+        ['log_Mass_corr', 'SFE_SF_log_Mass_gas'],
+        ['log_Mass_corr', 'SFE_ssp_log_Mass_gas'],
+        ['log_Mass_corr', 'log_fgas_log_Mass_gas_Av_gas_rad'],
+        ['log_Mass_corr', 'SFE_log_Mass_gas_Av_gas_rad'],
+        ['log_Mass_corr', 'SFE_SF_log_Mass_gas_Av_gas_rad'],
+        ['log_Mass_corr', 'SFE_ssp_log_Mass_gas_Av_gas_rad'],
         ['log_Mass_corr', 'sSFR'],
         ['log_Mass_corr', 'sSFR_SF'],
         ['log_Mass_corr', 'sSFR_ssp'],
@@ -2186,6 +2294,9 @@ if __name__ == '__main__':
         ['sSFR', 'g_r'],
         ['sSFR_SF', 'g_r'],
         ['sSFR_ssp', 'g_r'],
+        ['log_Mass_gas', 'lSFR'],
+        ['log_Mass_gas', 'log_SFR_SF'],
+        ['log_Mass_gas', 'log_SFR_ssp'],
         ['log_Mass_gas_Av_gas_rad', 'lSFR'],
         ['log_Mass_gas_Av_gas_rad', 'log_SFR_SF'],
         ['log_Mass_gas_Av_gas_rad', 'log_SFR_ssp'],
@@ -2229,6 +2340,8 @@ if __name__ == '__main__':
         aux_mask = m_redshift
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+        if args.debug:
+            f.suptitle(fname.replace('_', ' '))
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
         gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax_Hx = plt.subplot(gs[-1, 1:])
@@ -2315,6 +2428,7 @@ if __name__ == '__main__':
     print('mtp\ttot\ttI\ttII\ttBFAGN\t\ttAGN')
     for mtyp, tot, tI, tII, tBFAGN, tAGN in zip(morph_name[7:], H, HtI, HtII, HtBFAGN, HtAGN):
         print('%s\t%d\t%d\t%d\t%d\t\t%d' % (mtyp, tot, tI, tII, tBFAGN, tAGN))
+
     ############################
     ## Morph colored by EW_Ha ##
     ############################
@@ -2324,8 +2438,12 @@ if __name__ == '__main__':
     # elines_wmorph['u_i']
     plots_props_list = [
         'log_Mass_corr', 'C', 'Sigma_Mass_cen', 'rat_vel_sigma', 'Re_kpc',
-        'sSFR', 'sSFR_SF', 'sSFR_ssp', 'bar', 'g_r', 'log_Mass_gas_Av_gas_rad',
-        'SFE', 'SFE_SF','SFE_ssp', 'log_fgas', 'lSFR', 'log_SFR_SF', 'log_SFR_ssp',
+        'sSFR', 'sSFR_SF', 'sSFR_ssp', 'bar', 'g_r',
+        'log_Mass_gas_Av_gas_rad', 'log_Mass_gas',
+        'delta_gas',
+        'SFE_log_Mass_gas', 'SFE_SF_log_Mass_gas','SFE_ssp_log_Mass_gas', 'log_fgas_log_Mass_gas', 'tdep_log_Mass_gas', 'tdep_SF_log_Mass_gas', 'tdep_ssp_log_Mass_gas',
+        'SFE_log_Mass_gas_Av_gas_rad', 'SFE_SF_log_Mass_gas_Av_gas_rad','SFE_ssp_log_Mass_gas_Av_gas_rad', 'log_fgas_log_Mass_gas_Av_gas_rad', 'tdep_log_Mass_gas_Av_gas_rad', 'tdep_SF_log_Mass_gas_Av_gas_rad', 'tdep_ssp_log_Mass_gas_Av_gas_rad',
+        'lSFR', 'log_SFR_SF', 'log_SFR_ssp','ZH_MW_Re_fit', 'OH_Re_fit_t2'
         # 'B_R', 'B_V', 'u_i', 'u_r',
     ]
     for y_key in plots_props_list:
@@ -2348,6 +2466,8 @@ if __name__ == '__main__':
         # zlabel = r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)'
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+        if args.debug:
+            f.suptitle(fname.replace('_', ' '))
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
         gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax_Hx = plt.subplot(gs[-1, 1:])
@@ -2359,125 +2479,123 @@ if __name__ == '__main__':
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print('############################')
-
-    print('\n##############################')
-    print('# Morph vs (Mgas, fgas, SFE) #')
-    print('##############################')
-    y_key_list = ['log_Mass_gas_Av_gas_rad', 'log_SFR_SF', 'SFE_SF', 'log_fgas']
-    k = 'Morph_%s' % '_'.join([props[yk]['fname'] for yk in y_key_list])
-    fname = 'fig_%s' % k
-    print('# %s' % fname)
-    N_rows = 4
-    f = plot_setup(width=latex_column_width, aspect=N_rows/golden_mean)
-    bottom, top, left, right = 0.10, 0.95, 0.15, 0.80
-    N_rows_true = N_rows * 3 + 1
-    N_cols = 4
-    gs = gridspec.GridSpec(N_rows_true, N_cols,
-                           left=left, bottom=bottom, right=right, top=top,
-                           wspace=0., hspace=0.)
-    ax_Hx = plt.subplot(gs[-1, 1:])
-    ax_Hy_arr = [plt.subplot(gs[0:3, 0]), plt.subplot(gs[3:6, 0]), plt.subplot(gs[6:9, 0]), plt.subplot(gs[9:12, 0])]
-    ax_sc_arr = [plt.subplot(gs[0:3, 1:]), plt.subplot(gs[3:6, 1:]), plt.subplot(gs[6:9, 1:]), plt.subplot(gs[9:12, 1:])]
-    ax_Hx = plot_x_morph(elines=elines_wmorph, args=args, ax=ax_Hx)
-    row = 0
-    z_key = 'log_EW_Ha_Re'
-    z = elines_wmorph[z_key]
-    z_label = props[z_key]['label']
-    z_extent = props[z_key]['extent']
-    for y_key in y_key_list:
-        print(y_key)
-        y = elines_wmorph[y_key]
-        zm = elines_wmorph[z_key]
-        y_label = props[y_key]['label']
-        y_majloc = props[y_key]['majloc']
-        y_minloc = props[y_key]['minloc']
-        y_extent = props[y_key]['extent']
-        ax_Hy = ax_Hy_arr[row]
-        ax_sc = ax_sc_arr[row]
-        ax_Hx, ax_Hy_arr[row], ax_sc_arr[row], sc = plot_morph_y_colored_by_z(
-            elines=elines_wmorph, args=args, y=y, z=z,
-            ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc,
-            ylabel=y_label, yrange=y_extent,
-            n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc, prune_y='upper',
-            zlabel=z_label, z_extent=z_extent, no_colorbar=True)
-        row += 1
-    cb_width = 0.05
-    cb_left = right
-    height_frac = (top-bottom)/N_rows_true
-    cb_bottom = bottom+height_frac
-    cb_height = top-cb_bottom
-    cb_ax = f.add_axes([cb_left, cb_bottom, cb_width, cb_height])
-    cb = plt.colorbar(sc, cax=cb_ax)
-    cb.solids.set(alpha=1)
-    cb.set_label(z_label, fontsize=args.fontsize+1)
-    cb.locator = MaxNLocator(props[z_key]['majloc'])
-    # cb_ax.minorticks_on()
-    cb_ax.tick_params(which='both', direction='in')
-    cb.update_ticks()
-    output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('##############################')
-
-    print('\n##############################')
-    print('# Morph vs (Mgas, fgas, SFE) #')
-    print('##############################')
-    y_key_list = ['log_Mass_gas_Av_gas_rad', 'lSFR', 'SFE', 'log_fgas']
-    k = 'Morph_%s' % '_'.join([props[yk]['fname'] for yk in y_key_list])
-    fname = 'fig_%s' % k
-    print('# %s' % fname)
-    N_rows = 4
-    f = plot_setup(width=latex_column_width, aspect=N_rows/golden_mean)
-    bottom, top, left, right = 0.10, 0.95, 0.15, 0.80
-    N_rows_true = N_rows * 3 + 1
-    N_cols = 4
-    gs = gridspec.GridSpec(N_rows_true, N_cols,
-                           left=left, bottom=bottom, right=right, top=top,
-                           wspace=0., hspace=0.)
-    ax_Hx = plt.subplot(gs[-1, 1:])
-    ax_Hy_arr = [plt.subplot(gs[0:3, 0]), plt.subplot(gs[3:6, 0]), plt.subplot(gs[6:9, 0]), plt.subplot(gs[9:12, 0])]
-    ax_sc_arr = [plt.subplot(gs[0:3, 1:]), plt.subplot(gs[3:6, 1:]), plt.subplot(gs[6:9, 1:]), plt.subplot(gs[9:12, 1:])]
-    ax_Hx = plot_x_morph(elines=elines_wmorph, args=args, ax=ax_Hx)
-    row = 0
-    z_key = 'log_EW_Ha_Re'
-    z = elines_wmorph[z_key]
-    z_label = props[z_key]['label']
-    z_extent = props[z_key]['extent']
-    for y_key in y_key_list:
-        print(y_key)
-        y = elines_wmorph[y_key]
-        zm = elines_wmorph[z_key]
-        y_label = props[y_key]['label']
-        y_majloc = props[y_key]['majloc']
-        y_minloc = props[y_key]['minloc']
-        y_extent = props[y_key]['extent']
-        ax_Hy = ax_Hy_arr[row]
-        ax_sc = ax_sc_arr[row]
-        ax_Hx, ax_Hy_arr[row], ax_sc_arr[row], sc = plot_morph_y_colored_by_z(
-            elines=elines_wmorph, args=args, y=y, z=z,
-            ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc,
-            ylabel=y_label, yrange=y_extent,
-            n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc, prune_y='upper',
-            zlabel=z_label, z_extent=z_extent, no_colorbar=True)
-        row += 1
-    cb_width = 0.05
-    cb_left = right
-    height_frac = (top-bottom)/N_rows_true
-    cb_bottom = bottom+height_frac
-    cb_height = top-cb_bottom
-    cb_ax = f.add_axes([cb_left, cb_bottom, cb_width, cb_height])
-    cb = plt.colorbar(sc, cax=cb_ax)
-    cb.solids.set(alpha=1)
-    cb.set_label(z_label, fontsize=args.fontsize+1)
-    cb.locator = MaxNLocator(props[z_key]['majloc'])
-    # cb_ax.minorticks_on()
-    cb_ax.tick_params(which='both', direction='in')
-    cb.update_ticks()
-    output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
-    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
-    plt.close(f)
-    print('##############################')
-
+    # print('\n##############################')
+    # print('# Morph vs (Mgas, fgas, SFE) #')
+    # print('##############################')
+    # y_key_list = ['log_Mass_gas_Av_gas_rad', 'log_SFR_SF', 'SFE_SF', 'log_fgas']
+    # k = 'Morph_%s' % '_'.join([props[yk]['fname'] for yk in y_key_list])
+    # fname = 'fig_%s' % k
+    # print('# %s' % fname)
+    # N_rows = 4
+    # f = plot_setup(width=latex_column_width, aspect=N_rows/golden_mean)
+    # bottom, top, left, right = 0.10, 0.95, 0.15, 0.80
+    # N_rows_true = N_rows * 3 + 1
+    # N_cols = 4
+    # gs = gridspec.GridSpec(N_rows_true, N_cols,
+    #                        left=left, bottom=bottom, right=right, top=top,
+    #                        wspace=0., hspace=0.)
+    # ax_Hx = plt.subplot(gs[-1, 1:])
+    # ax_Hy_arr = [plt.subplot(gs[0:3, 0]), plt.subplot(gs[3:6, 0]), plt.subplot(gs[6:9, 0]), plt.subplot(gs[9:12, 0])]
+    # ax_sc_arr = [plt.subplot(gs[0:3, 1:]), plt.subplot(gs[3:6, 1:]), plt.subplot(gs[6:9, 1:]), plt.subplot(gs[9:12, 1:])]
+    # ax_Hx = plot_x_morph(elines=elines_wmorph, args=args, ax=ax_Hx)
+    # row = 0
+    # z_key = 'log_EW_Ha_Re'
+    # z = elines_wmorph[z_key]
+    # z_label = props[z_key]['label']
+    # z_extent = props[z_key]['extent']
+    # for y_key in y_key_list:
+    #     print(y_key)
+    #     y = elines_wmorph[y_key]
+    #     zm = elines_wmorph[z_key]
+    #     y_label = props[y_key]['label']
+    #     y_majloc = props[y_key]['majloc']
+    #     y_minloc = props[y_key]['minloc']
+    #     y_extent = props[y_key]['extent']
+    #     ax_Hy = ax_Hy_arr[row]
+    #     ax_sc = ax_sc_arr[row]
+    #     ax_Hx, ax_Hy_arr[row], ax_sc_arr[row], sc = plot_morph_y_colored_by_z(
+    #         elines=elines_wmorph, args=args, y=y, z=z,
+    #         ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc,
+    #         ylabel=y_label, yrange=y_extent,
+    #         n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc, prune_y='upper',
+    #         zlabel=z_label, z_extent=z_extent, no_colorbar=True)
+    #     row += 1
+    # cb_width = 0.05
+    # cb_left = right
+    # height_frac = (top-bottom)/N_rows_true
+    # cb_bottom = bottom+height_frac
+    # cb_height = top-cb_bottom
+    # cb_ax = f.add_axes([cb_left, cb_bottom, cb_width, cb_height])
+    # cb = plt.colorbar(sc, cax=cb_ax)
+    # cb.solids.set(alpha=1)
+    # cb.set_label(z_label, fontsize=args.fontsize+1)
+    # cb.locator = MaxNLocator(props[z_key]['majloc'])
+    # # cb_ax.minorticks_on()
+    # cb_ax.tick_params(which='both', direction='in')
+    # cb.update_ticks()
+    # output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+    # f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    # plt.close(f)
+    # print('##############################')
+    #
+    # print('\n##############################')
+    # print('# Morph vs (Mgas, fgas, SFE) #')
+    # print('##############################')
+    # y_key_list = ['log_Mass_gas_Av_gas_rad', 'lSFR', 'SFE', 'log_fgas']
+    # k = 'Morph_%s' % '_'.join([props[yk]['fname'] for yk in y_key_list])
+    # fname = 'fig_%s' % k
+    # print('# %s' % fname)
+    # N_rows = 4
+    # f = plot_setup(width=latex_column_width, aspect=N_rows/golden_mean)
+    # bottom, top, left, right = 0.10, 0.95, 0.15, 0.80
+    # N_rows_true = N_rows * 3 + 1
+    # N_cols = 4
+    # gs = gridspec.GridSpec(N_rows_true, N_cols,
+    #                        left=left, bottom=bottom, right=right, top=top,
+    #                        wspace=0., hspace=0.)
+    # ax_Hx = plt.subplot(gs[-1, 1:])
+    # ax_Hy_arr = [plt.subplot(gs[0:3, 0]), plt.subplot(gs[3:6, 0]), plt.subplot(gs[6:9, 0]), plt.subplot(gs[9:12, 0])]
+    # ax_sc_arr = [plt.subplot(gs[0:3, 1:]), plt.subplot(gs[3:6, 1:]), plt.subplot(gs[6:9, 1:]), plt.subplot(gs[9:12, 1:])]
+    # ax_Hx = plot_x_morph(elines=elines_wmorph, args=args, ax=ax_Hx)
+    # row = 0
+    # z_key = 'log_EW_Ha_Re'
+    # z = elines_wmorph[z_key]
+    # z_label = props[z_key]['label']
+    # z_extent = props[z_key]['extent']
+    # for y_key in y_key_list:
+    #     print(y_key)
+    #     y = elines_wmorph[y_key]
+    #     zm = elines_wmorph[z_key]
+    #     y_label = props[y_key]['label']
+    #     y_majloc = props[y_key]['majloc']
+    #     y_minloc = props[y_key]['minloc']
+    #     y_extent = props[y_key]['extent']
+    #     ax_Hy = ax_Hy_arr[row]
+    #     ax_sc = ax_sc_arr[row]
+    #     ax_Hx, ax_Hy_arr[row], ax_sc_arr[row], sc = plot_morph_y_colored_by_z(
+    #         elines=elines_wmorph, args=args, y=y, z=z,
+    #         ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc,
+    #         ylabel=y_label, yrange=y_extent,
+    #         n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc, prune_y='upper',
+    #         zlabel=z_label, z_extent=z_extent, no_colorbar=True)
+    #     row += 1
+    # cb_width = 0.05
+    # cb_left = right
+    # height_frac = (top-bottom)/N_rows_true
+    # cb_bottom = bottom+height_frac
+    # cb_height = top-cb_bottom
+    # cb_ax = f.add_axes([cb_left, cb_bottom, cb_width, cb_height])
+    # cb = plt.colorbar(sc, cax=cb_ax)
+    # cb.solids.set(alpha=1)
+    # cb.set_label(z_label, fontsize=args.fontsize+1)
+    # cb.locator = MaxNLocator(props[z_key]['majloc'])
+    # # cb_ax.minorticks_on()
+    # cb_ax.tick_params(which='both', direction='in')
+    # cb.update_ticks()
+    # output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+    # f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    # plt.close(f)
+    # print('##############################')
 
     ############################
     # plots_dict = {
