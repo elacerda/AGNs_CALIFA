@@ -810,7 +810,7 @@ def plot_fig_histo_MZR_t2(elines, args, x, y, ax):
     YFIT = y.loc[mnotnan].values
     YFITS = YFIT[iSFIT]
     popt, pcov = curve_fit(f=modlogOHSF2017, xdata=XFITS, ydata=YFITS, p0=[8.8, 0.015, 11.5], bounds=[[8.54, 0.005, 11.499], [9, 0.022, 11.501]])
-    ax.plot(XFITS, modlogOHSF2017(XFITS, *popt), 'k--')
+    # ax.plot(XFITS, modlogOHSF2017(XFITS, *popt), 'k--')
     print('a:%.2f b:%.4f c:%.1f' % (popt[0], popt[1], popt[2]))
     ### Above ###
     m_y_tI_above = y.loc[mtI] > x.loc[mtI].apply(modlogOHSF2017_t2)
