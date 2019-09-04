@@ -663,7 +663,7 @@ def plot_morph_y_colored_by_z(
         elines, args, y, z, ax_Hx, ax_Hy, ax_sc,
         ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None,
         zlabel=None, z_extent=None, no_colorbar=None
-    ):
+        ):
     if no_colorbar is None:
         no_colorbar = False
     if z_extent is None:
@@ -683,10 +683,16 @@ def plot_morph_y_colored_by_z(
         plot_text_ax(ax, txt, 0.96, 0.95, args.fontsize+2, 'top', 'right', 'k')
     print('x:morph:%d  y:%s:%d  z:%s:%d  all:%d  tIAGN:%d  tIIAGN:%d  AGN:%d' % (morph.notna().sum(), y.name, y.notna().sum(), z.name, z.notna().sum(), mXYZ.sum(), (mXYZ & mtI).sum(), (mXYZ & mtII).sum(), (mXYZ & mtAGN).sum()))
     m = np.linspace(7, 19, 13).astype('int')
-    y_mean = np.array([y.loc[morph == mt].mean() for mt in m])
-    y_max = np.array([y.loc[morph == mt].max() for mt in m])
-    y_min = np.array([y.loc[morph == mt].min() for mt in m])
-    y_std = np.array([y.loc[morph == mt].std() for mt in m])
+    y_mean = np.zeros(13)
+    y_max = np.zeros(13)
+    y_min = np.zeros(13)
+    y_std = np.zeros(13)
+    for mt in m:
+        i = m - 7
+        y_mean[i] = y.loc[morph == mt].mean()
+        y_max[i] = y.loc[morph == mt].max()
+        y_min[i] = y.loc[morph == mt].min()
+        y_std[i] = y.loc[morph == mt].std()
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
     N_y_tAGN = y[mtAGN].count()
