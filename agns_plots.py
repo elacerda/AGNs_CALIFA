@@ -942,8 +942,6 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     print('y_AGNs_tI_mean: %.2f Gyr - %s' % (y_AGNs_tI_mean_st/1e9, describe(10**y.loc[mtI])))
     print('logstat: y_AGNs_tII_mean: %.2f Gyr - %s' % (10**(y_AGNs_tII_mean - 9), describe(y.loc[mtII])))
     print('y_AGNs_tII_mean: %.2f Gyr - %s' % (y_AGNs_tII_mean_st/1e9, describe(10**y.loc[mtII])))
-    ax_sc.axhline(y_BF_AGNs_mean, c='g', ls='--')
-    ax_sc.text(0.05, 0.85, '%.2f Gyr' % (10**(y_BF_AGNs_mean - 9)), color='g', fontsize=args.fontsize, va='center', transform=ax.transAxes)
     # print('y_AGNs_tIII_mean: %.2f Gyr' % 10**(y_AGNs_tIII_mean - 9))
     WHa = elines['EW_Ha_cen_mean']
     WHa_Re = elines['EW_Ha_Re']
@@ -972,6 +970,17 @@ def plot_fig_histo_M_t(elines, args, x, y, ax, interval=None):
     t = logt_dict['Re']['hDIG'].mean()
     ax_sc.axhline(t, c='r', ls='--')
     ax_sc.text(0.05, 0.93, '%.2f Gyr' % (10**(t - 9)), color='r', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+    ax_sc.axhline(y_BF_AGNs_mean, c='g', ls='--')
+    ax_sc.text(0.05, 0.85, '%.2f Gyr' % (10**(y_BF_AGNs_mean - 9)), color='g', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+    # tmp_ceil = t
+    # t = logt_dict['Re']['GV'].mean()
+    # tmp_floor = t
+    # ax_sc.axhline(t, c='g', ls='--')
+    # ax_sc.text(0.05, 0.85, '%.2f Gyr' % (10**(t - 9)), color='g', fontsize=args.fontsize, va='center', transform=ax.transAxes)
+    # tmp_factor = (tmp_ceil - tmp_floor) / (0.93 - 0.85)
+    # ypos_AGN = 0.85 + (y_BF_AGNs_mean - tmp_floor) / tmp_factor
+    # ax_sc.axhline(y_BF_AGNs_mean, c='k', ls='--')
+    # ax_sc.text(0.30, ypos_AGN, '%.2f Gyr' % (10**(y_BF_AGNs_mean - 9)), color='k', fontsize=args.fontsize, va='center', transform=ax.transAxes)
     ## Using the SFMS for YOUNG mean age calculation
     SFRHa = elines['log_SFR_SF']
     for k_WHa, v in m_dict_WHa.items():
