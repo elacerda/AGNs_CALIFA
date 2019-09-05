@@ -100,7 +100,7 @@ props = {
     'log_fgas_log_Mass_gas_Av_gas_rad': dict(fname='logfgas_Mgas_Av_gas_rad', label=r'$\log\ f_{\rm gas}$', extent=[-5, 0], majloc=5, minloc=2),
     'SFE_log_Mass_gas': dict(fname='SFEHa_Mgas', label=r'$\log$ (${\rm SFE}_{\rm H\alpha}/{\rm yr}^{-1})$', extent=[-11, -7], majloc=4, minloc=2),
     'SFE_SF_log_Mass_gas': dict(fname='SFEHaSF_Mgas', label=r'$\log$ (${\rm SFE}_{\rm H\alpha}/{\rm yr}^{-1})$', extent=[-12, -8], majloc=4, minloc=2),
-    'SFE_ssp_log_Mass_gas': dict(fname='SFEssp_Mgas', label=r'$\log$ (${\rm SFE}_\star/{\rm yr}^{-1})$', extent=[-10, -5], majloc=5, minloc=2),
+    'SFE_ssp_log_Mass_gas': dict(fname='SFEssp_Mgas', label=r'$\log$ (${\rm SFE}_\star/{\rm yr}^{-1})$', extent=[-11, -6], majloc=5, minloc=2),
     'tdep_log_Mass_gas': dict(fname='tdepHa_Mgas', label=r'$\log$ ($\tau_{\rm dep}/{\rm Gyr})$', extent=[-2.5, 1.5], majloc=4, minloc=2),
     'tdep_SF_log_Mass_gas': dict(fname='tdepHaSF_Mgas', label=r'$\log$ ($\tau_{\rm dep}/{\rm Gyr})$', extent=[-1.2, 2.2], majloc=4, minloc=2),
     'tdep_ssp_log_Mass_gas': dict(fname='tdepssp_Mgas', label=r'$\log$ ($\tau_{\rm dep}^\star/{\rm Gyr})$', extent=[-4, 1], majloc=5, minloc=2),
@@ -509,7 +509,7 @@ def plot_colored_by_z(elines, args, x, y, z, xlabel=None, ylabel=None, zlabel=No
     return f, ax
 
 
-def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, aux_mask=None, zlabel=None, z_extent=None):
+def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabel=None, xrange=None, n_bins_maj_x=5, n_bins_min_x=5, prune_x=None, ylabel=None, yrange=None, n_bins_maj_y=5, n_bins_min_y=5, prune_y=None, aux_mask=None, zlabel=None, z_extent=None, adjust=False):
     if z_extent is None:
         z_extent = [-1, 2.5]
     if zlabel is None:
@@ -586,6 +586,32 @@ def plot_histo_xy_colored_by_z(elines, args, x, y, z, ax_Hx, ax_Hy, ax_sc, xlabe
     # cb_ax.tick_params(which='both', direction='out', pad=13, left=True, right=False)
     cb_ax.tick_params(which='both', direction='in')
     cb.update_ticks()
+    ####################################
+    if adjust:
+        WHa_Re = elines['EW_Ha_Re']
+        SFG = WHa_Re > args.EW_SF
+        GVG = (WHa_Re > args.EW_hDIG) & (WHa_Re <= args.EW_SF)
+        RG = WHa_Re <= args.EW_hDIG
+        masks = dict(RG=RG, GVG=GVG, SFG=SFG, ALL=None, AGN=mtAGN)
+        colors = dict(SFG='b', GVG='g', RG='r', ALL='k', AGN='k')
+        for k, v in masks.items():
+            c = colors[k]
+            m = np.isfinite(x) & np.isfinite(y) & np.isfinite(z)
+            if v is not None:
+                m &= v
+            xm, ym, zm = ma_mask_xyz(x.loc[m].values, y.loc[m].values, z.loc[m].values)
+            p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(x.loc[m], y.loc[m], interval=xrange+yrange, step=0.05, clip=2)
+            rs = runstats(xm.compressed(), ym.compressed(),
+                          smooth=True, sigma=1.2,
+                          debug=True, gs_prc=True,
+                          poly1d=True)
+
+            # if adjust == 1:
+            #     if k in ['SFG', 'GVG', 'RG']:
+            #         ax_sc.plot(rs.xS, rs.yS, c=c)
+            # if adjust == 2:
+            if k == 'ALL':
+                ax_sc.plot(rs.xS, rs.yS, c=c)
     if args.verbose > 0:
         print('# x #')
         xlim = ax_sc.get_xlim()
@@ -687,12 +713,14 @@ def plot_morph_y_colored_by_z(
     y_max = np.zeros(13)
     y_min = np.zeros(13)
     y_std = np.zeros(13)
-    for mt in m:
-        i = m - 7
-        y_mean[i] = y.loc[morph == mt].mean()
-        y_max[i] = y.loc[morph == mt].max()
-        y_min[i] = y.loc[morph == mt].min()
-        y_std[i] = y.loc[morph == mt].std()
+    m = np.linspace(7, 19, 13).astype('int')
+    y_mean = np.array([y.loc[morph == mt].mean() for mt in m])
+    for i, mt in enumerate(m):
+        msk = (morph == mt) & y.notna()
+        y_mean[i] = y.loc[msk].mean()
+        y_max[i] = y.loc[msk].max()
+        y_min[i] = y.loc[msk].min()
+        y_std[i] = y.loc[msk].std()
     N_y_tI = y[mtI].count()
     N_y_tII = y[mtII].count()
     N_y_tAGN = y[mtAGN].count()
@@ -1125,10 +1153,12 @@ def plot_RSB(elines, args, x, y, ax, interval=None):
     SFG = WHaRe > args.EW_SF
     GVG = (WHaRe > args.EW_hDIG) & (WHaRe <= args.EW_SF)
     RG = WHaRe <= args.EW_hDIG
-    masks = dict(SFG=SFG, GVG=GVG, RG=RG, ALL=(SFG | GVG | RG))
-    colors = dict(SFG='b', GVG='g', RG='r', ALL='k')
+    masks = dict(SFG=SFG, GVG=GVG, RG=RG, ALL=(SFG | GVG | RG), AGN=mtAGN)
+    colors = dict(SFG='b', GVG='g', RG='r', ALL='k', AGN='k')
+    ls = dict(SFG='-', GVG='-', RG='-', ALL='-', AGN='--')
     for k, v in masks.items():
         c = colors[k]
+        _ls = ls[k]
         print(k, c)
         m = v & np.isfinite(x) & np.isfinite(y) & np.isfinite(z)
         # X = x.loc[m]
@@ -1149,7 +1179,7 @@ def plot_RSB(elines, args, x, y, ax, interval=None):
         # ax.plot(xm.compressed(), np.polyval(p, xm.compressed()), color=c, lw=1)
         if k != 'ALL':
             # ax.plot(x_bins_center__r, YS__r, '%s-' % c, lw=1)
-            ax.plot(rs.xS, rs.yS, '%s-' % c, lw=1)
+            ax.plot(rs.xS, rs.yS, '%s-' % c, ls=_ls, lw=1)
     return ax_sc
 
 
@@ -1507,20 +1537,12 @@ if __name__ == '__main__':
             plot_text_ax(ax, 'NOCEN', 0.04, 0.95, args.fontsize+2, 'top', 'left', 'k')
         # xm, ym = ma_mask_xyz(x, y, mask=~mALLAGN)
         # sns.kdeplot(xm.compressed(), ym.compressed(), ax=ax, color='red', n_levels=n_levels_kdeplot, alpha=0.4)
-        WHa = EW_Ha_cen
         WHa_Re = elines['EW_Ha_Re']
-        WHa_ALL = elines['EW_Ha_ALL']
-        hDIG = sel_EW_cen & (WHa <= args.EW_hDIG)
-        GV = sel_EW_cen & ((WHa > args.EW_hDIG) & (WHa <= args.EW_SF))
-        SFc = sel_EW_cen & (WHa > args.EW_SF)
         hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
         GV_Re = sel_EW_Re & ((WHa_Re > args.EW_hDIG) & (WHa_Re <= args.EW_SF))
         SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
-        hDIG_ALL = sel_EW_ALL & (WHa_ALL <= args.EW_hDIG)
-        GV_ALL = sel_EW_ALL & ((WHa_ALL > args.EW_hDIG) & (WHa_ALL <= args.EW_SF))
-        SFc_ALL = sel_EW_ALL & (WHa_ALL > args.EW_SF)
         interval = [8.3, 11.8, 7.5, 10.5]
-        dict_masks = dict(hDIG=hDIG, hDIG_Re=hDIG_Re, hDIG_ALL=hDIG_ALL, GV=GV, GV_Re=GV_Re, GV_ALL=GV_ALL, SFc=SFc, SFc_Re=SFc_Re, SFc_ALL=SFc_ALL)
+        dict_masks = dict(hDIG_Re=hDIG_Re, GV_Re=GV_Re, SFc_Re=SFc_Re, ALL=sel_EW_Re, AGN=mBFAGN)
         for k, v in dict_masks.items():
             print('{}:'.format(k))
             m = v & np.isfinite(x) & np.isfinite(y)
@@ -1565,7 +1587,7 @@ if __name__ == '__main__':
         ###########################
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
         if args.debug:
-            f.suptitle(r'%s' % fname.replace('_', ' '))
+            f.suptitle(r'%s' % fname.replace('_', ' '), fontsize=8)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
 
@@ -1637,7 +1659,7 @@ if __name__ == '__main__':
             # ax.legend(ncol=1, loc=2, frameon=False, fontsize=6, borderpad=0, borderaxespad=0.75)
             output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
             if args.debug:
-                f.suptitle(fname.replace('_', ' '))
+                f.suptitle(fname.replace('_', ' '), fontsize=8)
             f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
             plt.close(f)
             print('###############################')
@@ -1688,8 +1710,8 @@ if __name__ == '__main__':
         SFG = WHaRe > args.EW_SF
         GVG = (WHaRe > args.EW_hDIG) & (WHaRe <= args.EW_SF)
         RG = WHaRe <= args.EW_hDIG
-        masks = dict(SFG=SFG, GVG=GVG, RG=RG)
-        colors = dict(SFG='b', GVG='g', RG='r')
+        masks = dict(SFG=SFG, GVG=GVG, RG=RG, ALL=sel_EW_Re)
+        colors = dict(SFG='b', GVG='g', RG='r', ALL='k')
         for k, v in masks.items():
             c = colors[k]
             print(k,c)
@@ -1720,7 +1742,7 @@ if __name__ == '__main__':
         ########################################
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
         if args.debug:
-            f.suptitle(fname.replace('_', ' '))
+            f.suptitle(fname.replace('_', ' '), fontsize=8)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print('#############################')
@@ -1768,7 +1790,7 @@ if __name__ == '__main__':
         print('# ALL AGN GV: %d/%d/%d (%.1f%%/%.1f%%)' % (N_ALLAGN_GV, N_GV, N_ALLAGN, 100.*N_ALLAGN_GV/N_GV, 100.*N_ALLAGN_GV/N_ALLAGN))
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
         if args.debug:
-            f.suptitle(fname.replace('_', ' '))
+            f.suptitle(fname.replace('_', ' '), fontsize=8)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
         print('###################################')
@@ -1946,7 +1968,7 @@ if __name__ == '__main__':
     ax.axvline(x=-11.8, c='k', ls='--')
     ax.axvline(x=-10.8, c='k', ls='--')
     if args.debug:
-        f.suptitle(fname.replace('_', ' '))
+        f.suptitle(fname.replace('_', ' '), fontsize=8)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print('#############################')
@@ -1996,7 +2018,7 @@ if __name__ == '__main__':
     ax.axhline(y=-11.8, c='k', ls='--')
     ax.axhline(y=-10.8, c='k', ls='--')
     if args.debug:
-        f.suptitle(fname.replace('_', ' '))
+        f.suptitle(fname.replace('_', ' '), fontsize=8)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print('#############################')
@@ -2046,7 +2068,7 @@ if __name__ == '__main__':
     ax.axhline(y=-11.8, c='k', ls='--')
     ax.axhline(y=-10.8, c='k', ls='--')
     if args.debug:
-        f.suptitle(fname.replace('_', ' '))
+        f.suptitle(fname.replace('_', ' '), fontsize=8)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print('#############################')
@@ -2090,7 +2112,7 @@ if __name__ == '__main__':
     mod_sSFR = np.polyval(p, np.array(extent[0:2]) + borders)
     ax.plot(np.array(extent[0:2]) + borders, mod_sSFR, c='k', ls='--')
     if args.debug:
-        f.suptitle(fname.replace('_', ' '))
+        f.suptitle(fname.replace('_', ' '), fontsize=8)
     f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
     plt.close(f)
     print('#############################')
@@ -2151,13 +2173,12 @@ if __name__ == '__main__':
             ax.yaxis.set_minor_locator(AutoMinorLocator(y_minloc))
             ax.axvline(x=-11.8, c='k', ls='--')
             ax.axvline(x=-10.8, c='k', ls='--')
-            WHacen = elines['EW_Ha_cen_mean']
-            WHaRe = elines['EW_Ha_Re']
-            SFG = WHaRe > args.EW_SF
-            GVG = (WHaRe > args.EW_hDIG) & (WHaRe <= args.EW_SF)
-            RG = WHaRe <= args.EW_hDIG
-            masks = dict(SFG=SFG, GVG=GVG, RG=RG)
-            colors = dict(SFG='b', GVG='g', RG='r')
+            WHa_Re = elines['EW_Ha_Re']
+            SFG = WHa_Re > args.EW_SF
+            GVG = (WHa_Re > args.EW_hDIG) & (WHa_Re <= args.EW_SF)
+            RG = WHa_Re <= args.EW_hDIG
+            masks = dict(SFG=SFG, GVG=GVG, RG=RG, ALL=sel_EW_Re)
+            colors = dict(SFG='b', GVG='g', RG='r', ALL='k')
             sel = np.isfinite(x) & np.isfinite(y) & np.isfinite(z)
             xm, ym, zm = ma_mask_xyz(x.loc[sel].values, y.loc[sel].values, z.loc[sel].values)
             rs = runstats(xm.compressed(), ym.compressed(),
@@ -2206,7 +2227,7 @@ if __name__ == '__main__':
         ax.set_xlabel(x_label, fontsize=args.fontsize+1)
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
         if args.debug:
-            f.suptitle(fname.replace('_', ' '))
+            f.suptitle(fname.replace('_', ' '), fontsize=8)
         f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
         plt.close(f)
 
@@ -2226,6 +2247,8 @@ if __name__ == '__main__':
     #   Create a process that reads the dimensions (rows X cols) of each list
     # element in order to create subplots with gridspec rows and cols
     plots_props_list = [
+        ['Sigma_Mass_cen', 'SFE_SF_log_Mass_gas'],
+
         ['log_fgas_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
         ['log_fgas_log_Mass_gas', 'R_mod_lSFR_SFc_Re_2sigma'],
         ['SFE_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
@@ -2356,12 +2379,15 @@ if __name__ == '__main__':
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
         if args.debug:
-            f.suptitle(fname.replace('_', ' '))
+            f.suptitle(fname.replace('_', ' '), fontsize=8)
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
         gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax_Hx = plt.subplot(gs[-1, 1:])
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
+        adjust = False
+        if x_key == 'Sigma_Mass_cen':
+            adjust = True
         plot_histo_xy_colored_by_z(elines=elines, args=args, x=x, y=y, z=z,
                                    ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc,
                                    aux_mask=aux_mask,
@@ -2369,7 +2395,7 @@ if __name__ == '__main__':
                                    ylabel=y_label, yrange=extent[2:4],
                                    n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc, prune_x=prune_x,
                                    n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc, prune_y=prune_y,
-                                   zlabel=z_label, z_extent=z_extent)
+                                   zlabel=z_label, z_extent=z_extent, adjust=adjust)
         if 'R_mod' in k:
             ax_sc = plot_RSB(elines, args, x, y, ax_sc, extent)
         if k == 'sSFR_C':
@@ -2482,7 +2508,7 @@ if __name__ == '__main__':
         f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
         output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
         if args.debug:
-            f.suptitle(fname.replace('_', ' '))
+            f.suptitle(fname.replace('_', ' '), fontsize=8)
         bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
         gs = gridspec.GridSpec(4, 4, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
         ax_Hx = plt.subplot(gs[-1, 1:])
