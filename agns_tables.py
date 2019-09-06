@@ -222,9 +222,12 @@ for gas_proxy in ['log_Mass_gas_Av_gas_rad','log_Mass_gas_Av_ssp_OH','log_Mass_g
     df['elines']['SFE_%s' % gas_proxy] = df['elines']['lSFR'] - df['elines'][gas_proxy]
     df['elines']['SFE_SF_%s' % gas_proxy] = df['elines']['log_SFR_SF'] - df['elines'][gas_proxy]
     df['elines']['SFE_ssp_%s' % gas_proxy] = df['elines']['log_SFR_ssp'] - df['elines'][gas_proxy]
-    df['elines']['tdep_%s' % gas_proxy] = df['elines'][gas_proxy] - df['elines']['lSFR'] - 9
-    df['elines']['tdep_SF_%s' % gas_proxy] = df['elines'][gas_proxy] - df['elines']['log_SFR_SF'] - 9
-    df['elines']['tdep_ssp_%s' % gas_proxy] = df['elines'][gas_proxy] - df['elines']['log_SFR_ssp'] - 9
+    df['elines']['log_tdep_%s' % gas_proxy] = df['elines'][gas_proxy] - df['elines']['lSFR'] - 9
+    df['elines']['log_tdep_SF_%s' % gas_proxy] = df['elines'][gas_proxy] - df['elines']['log_SFR_SF'] - 9
+    df['elines']['log_tdep_ssp_%s' % gas_proxy] = df['elines'][gas_proxy] - df['elines']['log_SFR_ssp'] - 9
+    df['elines']['tdep_%s' % gas_proxy] = 10**df['elines']['log_tdep_%s' % gas_proxy]
+    df['elines']['tdep_SF_%s' % gas_proxy] = 10**df['elines']['log_tdep_SF_%s' % gas_proxy]
+    df['elines']['tdep_ssp_%s' % gas_proxy] = 10**df['elines']['log_tdep_ssp_%s' % gas_proxy]
     df['elines']['Mrat_%s' % gas_proxy] = 10**(df['elines']['log_Mass_corr'] - df['elines'][gas_proxy])
     df['elines']['fgas_%s' % gas_proxy] = 1 / (1 + df['elines']['Mrat_%s' % gas_proxy])
     df['elines']['log_fgas_%s' % gas_proxy] = df['elines']['fgas_%s' % gas_proxy].apply(np.log10)
