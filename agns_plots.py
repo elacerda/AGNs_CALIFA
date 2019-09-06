@@ -2268,7 +2268,26 @@ if __name__ == '__main__':
     #   Create a process that reads the dimensions (rows X cols) of each list
     # element in order to create subplots with gridspec rows and cols
     plots_props_list = [
+        ['Sigma_Mass_cen', 'log_tdep_log_Mass_gas'],
+        ['Sigma_Mass_cen', 'log_tdep_SF_log_Mass_gas'],
+        ['C', 'log_tdep_log_Mass_gas'],
+        ['C', 'log_tdep_SF_log_Mass_gas'],
+        ['rat_vel_sigma', 'log_tdep_log_Mass_gas'],
+        ['rat_vel_sigma', 'log_tdep_SF_log_Mass_gas'],
+
+        ['Sigma_Mass_cen', 'tdep_log_Mass_gas'],
+        ['Sigma_Mass_cen', 'tdep_SF_log_Mass_gas'],
+        ['C', 'tdep_log_Mass_gas'],
+        ['C', 'tdep_SF_log_Mass_gas'],
+        ['rat_vel_sigma', 'tdep_log_Mass_gas'],
+        ['rat_vel_sigma', 'tdep_SF_log_Mass_gas'],
+
+        ['Sigma_Mass_cen', 'SFE_log_Mass_gas'],
         ['Sigma_Mass_cen', 'SFE_SF_log_Mass_gas'],
+        ['C', 'SFE_log_Mass_gas'],
+        ['C', 'SFE_SF_log_Mass_gas'],
+        ['rat_vel_sigma', 'SFE_log_Mass_gas'],
+        ['rat_vel_sigma', 'SFE_SF_log_Mass_gas'],
 
         ['log_fgas_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
         ['log_fgas_log_Mass_gas', 'R_mod_lSFR_SFc_Re_2sigma'],
@@ -2407,7 +2426,7 @@ if __name__ == '__main__':
         ax_Hy = plt.subplot(gs[0:3, 0])
         ax_sc = plt.subplot(gs[0:-1, 1:])
         adjust = False
-        if x_key == 'Sigma_Mass_cen':
+        if (x_key == 'Sigma_Mass_cen') or ('SFE' in y_key) or ('tdep' in y_key):
             adjust = True
         plot_histo_xy_colored_by_z(elines=elines, args=args, x=x, y=y, z=z,
                                    ax_Hx=ax_Hx, ax_Hy=ax_Hy, ax_sc=ax_sc,
@@ -2499,18 +2518,16 @@ if __name__ == '__main__':
     print('############################')
     # elines_wmorph['u_i']
     plots_props_list = [
-        'log_Mass_corr', 'C', 'Sigma_Mass_cen', 'rat_vel_sigma', 'Re_kpc',
-        'sSFR', 'sSFR_SF', 'sSFR_ssp', 'bar', 'g_r',
-        'log_Mass_gas_Av_gas_rad', 'log_Mass_gas',
-        'delta_gas',
-        'SFE_log_Mass_gas', 'SFE_SF_log_Mass_gas','SFE_ssp_log_Mass_gas',
+        'log_Mass_corr', 'C', 'Sigma_Mass_cen', 'rat_vel_sigma', 'Re_kpc', 'bar', 'g_r',
+        'lSFR', 'log_SFR_SF', 'log_SFR_ssp', 'sSFR', 'sSFR_SF', 'sSFR_ssp',
+        'log_Mass_gas_Av_gas_rad', 'log_Mass_gas', 'delta_gas', 'log_fgas_log_Mass_gas',
+        'SFE_log_Mass_gas', 'SFE_SF_log_Mass_gas', 'SFE_ssp_log_Mass_gas',
         'tdep_log_Mass_gas', 'tdep_SF_log_Mass_gas', 'tdep_ssp_log_Mass_gas',
         'log_tdep_log_Mass_gas', 'log_tdep_SF_log_Mass_gas', 'log_tdep_ssp_log_Mass_gas',
-        'log_fgas_log_Mass_gas',
         # 'SFE_log_Mass_gas_Av_gas_rad', 'SFE_SF_log_Mass_gas_Av_gas_rad','SFE_ssp_log_Mass_gas_Av_gas_rad',
         # 'log_tdep_log_Mass_gas_Av_gas_rad', 'log_tdep_SF_log_Mass_gas_Av_gas_rad', 'log_tdep_ssp_log_Mass_gas_Av_gas_rad',
         # 'log_fgas_log_Mass_gas_Av_gas_rad',
-        'lSFR', 'log_SFR_SF', 'log_SFR_ssp','ZH_MW_Re_fit', 'OH_Re_fit_t2'
+        'ZH_MW_Re_fit', 'OH_Re_fit_t2'
         # 'B_R', 'B_V', 'u_i', 'u_r',
     ]
     for y_key in plots_props_list:
