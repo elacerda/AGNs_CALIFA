@@ -64,14 +64,14 @@ n_levels_kdeplot = 4
 
 # prop_conf = dict(label=None, extent=None, majloc=None, minloc=None)
 props = {
-    'log_NII_Ha_cen': dict(fname='logNIIHa_cen', label=r'$\log\ ({\rm [NII]}/{\rm H\alpha})$', extent=[-1.6, 0.8], majloc=3, minloc=5),
-    'log_SII_Ha_cen_mean': dict(fname='logSIIHa_cen', label=r'$\log\ ({\rm [SII]}/{\rm H\alpha})$', extent=[-1.6, 0.8], majloc=3, minloc=5),
-    'log_OI_Ha_cen_mean': dict(fname='logOIHa_cen', label=r'$\log\ ({\rm [OI]}/{\rm H\alpha})$', extent=[-3, 0.8], majloc=4, minloc=5),
-    'log_OIII_Hb_cen_mean': dict(fname='logOIIIHb_cen', label=r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', extent=[-1.2, 1.5], majloc=3, minloc=5),
-    'EW_Ha_cen_mean': dict(fname='WHa_cen', label=r'${\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[3, 10], majloc=4, minloc=2),
-    'EW_Ha_Re': dict(fname='WHa_Re', label=r'${\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[3, 10], majloc=4, minloc=2),
-    'log_EW_Ha_cen_mean': dict(fname='logWHa_cen', label=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[-1, 2.5], majloc=4, minloc=2),
-    'log_EW_Ha_Re': dict(fname='logWHa_Re', label=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm Re}$ (\AA)', extent=[-1, 2.5], majloc=4, minloc=2),
+    'log_NII_Ha_cen': dict(sigma='log_NII_Ha_cen_stddev', fname='logNIIHa_cen', label=r'$\log\ ({\rm [NII]}/{\rm H\alpha})$', extent=[-1.6, 0.8], majloc=3, minloc=5),
+    'log_SII_Ha_cen_mean': dict(sigma='log_SII_Ha_cen_stddev', fname='logSIIHa_cen', label=r'$\log\ ({\rm [SII]}/{\rm H\alpha})$', extent=[-1.6, 0.8], majloc=3, minloc=5),
+    'log_OI_Ha_cen': dict(sigma='e_log_OI_Ha_cen', fname='logOIHa_cen', label=r'$\log\ ({\rm [OI]}/{\rm H\alpha})$', extent=[-3, 0.8], majloc=4, minloc=5),
+    'log_OIII_Hb_cen_mean': dict(sigma='log_OIII_Hb_cen_stddev', fname='logOIIIHb_cen', label=r'$\log\ ({\rm [OIII]}/{\rm H\beta})$', extent=[-1.2, 1.5], majloc=3, minloc=5),
+    'EW_Ha_cen_mean': dict(sigma='EW_Ha_cen_stddev', fname='WHa_cen', label=r'${\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[3, 10], majloc=4, minloc=2),
+    'EW_Ha_Re': dict(sigma='e_EW_Ha_Re', fname='WHa_Re', label=r'${\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[3, 10], majloc=4, minloc=2),
+    'log_EW_Ha_cen_mean': dict(sigma=None, fname='logWHa_cen', label=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm cen}$ (\AA)', extent=[-1, 2.5], majloc=4, minloc=2),
+    'log_EW_Ha_Re': dict(sigma=None, fname='logWHa_Re', label=r'$\log {\rm W}_{{\rm H}\alpha}^{\rm Re}$ (\AA)', extent=[-1, 2.5], majloc=4, minloc=2),
     'C': dict(fname='C', label=r'${\rm R}90/{\rm R}50$', extent=[0.5, 4.5], majloc=4, minloc=2),
     'log_Mass_corr': dict(fname='M', label=r'$\log ({\rm M}_\star/{\rm M}_{\odot})$', extent=[8, 12], majloc=4, minloc=5),
     'log_Mass_corr_NC': dict(fname='M_NC', label=r'$\log ({\rm M}_\star^{\rm NC}/{\rm M}_{\odot})$', extent=[8, 12], majloc=4, minloc=5),
@@ -82,7 +82,7 @@ props = {
     'log_Mass_gas_Re': dict(fname='Mgas_Re', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[4.8, 10.2], majloc=6, minloc=2),
     'log_Mass_gas_Av_ssp_ZH': dict(fname='Mgas_Av_ssp_ZH', label=r'$\log ({\rm M}_{\rm gas,A_V}/{\rm M}_{\odot})$', extent=[6.5, 12.5], majloc=6, minloc=2),
     'delta_gas': dict(fname='delta_Mgas', label=r'delta Mgas', extent=[-2.5, 0.5], majloc=3, minloc=2),
-    'lSFR': dict(fname='SFRHa', label=r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
+    'lSFR': dict(sigma='e_lSFR', fname='SFRHa', label=r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
     'lSFR_NC': dict(fname='SFRHa_NC', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm NC}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
     # 'log_SFR_SF': dict(fname='SFRHaSF', label=r'$\log ({\rm SFR}_{\rm H\alpha}^{\rm SF}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
     'log_SFR_SF': dict(fname='SFRHaSF', label=r'$\log ({\rm SFR}_{\rm H\alpha}/{\rm M}_{\odot}/{\rm yr})$', extent=[-4.5, 2.5], majloc=4, minloc=5),
@@ -181,6 +181,30 @@ def parser_args(default_args_file='args/default_plots.args'):
     args = parser.parse_args(args=args_list)
     debug_var(True, args=args)
     return args
+
+
+# def my_linregress(x, y, dy):
+#     sx = (x/dy**2).sum()
+#     sx2 = (x**2/dy**2).sum()
+#     s1 = (1./dy**2).sum()
+#     sy = (y/dy**2).sum()
+#     sxy = (x*y/dy**2).sum()
+#     q = sx2*s1-sx**2
+#     slope = (s1*sxy-sx*sy)/q
+#     intercept = (sx2*sy-sx*sxy)/q
+#     e_slope = (s1/q)**0.5
+#     e_intercept = (sx2/q)**0.5
+#     return [slope, intercept, e_slope, e_intercept]
+
+
+# def my_linreg_odr(x, y, e_x, e_y, beta0=None):
+#     from scipy import odr
+#     if beta0 is None:
+#         beta0 = [1, 0]
+#     _data = odr.RealData(x, y, sx=1/e_x**2, sy=1/e_y**2)
+#     _model = odr.Model(np.polyval)
+#     _run = odr.ODR(_data, _model, beta0=beta0).run()
+#     return _run.beta.tolist() + _run.sd_beta.tolist(), _run
 
 
 def morph_adjust(x):
@@ -2441,6 +2465,10 @@ if __name__ == '__main__':
         if k == 'sSFR_C':
             ax_sc.axvline(x=-11.8, c='k', ls='--')
             ax_sc.axvline(x=-10.8, c='k', ls='--')
+        if 'M_SFRHaSF' in k:
+            pcSF = [0.9, -9.2]
+            ax_sc.plot(ax_sc.get_xlim(), np.polyval(pcSF, ax_sc.get_xlim()), 'k--')
+            plot_text_ax(ax_sc, 'y = %.2f x - %.2f' % (pcSF[0], -1 * pcSF[1]), 0.05, 0.95, args.fontsize+2, 'top', 'left', 'k')
         if k == 'M_sSFR':
             ax_sc.axhline(y=-11.8, c='k', ls='--')
             ax_sc.axhline(y=-10.8, c='k', ls='--')
