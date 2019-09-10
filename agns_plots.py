@@ -1528,8 +1528,75 @@ if __name__ == '__main__':
     z_extent = props[z_key]['extent']
     ###############################
     ###############################
-    y_key_list = ['lSFR', 'lSFR_NC', 'log_SFR_SF', 'log_SFR_ssp',
-                  # 'SFE_log_Mass_gas_Av_gas_rad',
+    y_key = 'log_SFR_SF'
+    print('\n###################################')
+    x_key = 'log_Mass_corr'
+    if y_key[-3::] == '_NC':
+        x_key = 'log_Mass_corr_NC'
+    x = elines[x_key]
+    x_label = props[x_key]['label']
+    x_extent = props[x_key]['extent']
+    x_majloc = props[x_key]['majloc']
+    x_minloc = props[x_key]['minloc']
+    k = '%s_%s' % (props[x_key]['fname'], props[y_key]['fname'])
+    fname = 'fig_%s' % k
+    print('# %s' % fname)
+    print('###################################')
+    y = elines[y_key]
+    y_label = props[y_key]['label']
+    y_extent = props[y_key]['extent']
+    y_majloc = props[y_key]['majloc']
+    y_minloc = props[y_key]['minloc']
+    extent = x_extent + y_extent
+    bottom, top, left, right = 0.22, 0.95, 0.15, 0.82
+    f = plot_setup(width=latex_column_width, aspect=1/golden_mean)
+    N_rows, N_cols = 1, 1
+    gs = gridspec.GridSpec(N_rows, N_cols, left=left, bottom=bottom, right=right, top=top, wspace=0., hspace=0.)
+    ax = plt.subplot(gs[0])
+    plot_colored_by_z(elines=elines, args=args, x=x, y=y, z=z, markAGNs=True,
+                      xlabel=x_label, ylabel=y_label, extent=extent,
+                      n_bins_maj_x=x_majloc, n_bins_min_x=x_minloc,
+                      n_bins_maj_y=y_majloc, n_bins_min_y=y_minloc,
+                      prune_x=None, zlabel=z_label, z_extent=z_extent,
+                      f=f, ax=ax)
+    WHa_Re = elines['EW_Ha_Re']
+    hDIG_Re = sel_EW_Re & (WHa_Re <= args.EW_hDIG)
+    GV_Re = sel_EW_Re & ((WHa_Re > args.EW_hDIG) & (WHa_Re <= args.EW_SF))
+    SFc_Re = sel_EW_Re & (WHa_Re > args.EW_SF)
+    dict_masks = dict(hDIG_Re=hDIG_Re, GV_Re=GV_Re, SFc_Re=SFc_Re, ALL=sel_EW_Re, AGN=mBFAGN)
+    pSFMS = [1.02, -10.41]  # from ODR
+    for k, v in dict_masks.items():
+        print('{}:'.format(k))
+        m = v & np.isfinite(x) & np.isfinite(y)
+        X = x.loc[m]
+        Y = y.loc[m]
+        mod_key = 'mod_%s_%s' % (y_key, k)
+        elines[mod_key] = np.polyval(pSFMS, x)
+        R_key = 'R_%s' % mod_key
+        elines[R_key] = y - elines[mod_key]
+        print(mod_key, R_key)
+        RSB_label = r'$\Delta$($\log$ SFR)'
+        args.props[R_key] = dict(fname=R_key, label=RSB_label, extent=[-4, 1], majloc=5, minloc=2)
+        if k == 'SFc_Re':
+            ax.plot(ax.get_xlim(), np.polyval(pSFMS, ax.get_xlim()), 'k--')
+            a, b = pSFMS
+    N_AGN_tI_under_SF = ((y[mtI] - np.polyval(pSFMS, x[mtI])) <= 0).astype('int').sum()
+    N_AGN_tII_under_SF = ((y[mtII] - np.polyval(pSFMS, x[mtII])) <= 0).astype('int').sum()
+    N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(pSFMS, x[mBFAGN])) <= 0).astype('int').sum()
+    N_ALLAGN_under_SF = ((y[mALLAGN] - np.polyval(pSFMS, x[mALLAGN])) <= 0).astype('int').sum()
+    print('# B.F. Type-I AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tI_under_SF, N_AGN_tI, 100.*N_AGN_tI_under_SF/N_AGN_tI))
+    print('# B.F. Type-II AGN under SFc curve: %d/%d (%.1f%%)' % (N_AGN_tII_under_SF, N_AGN_tII, 100.*N_AGN_tII_under_SF/N_AGN_tII))
+    print('# B.F. AGN under SFc curve: %d/%d (%.1f%%)' % (N_BFAGN_under_SF, N_BFAGN, 100.*N_BFAGN_under_SF/N_BFAGN))
+    print('# ALL AGN under SFc curve: %d/%d (%.1f%%)' % (N_ALLAGN_under_SF, N_ALLAGN, 100.*N_ALLAGN_under_SF/N_ALLAGN))
+    ###########################
+    output_name = '%s/%s.%s' % (args.figs_dir, fname, args.img_suffix)
+    if args.debug:
+        f.suptitle(r'%s' % fname.replace('_', ' '), fontsize=8)
+    f.savefig(output_name, dpi=args.dpi, transparent=_transp_choice)
+    plt.close(f)
+
+
+    y_key_list = [# 'SFE_log_Mass_gas_Av_gas_rad',
                   # 'SFE_SF_log_Mass_gas_Av_gas_rad',
                   # 'SFE_ssp_log_Mass_gas_Av_gas_rad',
                   # 'log_tdep_log_Mass_gas_Av_gas_rad',
@@ -1594,33 +1661,12 @@ if __name__ == '__main__':
             X = x.loc[m]
             Y = y.loc[m]
             p, pc, XS, YS, x_bins__r, x_bins_center__r, nbins, YS_c__r, N_c__r, sel_c, YS__r, N__r, sel, c_p, c_r, c_p_c, c_r_c = linear_regression_mean(X, Y, interval=interval, step=0.1, clip=2)
-            mod_key = 'mod_%s_%s' % (y_key, k)
-            mod_key_2sigma = '%s_2sigma' % mod_key
-            elines[mod_key] = np.polyval(p, x)
-            elines[mod_key_2sigma] = np.polyval(pc, x)
-            R_key = 'R_%s' % mod_key
-            R_key_2sigma = 'R_%s' % mod_key_2sigma
-            elines[R_key] = y - elines[mod_key]
-            elines[R_key_2sigma] = y - elines[mod_key_2sigma]
-            print(mod_key, mod_key_2sigma, R_key, R_key_2sigma)
-            RSB_label = r'$\Delta$($\log$ SFR)'
-            args.props[R_key] = dict(fname=R_key, label=RSB_label, extent=[-4, 1], majloc=5, minloc=2)
-            args.props[R_key_2sigma] = dict(fname=R_key_2sigma, label=RSB_label, extent=[-4, 1], majloc=5, minloc=2)
             if k == 'SFc_Re':
                 pSF = p
                 pcSF = pc
                 ax.plot(ax.get_xlim(), np.polyval(pcSF, ax.get_xlim()), 'k--')
                 a, b = pc
                 plot_text_ax(ax, 'y = %.2f x - %.2f' % (pcSF[0], -1 * pcSF[1]), 0.05, 0.95, args.fontsize+2, 'top', 'left', 'k')
-        ########################################
-                # ax.plot(interval[0:2], np.polyval(pcSF, interval[0:2]), c='k', ls='--', label='SFG')
-                # ax.text(x_bins_center__r[0], np.polyval(pcSF, x_bins_center__r[0]), 'SFG', color='k', fontsize=args.fontsize, va='center', ha='right')
-            # if k == 'hDIG':
-            #     p_hDIG = p
-            #     p_hDIG_c = pc
-            #     ax.plot(interval[0:2], np.polyval(p_hDIG_c, interval[0:2]), c='k', ls='--', label='RG')
-            #     ax.text(x_bins_center__r[0], np.polyval(p_hDIG_c, x_bins_center__r[0]), 'RG', color='k', fontsize=args.fontsize, va='center', ha='right')
-        ###########################
         N_AGN_tI_under_SF = ((y[mtI] - np.polyval(pcSF, x[mtI])) <= 0).astype('int').sum()
         N_AGN_tII_under_SF = ((y[mtII] - np.polyval(pcSF, x[mtII])) <= 0).astype('int').sum()
         N_BFAGN_under_SF = ((y[mBFAGN] - np.polyval(pcSF, x[mBFAGN])) <= 0).astype('int').sum()
@@ -2313,63 +2359,22 @@ if __name__ == '__main__':
         ['rat_vel_sigma', 'SFE_log_Mass_gas'],
         ['rat_vel_sigma', 'SFE_SF_log_Mass_gas'],
 
-        ['log_fgas_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
-        ['log_fgas_log_Mass_gas', 'R_mod_lSFR_SFc_Re_2sigma'],
-        ['SFE_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
-        ['SFE_log_Mass_gas', 'R_mod_lSFR_SFc_Re_2sigma'],
-        ['SFE_SF_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
-        ['SFE_SF_log_Mass_gas', 'R_mod_lSFR_SFc_Re_2sigma'],
-        ['SFE_ssp_log_Mass_gas', 'R_mod_lSFR_SFc_Re'],
-        ['SFE_ssp_log_Mass_gas', 'R_mod_lSFR_SFc_Re_2sigma'],
-
         ['log_fgas_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['log_fgas_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
         ['SFE_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['SFE_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
         ['SFE_SF_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['SFE_SF_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
         ['SFE_ssp_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['SFE_ssp_log_Mass_gas', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
-
-        ['log_fgas_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['log_fgas_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
-        ['SFE_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['SFE_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
-        ['SFE_SF_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['SFE_SF_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
-        ['SFE_ssp_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['SFE_ssp_log_Mass_gas', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
-
-        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re'],
-        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re_2sigma'],
-        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re'],
-        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re_2sigma'],
-        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re'],
-        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re_2sigma'],
-        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re'],
-        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_lSFR_SFc_Re_2sigma'],
 
         ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
         ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
         ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
         ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re'],
-        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_SF_SFc_Re_2sigma'],
-
-        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['log_fgas_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
-        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['SFE_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
-        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['SFE_SF_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
-        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re'],
-        ['SFE_ssp_log_Mass_gas_Av_gas_rad', 'R_mod_log_SFR_ssp_SFc_Re_2sigma'],
 
         ['Mabs_r', 'g_r'],
         ['Mabs_r_NC', 'g_r_NC'],
+
+
         ['log_Mass_corr', 'C'],
+        ['log_Mass_corr', 'log_Mass_gas'],
         ['log_Mass_corr', 'g_r'],
         ['log_Mass_corr_NC', 'g_r_NC'],
         ['log_Mass_corr', 'lSFR'],
@@ -2465,10 +2470,47 @@ if __name__ == '__main__':
         if k == 'sSFR_C':
             ax_sc.axvline(x=-11.8, c='k', ls='--')
             ax_sc.axvline(x=-10.8, c='k', ls='--')
+        if 'M_Mgas' in k:
+            pcSF = np.asarray([1.02, -1.40])
+            perr = np.asarray([0.02, 0.24])
+            nstd = 1
+            popt_up = pcSF + nstd * perr
+            popt_dw = pcSF - nstd * perr
+            func = np.polyval
+            x_fit = np.asarray(ax_sc.get_xlim())
+            fit = func(pcSF, x_fit)
+            fit_up = func(popt_up, x_fit)
+            fit_dw= func(popt_dw, x_fit)
+            ax_sc.fill_between(x_fit, fit_up, fit_dw, alpha=.15, color='grey')
+            ax_sc.plot(x_fit, np.polyval(pcSF, x_fit), 'k--')
+        if 'Mgas_SFRHaSF' in k:
+            pcSF = np.asarray([0.98, -8.93])
+            perr = np.asarray([0.03, 0.28])
+            nstd = 1
+            popt_up = pcSF + nstd * perr
+            popt_dw = pcSF - nstd * perr
+            func = np.polyval
+            x_fit = np.asarray(ax_sc.get_xlim())
+            fit = func(pcSF, x_fit)
+            fit_up = func(popt_up, x_fit)
+            fit_dw= func(popt_dw, x_fit)
+            ax_sc.fill_between(x_fit, fit_up, fit_dw, alpha=.15, color='grey')
+            ax_sc.plot(x_fit, np.polyval(pcSF, x_fit), 'k--')
+            # plot_text_ax(ax_sc, 'y = %.2f x - %.2f' % (pcSF[0], -1 * pcSF[1]), 0.05, 0.95, args.fontsize+2, 'top', 'left', 'k')
         if 'M_SFRHaSF' in k:
-            pcSF = [0.9, -9.2]
-            ax_sc.plot(ax_sc.get_xlim(), np.polyval(pcSF, ax_sc.get_xlim()), 'k--')
-            plot_text_ax(ax_sc, 'y = %.2f x - %.2f' % (pcSF[0], -1 * pcSF[1]), 0.05, 0.95, args.fontsize+2, 'top', 'left', 'k')
+            pcSF = np.asarray([1.02, -10.41])
+            perr = np.asarray([0.03, 0.27])
+            nstd = 1
+            popt_up = pcSF + nstd * perr
+            popt_dw = pcSF - nstd * perr
+            func = np.polyval
+            x_fit = np.asarray(ax_sc.get_xlim())
+            fit = func(pcSF, x_fit)
+            fit_up = func(popt_up, x_fit)
+            fit_dw= func(popt_dw, x_fit)
+            ax_sc.fill_between(x_fit, fit_up, fit_dw, alpha=.15, color='grey')
+            ax_sc.plot(x_fit, np.polyval(pcSF, x_fit), 'k--')
+            # plot_text_ax(ax_sc, 'y = %.2f x - %.2f' % (pcSF[0], -1 * pcSF[1]), 0.05, 0.95, args.fontsize+2, 'top', 'left', 'k')
         if k == 'M_sSFR':
             ax_sc.axhline(y=-11.8, c='k', ls='--')
             ax_sc.axhline(y=-10.8, c='k', ls='--')
@@ -2552,10 +2594,11 @@ if __name__ == '__main__':
         'SFE_log_Mass_gas', 'SFE_SF_log_Mass_gas', 'SFE_ssp_log_Mass_gas',
         'tdep_log_Mass_gas', 'tdep_SF_log_Mass_gas', 'tdep_ssp_log_Mass_gas',
         'log_tdep_log_Mass_gas', 'log_tdep_SF_log_Mass_gas', 'log_tdep_ssp_log_Mass_gas',
+        'R_mod_log_SFR_SF_SFc_Re',
         # 'SFE_log_Mass_gas_Av_gas_rad', 'SFE_SF_log_Mass_gas_Av_gas_rad','SFE_ssp_log_Mass_gas_Av_gas_rad',
         # 'log_tdep_log_Mass_gas_Av_gas_rad', 'log_tdep_SF_log_Mass_gas_Av_gas_rad', 'log_tdep_ssp_log_Mass_gas_Av_gas_rad',
         # 'log_fgas_log_Mass_gas_Av_gas_rad',
-        'ZH_MW_Re_fit', 'OH_Re_fit_t2'
+        'ZH_MW_Re_fit', 'OH_Re_fit_t2',
         # 'B_R', 'B_V', 'u_i', 'u_r',
     ]
     for y_key in plots_props_list:
