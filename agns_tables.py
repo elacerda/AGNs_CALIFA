@@ -217,6 +217,11 @@ df['elines']['sSFR_SF'] = df['elines']['log_SFR_SF'] - df['elines']['log_Mass_co
 df['elines']['sSFR_ssp'] = df['elines']['log_SFR_ssp'] - df['elines']['log_Mass_corr']
 df['elines']['sSFR_ssp_10Myr'] = df['elines']['log_SFR_ssp_10Myr'] - df['elines']['log_Mass_corr']
 df['elines']['sSFR_ssp_100Myr'] = df['elines']['log_SFR_ssp_100Myr'] - df['elines']['log_Mass_corr']
+df['elines']['e_log_Mass_gas'] = 0.4 * df['elines']['e_Av_w'] / df['elines']['Av_w']
+_x = df['elines']['Av_w']
+_e_x = df['elines']['e_Av_w']
+m = (_x > 0) & (_e_x > -1e300)
+df['elines'].loc[~m, 'e_log_Mass_gas'] = np.nan
 
 for gas_proxy in ['log_Mass_gas_Av_gas_rad','log_Mass_gas_Av_ssp_OH','log_Mass_gas_Av_gas_OH','log_Mass_gas','log_Mass_gas_Re','log_Mass_gas_Av_ssp_ZH']:
     df['elines']['SFE_%s' % gas_proxy] = df['elines']['lSFR'] - df['elines'][gas_proxy]

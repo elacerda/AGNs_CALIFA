@@ -183,28 +183,58 @@ def parser_args(default_args_file='args/default_plots.args'):
     return args
 
 
-# def my_linregress(x, y, dy):
-#     sx = (x/dy**2).sum()
-#     sx2 = (x**2/dy**2).sum()
-#     s1 = (1./dy**2).sum()
-#     sy = (y/dy**2).sum()
-#     sxy = (x*y/dy**2).sum()
-#     q = sx2*s1-sx**2
-#     slope = (s1*sxy-sx*sy)/q
-#     intercept = (sx2*sy-sx*sxy)/q
-#     e_slope = (s1/q)**0.5
-#     e_intercept = (sx2/q)**0.5
-#     return [slope, intercept, e_slope, e_intercept]
+def analytic_linreg(x, y, dy, print_output=True):
+    sx = (x/dy**2).sum()
+    sx2 = (x**2/dy**2).sum()
+    s1 = (1./dy**2).sum()
+    sy = (y/dy**2).sum()
+    sxy = (x*y/dy**2).sum()
+    q = sx2*s1-sx**2
+    slope = (s1*sxy-sx*sy)/q
+    intercept = (sx2*sy-sx*sxy)/q
+    p = [slope, intercept]
+    e_slope = (s1/q)**0.5
+    e_intercept = (sx2/q)**0.5
+    ep = [e_slope, e_intercept]
+    sigma = (y - np.polyval(p, x)).std()
+    if print_output:
+        print(r's:{:.5f}+/-{:.5f} i:{:.5f}+/-{:.5f} stddev={:.5f}'.format(p[0], ep[0], p[1], ep[1], sigma))
+    return [slope, intercept], [e_slope, e_intercept], sigma
 
 
-# def my_linreg_odr(x, y, e_x, e_y, beta0=None):
-#     from scipy import odr
-#     if beta0 is None:
-#         beta0 = [1, 0]
-#     _data = odr.RealData(x, y, sx=1/e_x**2, sy=1/e_y**2)
-#     _model = odr.Model(np.polyval)
-#     _run = odr.ODR(_data, _model, beta0=beta0).run()
-#     return _run.beta.tolist() + _run.sd_beta.tolist(), _run
+def my_ODR(x, y, sx, sy, beta0, model, return_output=False, print_output=True):
+    model = odr.Model(model)
+    first_guess = beta0
+    output = odr.ODR(odr.RealData(x, y, sx=ex, sy=ey), model, beta0=first_guess).run()
+    p, ep = output.beta.tolist(), output.sd_beta.tolist()
+    sigma_odr = ((output.delta**2 + output.eps**2)**.5).std()
+    sigma_y_odr = sigma_odr/(np.cos(np.arctan(p[0])))  # projection of the sigma_odr in the y_axis
+    if print_output:
+        print(r's:{:.5f}+/-{:.5f} i:{:.5f}+/-{:.5f} stddev_odr={:.5f} stddev_y={:.5f}'.format(p[0], ep[0], p[1], ep[1], sigma_odr, sigma_y_odr))
+    if return_output:
+        return p, ep, sigma_odr, sigma_y_odr, output
+    else:
+        return p, ep, sigma_odr, sigma_y_odr
+
+
+def ODR_MC(x, y, sx, sy, beta0):
+    p, _, _, _ = my_ODR(x, y, sx, sy, beta0, np.polyval, False, False)
+    return p
+
+
+def analytic_linreg_MC(x, y, sx, sy, beta0):
+    p, _, _ = analytic_linreg(x, y, ey, False)
+    return p
+
+
+def linreg_MonteCarlo(func_linreg, x, y, sx, sy, p, tries=100, beta0=None):
+    _p = []
+    for i in range(tries):
+        xdist = np.random.normal(x, sx)
+        ydist = np.random.normal(np.polyval(p, x), sy)
+        _p.append(func_linreg(xdist, ydist, sx, sy, p))
+    _p = np.asarray(_p)
+    print(_p.mean(axis=0), _p.std(axis=0), _p.max(axis=0), _p.min(axis=0))
 
 
 def morph_adjust(x):
@@ -2471,8 +2501,8 @@ if __name__ == '__main__':
             ax_sc.axvline(x=-11.8, c='k', ls='--')
             ax_sc.axvline(x=-10.8, c='k', ls='--')
         if 'M_Mgas' in k:
-            pcSF = np.asarray([1.02, -1.40])
-            perr = np.asarray([0.02, 0.24])
+            pcSF = np.asarray([1.16, -2.83])
+            perr = np.asarray([0.03, 0.29])
             nstd = 1
             popt_up = pcSF + nstd * perr
             popt_dw = pcSF - nstd * perr
@@ -2484,8 +2514,8 @@ if __name__ == '__main__':
             ax_sc.fill_between(x_fit, fit_up, fit_dw, alpha=.15, color='grey')
             ax_sc.plot(x_fit, np.polyval(pcSF, x_fit), 'k--')
         if 'Mgas_SFRHaSF' in k:
-            pcSF = np.asarray([0.98, -8.93])
-            perr = np.asarray([0.03, 0.28])
+            pcSF = np.asarray([0.81, -7.37])
+            perr = np.asarray([0.01, 0.25])
             nstd = 1
             popt_up = pcSF + nstd * perr
             popt_dw = pcSF - nstd * perr
