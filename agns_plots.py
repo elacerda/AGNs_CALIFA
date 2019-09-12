@@ -1242,6 +1242,21 @@ def plot_RSB(elines, args, x, y, ax, interval=None):
             ax.plot(rs.xS, rs.yS, '%s-' % c, ls=_ls, lw=1)
     return ax_sc
 
+def draw_callete_curves(elines, args, x, y, ax, interval=None):
+    import pandas as pd
+    na_values = ['BAD', 'nan', -999, '-inf', 'inf']
+    f_path = '/home/lacerda/LOCAL/data/csv/AGNs_CALIFA/logMH2_logMs_total_LTGs_ETGs_C18_RP19.csv'
+    df = pd.read_csv(f_path, na_values=na_values, sep=',', comment='#', header='infer', index_col=False)
+    chab_to_salp = 0.2
+    _x = df.logMs + chab_to_salp
+    y_LTGs = df.logMH2_ave_LTGs + chab_to_salp
+    ey_LTGs = df.logMH2_SD_LTGs
+    y_ETGs = df.logMH2_ave_ETGs + chab_to_salp
+    ey_ETGs = df.logMH2_SD_ETGs
+    ax_sc.errorbar(_x, y_LTGs, yerr=ey_LTGs, fmt='.-', color='blue', lw=0.5, ms=0.5, label='')
+    ax_sc.errorbar(_x, y_ETGs, yerr=ey_ETGs, fmt='.-', color='red', lw=0.5, ms=0.5, label='')
+    return ax_sc
+
 
 if __name__ == '__main__':
     args = parser_args()
@@ -2510,9 +2525,20 @@ if __name__ == '__main__':
             x_fit = np.asarray(ax_sc.get_xlim())
             fit = func(pcSF, x_fit)
             fit_up = func(popt_up, x_fit)
-            fit_dw= func(popt_dw, x_fit)
+            fit_dw = func(popt_dw, x_fit)
             ax_sc.fill_between(x_fit, fit_up, fit_dw, alpha=.15, color='grey')
             ax_sc.plot(x_fit, np.polyval(pcSF, x_fit), 'k--')
+            ax_sc = draw_callete_curves(elines, args, x, y, ax_sc, extent)
+            ########################################
+            N_AGN_tI_under_SFfit = ((y[mtI] - np.polyval(pcSF, x[mtI])) <= 0).astype('int').sum()
+            N_AGN_tII_under_SFfit = ((y[mtII] - np.polyval(pcSF, x[mtII])) <= 0).astype('int').sum()
+            N_BFAGN_under_SFfit = ((y[mBFAGN] - np.polyval(pcSF, x[mBFAGN])) <= 0).astype('int').sum()
+            N_ALLAGN_under_SFfit = ((y[mALLAGN] - np.polyval(pcSF, x[mALLAGN])) <= 0).astype('int').sum()
+            print('# B.F. Type-I AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_SFfit, N_AGN_tI, 100.*N_AGN_tI_under_SFfit/N_AGN_tI))
+            print('# B.F. Type-II AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_SFfit, N_AGN_tII, 100.*N_AGN_tII_under_SFfit/N_AGN_tII))
+            print('# B.F. AGN under SFfit: %d/%d (%.1f%%)' % (N_BFAGN_under_SFfit, N_BFAGN, 100.*N_BFAGN_under_SFfit/N_BFAGN))
+            print('# ALL AGN under SFfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_SFfit, N_ALLAGN, 100.*N_ALLAGN_under_SFfit/N_ALLAGN))
+            ########################################
         if 'Mgas_SFRHaSF' in k:
             pcSF = np.asarray([0.81, -7.37])
             perr = np.asarray([0.01, 0.25])
@@ -2523,10 +2549,20 @@ if __name__ == '__main__':
             x_fit = np.asarray(ax_sc.get_xlim())
             fit = func(pcSF, x_fit)
             fit_up = func(popt_up, x_fit)
-            fit_dw= func(popt_dw, x_fit)
+            fit_dw = func(popt_dw, x_fit)
             ax_sc.fill_between(x_fit, fit_up, fit_dw, alpha=.15, color='grey')
             ax_sc.plot(x_fit, np.polyval(pcSF, x_fit), 'k--')
             # plot_text_ax(ax_sc, 'y = %.2f x - %.2f' % (pcSF[0], -1 * pcSF[1]), 0.05, 0.95, args.fontsize+2, 'top', 'left', 'k')
+            ########################################
+            N_AGN_tI_under_SFfit = ((y[mtI] - np.polyval(pcSF, x[mtI])) <= 0).astype('int').sum()
+            N_AGN_tII_under_SFfit = ((y[mtII] - np.polyval(pcSF, x[mtII])) <= 0).astype('int').sum()
+            N_BFAGN_under_SFfit = ((y[mBFAGN] - np.polyval(pcSF, x[mBFAGN])) <= 0).astype('int').sum()
+            N_ALLAGN_under_SFfit = ((y[mALLAGN] - np.polyval(pcSF, x[mALLAGN])) <= 0).astype('int').sum()
+            print('# B.F. Type-I AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_SFfit, N_AGN_tI, 100.*N_AGN_tI_under_SFfit/N_AGN_tI))
+            print('# B.F. Type-II AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_SFfit, N_AGN_tII, 100.*N_AGN_tII_under_SFfit/N_AGN_tII))
+            print('# B.F. AGN under SFfit: %d/%d (%.1f%%)' % (N_BFAGN_under_SFfit, N_BFAGN, 100.*N_BFAGN_under_SFfit/N_BFAGN))
+            print('# ALL AGN under SFfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_SFfit, N_ALLAGN, 100.*N_ALLAGN_under_SFfit/N_ALLAGN))
+            ########################################
         if 'M_SFRHaSF' in k:
             pcSF = np.asarray([1.02, -10.41])
             perr = np.asarray([0.03, 0.27])
@@ -2537,10 +2573,20 @@ if __name__ == '__main__':
             x_fit = np.asarray(ax_sc.get_xlim())
             fit = func(pcSF, x_fit)
             fit_up = func(popt_up, x_fit)
-            fit_dw= func(popt_dw, x_fit)
+            fit_dw = func(popt_dw, x_fit)
             ax_sc.fill_between(x_fit, fit_up, fit_dw, alpha=.15, color='grey')
             ax_sc.plot(x_fit, np.polyval(pcSF, x_fit), 'k--')
             # plot_text_ax(ax_sc, 'y = %.2f x - %.2f' % (pcSF[0], -1 * pcSF[1]), 0.05, 0.95, args.fontsize+2, 'top', 'left', 'k')
+            ########################################
+            N_AGN_tI_under_SFfit = ((y[mtI] - np.polyval(pcSF, x[mtI])) <= 0).astype('int').sum()
+            N_AGN_tII_under_SFfit = ((y[mtII] - np.polyval(pcSF, x[mtII])) <= 0).astype('int').sum()
+            N_BFAGN_under_SFfit = ((y[mBFAGN] - np.polyval(pcSF, x[mBFAGN])) <= 0).astype('int').sum()
+            N_ALLAGN_under_SFfit = ((y[mALLAGN] - np.polyval(pcSF, x[mALLAGN])) <= 0).astype('int').sum()
+            print('# B.F. Type-I AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tI_under_SFfit, N_AGN_tI, 100.*N_AGN_tI_under_SFfit/N_AGN_tI))
+            print('# B.F. Type-II AGN under SFfit: %d/%d (%.1f%%)' % (N_AGN_tII_under_SFfit, N_AGN_tII, 100.*N_AGN_tII_under_SFfit/N_AGN_tII))
+            print('# B.F. AGN under SFfit: %d/%d (%.1f%%)' % (N_BFAGN_under_SFfit, N_BFAGN, 100.*N_BFAGN_under_SFfit/N_BFAGN))
+            print('# ALL AGN under SFfit: %d/%d (%.1f%%)' % (N_ALLAGN_under_SFfit, N_ALLAGN, 100.*N_ALLAGN_under_SFfit/N_ALLAGN))
+            ########################################
         if k == 'M_sSFR':
             ax_sc.axhline(y=-11.8, c='k', ls='--')
             ax_sc.axhline(y=-10.8, c='k', ls='--')
