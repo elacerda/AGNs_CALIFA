@@ -1247,7 +1247,7 @@ def draw_callete_curves(elines, args, x, y, ax, interval=None):
     na_values = ['BAD', 'nan', -999, '-inf', 'inf']
     f_path = '/home/lacerda/LOCAL/data/csv/AGNs_CALIFA/logMH2_logMs_total_LTGs_ETGs_C18_RP19.csv'
     df = pd.read_csv(f_path, na_values=na_values, sep=',', comment='#', header='infer', index_col=False)
-    chab_to_salp = 0.2
+    chab_to_salp = 0.24
     _x = df.logMs + chab_to_salp
     y_LTGs = df.logMH2_ave_LTGs + chab_to_salp
     ey_LTGs = df.logMH2_SD_LTGs
